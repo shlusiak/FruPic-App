@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">FruPic</string>
+    <string name="about">Über...</string>
+    <string name="about_frupic">Über FruPic</string>
+    <string name="gotowebsite">In Browser öffnen</string>
+    <string name="refresh">Aktualisieren</string>
+    <string name="details">Details</string>
+    <string name="openinbrowser">In Browser öffnen</string>
+    
+    <string name="details_title">Details</string>
+    <string name="details_posted_by">Geposted von:</string>
+    <string name="details_tags">Tags:</string>
+    <string name="details_date">Datum:</string>
+    <string name="details_size">Bildgröße:</string>
+    <string name="details_filesize">Größe in Cache:</string>
+    <string name="details_not_available">(nicht verfügbar)</string>
+    
+    <string name="gallery_posted_by">Gepostet von %1$s</string>
+     <string name="fetching_index">Lade Index</string>
+        
+    <string name="fetch_and_cache">In Cache laden</string>
+    <string name="please_wait">Bitte warten</string>
+    <string name="fetching_image_message">Lade %1$s</string>
+    <string name="frupic_cached_toast">FruPic #%1$d geladen</string>
+    <string name="download">Download</string>
+    <string name="frupic_downloaded_toast">Datei %1$s gespeichert</string>
+    <string name="error_fetching">Kann Bild nicht herunterladen</string>
+    <string name="error_no_storage">Externer Speicher nicht verfügbar</string>
+    <string name="error_saving">Fehler beim Speichern der Datei</string>
+    
+    <string name="upload">Hochladen</string>
+    <string name="cancelled">Abgebrochen</string>
+    <string name="cannot_connect">Verbindung kann nicht hergestellt werden</string>
+    <string name="error_reading_response">Fehler beim Lesen der Serverantwort</string>
+        
+        
+    <string name="upload_to_frupic">FruPic</string>
+    <string name="upload_posted_by_label">Benutzername:</string>
+    <string name="upload_posted_by_hint">Anonymous</string>
+    <string name="upload_file_name">Bild \"%1$s\" nach FruPic hochladen?</string>
+    
+    <string name="uploading_message">Lade \"%1$s\" hoch...</string>
+    <string name="uploading_successful_toast">Erfolgreich hochgeladen</string>
+            
+    <string name="image_resize_label">Bild verkleinern</string>
+    <string name="scale_size_calculating">Berechne...</string>
+    <string name="scale_size_unknown">Unbekannt</string>
+    
+    <string name="share_link">Link senden via</string>
+    <string name="share_picture">Bild senden via</string>
+        
+        
+    <string name="preferences">Einstellungen</string>
+    <string name="preferences_cache">Cache</string>
+    <string name="preferences_cache_size">Cache Größe</string>
+    <string name="preferences_cache_size_summary">Zwischenspeicher für temporäre Bilddaten</string>
+    <string name="preferences_cache_clear">Cache leeren</string>
+    <string name="preferences_cache_clear_summary">%2$d Kb, %1$d Bilder</string>
+
+    <string name="preferences_upload">Hochladen</string>
+    <string name="preferences_upload_username">Benutzername</string>
+    <string name="preferences_upload_username_summary">Standardname für Hochladen</string>
+
+    <string name="preferences_preload_summary">Bilder der Gallery im Voraus laden</string>
+    <string name="preferences_preload">Bilder im Voraus laden</string>
+        
+    <string-array name="cache_labels">
+        <item>1 MB</item>
+        <item>4 MB</item>
+        <item>16 MB</item>
+        <item>32 MB</item>
+        <item>64 MB</item>
+    </string-array>
+    <string-array name="cache_values">
+        <item>1048576</item>
+        <item>4194304</item>
+        <item>16777216</item>
+        <item>33554432</item>
+        <item>67108864</item>
+    </string-array>
+</resources>

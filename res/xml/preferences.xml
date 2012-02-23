@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:key="first_preferencescreen">
+
+	<PreferenceCategory android:title="@string/preferences_cache">
+
+		<ListPreference android:defaultValue="16777216"
+			android:dialogTitle="@string/preferences_cache_size" android:entries="@array/cache_labels"
+			android:entryValues="@array/cache_values" android:key="cache_size"
+			android:persistent="true" android:summary="@string/preferences_cache_size_summary"
+			android:title="@string/preferences_cache_size" />
+
+		<PreferenceScreen android:summary="@string/preferences_cache_clear_summary"
+			android:key="clear_cache"
+			android:title="@string/preferences_cache_clear" />
+
+		<CheckBoxPreference android:defaultValue="1"
+			android:key="preload" android:persistent="true"
+			android:summary="@string/preferences_preload_summary" android:title="@string/preferences_preload" />
+	</PreferenceCategory>
+
+	<PreferenceCategory android:title="@string/preferences_upload">
+
+		<EditTextPreference android:key="username"
+			android:summary="@string/preferences_upload_username_summary"
+			android:title="@string/preferences_upload_username" />
+	</PreferenceCategory>
+
+	<PreferenceCategory android:title="@string/about">
+
+		<PreferenceScreen android:summary="Copyright (c) by Sascha Hlusiak, 2012."
+			android:title="@string/about">
+
+			<intent android:action="de.saschahlusiak.frupic.SHOW_ABOUT" />
+		</PreferenceScreen>
+	</PreferenceCategory>
+
+</PreferenceScreen>

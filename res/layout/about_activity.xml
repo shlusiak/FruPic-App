@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+ 
+        <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" 
+            android:orientation="vertical" >
+            
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp"
+                android:src="@drawable/frupic" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="Copyright (c) Sascha Hlusiak, 2012."
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="email"
+                android:gravity="center"
+                android:linksClickable="true"
+                android:text="mail@saschahlusiak.de"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            
+            <Button
+                android:id="@+id/ok"
+                android:layout_marginTop="16dp"
+                android:layout_width="124dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@android:string/ok" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</FrameLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/openinbrowser"
+        android:title="@string/openinbrowser"/>
+
+    <item
+        android:id="@+id/share_picture"
+        android:title="@string/share_picture"/>
+        
+    <item
+        android:id="@+id/share_link"
+        android:title="@string/share_link"/>
+        
+    <item
+        android:id="@+id/cache_now"
+        android:title="@string/download"/>
+
+    <item
+        android:id="@+id/details"
+        android:title="@string/details"/>
+
+</menu>

@@ -1,29 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.saschahlusiak.frupic"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="3"
+    android:versionName="1.0.1" >
 
     <uses-sdk android:minSdkVersion="8" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
-        android:icon="@drawable/skylime"
+        android:icon="@drawable/frupic"
         android:label="@string/app_name" >
         <activity
-            android:label="@string/app_name" android:debuggable="true"
-            android:name=".FruPicGrid" >
+            android:debuggable="true"
+            android:label="@string/app_name"
+            android:name=".grid.FruPicGrid" >
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>		    
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
-		<activity
+        <activity
             android:label="@string/app_name"
-            android:name=".FruPicGallery"
+            android:name=".gallery.FruPicGallery"
             android:theme="@android:style/Theme.NoTitleBar" >
-        </activity>        
+        </activity>
+        <activity
+            android:label="@string/details_title"
+            android:name=".utils.DetailsActivity"
+            android:theme="@android:style/Theme.Dialog" >
+        </activity>
+        <activity
+            android:label="@string/preferences"
+            android:name=".preferences.FrupicPreferences" >
+        </activity>
+        <activity
+            android:label="@string/upload_to_frupic"
+            android:name=".utils.UploadActivity"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter >
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:label="@string/about_frupic"
+            android:name=".about.AboutActivity"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter >
+                <action android:name="de.saschahlusiak.frupic.SHOW_ABOUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

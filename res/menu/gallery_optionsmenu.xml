@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/share_link"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/share_link"/>
+        
+    <item
+        android:id="@+id/share_picture"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/share_picture"/>
+    
+    <item
+        android:id="@+id/cache_now"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/download"/>
+    
+	<item
+        android:id="@+id/details"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="@string/details"/>
+
+    
+	<item android:id="@+id/openinbrowser" android:title="@string/openinbrowser"
+		android:icon="@android:drawable/ic_menu_set_as" />
+	
+</menu>
