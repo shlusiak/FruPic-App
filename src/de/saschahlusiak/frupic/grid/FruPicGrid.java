@@ -46,6 +46,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	FrupicFactory factory;
 	ProgressDialog progressDialog;
 	int base, count;
+	int lastVisibleStart, lastVisibleCount;
 	static DownloadTask downloadTask = null;
 
 	public final int FRUPICS = 20;
@@ -55,13 +56,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	FetchPreviewTask fetchTask = null;
 	
 	/* TODO: Add a star to new and unseen frupics? */
-	/* TODO: Add a progressbar to frupics that are loading? */
 	class RefreshIndexTask extends AsyncTask<Void, Void, Frupic[]> {
 		String error;
 
 		@Override
 		protected void onPreExecute() {
 			setProgressBarIndeterminateVisibility(true);
+			Log.d(tag, "RefreshIndexTask.onPreExecute");
 			error = null;
 			super.onPreExecute();
 		}
@@ -102,6 +103,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			int visibleItemCount = grid.getLastVisiblePosition() - grid.getFirstVisiblePosition();
 			int firstVisibleItem = grid.getFirstVisiblePosition();
 			
+			Log.d(tag, "RefreshIndexTask.onPostExecute");
 			if (visibleItemCount > 0) {
 				/* Base changed, start a new FetchTask */
 				if (fetchTask != null) {
@@ -109,10 +111,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 					fetchTask.cancel(false);
 				}
 				
+				lastVisibleCount = visibleItemCount;
+				lastVisibleStart = firstVisibleItem;			
+				
 				Frupic v[] = new Frupic[visibleItemCount];
 				for (int i = 0; i < visibleItemCount; i++)
 					v[i] = adapter.getItem(firstVisibleItem + i);
-				fetchTask = new FetchPreviewTask(firstVisibleItem, visibleItemCount);
+				fetchTask = new FetchPreviewTask();
 				fetchTask.execute(v);
 			}
 			if (fetchTask == null)
@@ -123,20 +128,14 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		}
 	}
 
+	/* TODO: Add a progressbar to grid items that are being loading right now? */
 	class FetchPreviewTask extends AsyncTask<Frupic, Frupic, Void> {
-		private int first, count;
-
-		FetchPreviewTask(int first, int count) {
-			this.first = first;
-			this.count = count;
+		FetchPreviewTask() {
 		}
 
-		public boolean differs(int first, int count) {
-			return ((first != this.first) || (this.count != count));
-		}
-		
 		@Override
 		protected void onPreExecute() {
+			Log.d(tag, "FetchPreviewTask.onPreExecute");
 			setProgressBarIndeterminateVisibility(true);
 			super.onPreExecute();
 		}
@@ -150,8 +149,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			for (Frupic f : frupics) {
 				if (f == null)
 					return null; /* TODO: Find out why this might happen */
+				
 				if (factory.fetchThumb(f))
 					publishProgress(f);
+				
 				if (isCancelled())
 					return null;
 			}
@@ -175,7 +176,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		@Override
 		protected void onPostExecute(Void result) {
-			Log.i(tag, "task done");
+			Log.d(tag, "FetchPreviewTask.onPostExecute");
 			if (refreshTask == null)
 				setProgressBarIndeterminateVisibility(false);
 			fetchTask = null;
@@ -185,6 +186,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		Frupic frupics[];
+		
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
@@ -199,8 +202,14 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		grid.setOnScrollListener(this);
 		registerForContextMenu(grid);
 		
-		adapter.setFrupics(factory.fetchFrupicIndexFromCache());
-
+		frupics = factory.fetchFrupicIndexFromCache();
+		adapter.setFrupics(frupics);
+		if (fetchTask == null && frupics != null) {
+			/* this loads all frupics in the index */
+			/* TODO: maybe find out exactly how many to load */
+			fetchTask = new FetchPreviewTask();
+			fetchTask.execute(frupics);
+		}
 		base = 0;
 		count = FRUPICS;
 	}
@@ -278,8 +287,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public void onItemClick(AdapterView<?> arg0, View view, int position,
 			long id) {
 		Intent intent = new Intent(this, FruPicGallery.class);
-		intent.putExtra("id", position);
-		intent.putExtra("frupic", adapter.getItem(position));
+		intent.putExtra("index", position);
+		intent.putExtra("id", id);		
 		startActivity(intent);
 	}
 
@@ -299,17 +308,21 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		if (visibleItemCount <= 0)
 			return;
 
-		Frupic v[] = new Frupic[visibleItemCount];
-		for (int i = 0; i < visibleItemCount; i++)
-			v[i] = adapter.getItem(firstVisibleItem + i);
-		if (fetchTask != null && fetchTask.differs(firstVisibleItem, visibleItemCount)) {
-			Log.d(tag, "Cancelling running FetchTask");
-			fetchTask.cancel(false);
-			fetchTask = null;
-		}
-		if (fetchTask == null) {
-			fetchTask = new FetchPreviewTask(firstVisibleItem, visibleItemCount);
-			fetchTask.execute(v);
+		if (lastVisibleCount != visibleItemCount || lastVisibleStart != firstVisibleItem) {
+			Frupic v[] = new Frupic[visibleItemCount];
+			for (int i = 0; i < visibleItemCount; i++)
+				v[i] = adapter.getItem(firstVisibleItem + i);
+			if (fetchTask != null) {
+				Log.d(tag, "Cancelling running FetchTask");
+				fetchTask.cancel(false);
+				fetchTask = null;
+			}
+			if (fetchTask == null) {
+				fetchTask = new FetchPreviewTask();
+				fetchTask.execute(v);
+				lastVisibleCount = visibleItemCount;
+				lastVisibleStart = firstVisibleItem;			
+			}
 		}
 	}
 

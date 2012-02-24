@@ -41,7 +41,16 @@
                 android:text="mail@saschahlusiak.de"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
-            
+           	<TextView
+                android:id="@+id/textView31"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:autoLink="web"
+                android:gravity="center"
+                android:linksClickable="true"
+                android:text="https://github.com/shlusiak/FruPic-App"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
             <Button
                 android:id="@+id/ok"
                 android:layout_marginTop="16dp"

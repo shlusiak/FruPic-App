@@ -158,7 +158,7 @@ public class FrupicFactory {
 		s = s + "offset=" + offset + "&limit=" + limit;
 		
 		String queryResult = fetchURL(s);
-		if (queryResult == null)
+		if (queryResult == null || "".equals(queryResult))
 			return null;
 		
 		/* Always cache last query */
@@ -225,7 +225,7 @@ public class FrupicFactory {
 				files[oldest] = null;
 			}
 		} while (total > limit);
-		Log.d(tag, "left file cache populated with " + total + " bytes");
+		Log.d(tag, "left file cache populated with " + total + " bytes, " + number + " files");
 		return new CacheInfo(total, number);
 	}
 
@@ -282,8 +282,7 @@ public class FrupicFactory {
 			Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
 		try {
 			URL url = new URL(fetch_thumb ? frupic.thumb_url : frupic.full_url);
-			HttpURLConnection connection = (HttpURLConnection) url
-					.openConnection();
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setUseCaches(true);
 
 			Object response = connection.getContent();
@@ -291,16 +290,12 @@ public class FrupicFactory {
 			int copied;
 
 			InputStream myInput = (InputStream) response;
-			OutputStream myOutput = new FileOutputStream(getCacheFileName(
-					context, frupic, fetch_thumb));
+			OutputStream myOutput = new FileOutputStream(getCacheFileName(context, frupic, fetch_thumb));
 			byte[] buffer = new byte[4096];
 			int length;
 			copied = 0;
 			while ((length = myInput.read(buffer)) > 0) {
 				myOutput.write(buffer, 0, length);
-				if (progress != null)
-					progress.OnProgress(copied, maxlength);
-				copied += length;
 				if (Thread.interrupted()) {
 					myOutput.flush();
 					myInput.close();
@@ -310,6 +305,10 @@ public class FrupicFactory {
 							+ getCacheFileName(context, frupic, fetch_thumb));
 					return false;
 				}
+				
+				if (progress != null)
+					progress.OnProgress(copied, maxlength);
+				copied += length;
 			}
 			myOutput.flush();
 			myInput.close();
@@ -343,6 +342,15 @@ public class FrupicFactory {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @param frupic
+	 * @param thumb
+	 * @param width
+	 * @param height
+	 * @param onProgress
+	 * @return Did some fetching occur? Do visuals need to be updated?
+	 */
 	public synchronized boolean fetch(Frupic frupic, boolean thumb, int width, int height, OnFetchProgress onProgress) {
 		String filename = getCacheFileName(frupic, thumb);
 
@@ -353,17 +361,18 @@ public class FrupicFactory {
 		 * never updated, it may be pruned from file system while still in memory.
 		 */
 		if (cache.get(getCacheFileName(frupic, thumb)) != null)
-			return false;	/* TODO: it probably was available before; don't notify again for success */
+			return false;	/* the picture was available before; don't notify again */
 
 		File f = new File(filename);
-		/* Fetch file from the Interweb, if not cached locally */
+		/* Fetch file from the Interweb, unless cached locally */
 		if (!f.exists()) {
 			if (! fetchFrupicImage(context, frupic, thumb, onProgress)) {
 				return false;
 			}
 			Log.d(tag, "Downloaded file " + frupic.id);
 		}
-		/* touch file, so it is pruned last */
+		
+		/* touch file, so it is purged from cache last */
 		f.setLastModified(new Date().getTime());
 		if (Thread.interrupted())
 			return false;

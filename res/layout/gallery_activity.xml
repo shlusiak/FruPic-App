@@ -7,40 +7,19 @@
         android:id="@+id/gallery"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/url"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:spacing="40dp"
         android:unselectedAlpha="1" />
 
-    <TextView
-        android:id="@+id/username"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:gravity="center"
-        android:text="Small Text"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
-        android:id="@+id/url"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/username"
-        android:gravity="center"
-        android:autoLink="web"
-        android:linksClickable="true"
-        android:text="Small Text"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <ProgressBar
+     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:visibility="invisible"
+        android:layout_height="8dp"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
 
     <ProgressBar
         android:id="@+id/progressActivity"
@@ -51,4 +30,37 @@
         android:layout_alignParentTop="true"
         android:visibility="invisible" />
 
+    <TextView
+        android:id="@+id/url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoLink="web"
+        android:background="#2f000000"
+        android:gravity="left"
+        android:layout_toLeftOf="@+id/username"
+        android:linksClickable="true"
+        android:layout_alignParentBottom="true"
+        android:text="URL"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#2f000000"
+        android:layout_alignParentRight="true"
+        android:text="Username"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/tags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#2f000000"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/username"
+        android:text="[Tags]"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    
 </RelativeLayout>

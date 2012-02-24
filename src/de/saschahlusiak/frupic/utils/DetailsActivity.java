@@ -97,8 +97,9 @@ public class DetailsActivity extends Activity {
 	}
 
 	void update() {
+		String tags = frupic.getTagsString();
 		((TextView) findViewById(R.id.posted_by)).setText(frupic.getUsername());
-		((TextView) findViewById(R.id.tags)).setText(frupic.getTagsString());
+		((TextView) findViewById(R.id.tags)).setText((tags != null) ? tags : "---");
 		((TextView) findViewById(R.id.date)).setText(frupic.getDate());
 		((TextView) findViewById(R.id.url)).setText(frupic.getFullUrl());
 

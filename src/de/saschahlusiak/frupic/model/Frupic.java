@@ -69,7 +69,7 @@ public class Frupic implements Serializable {
 	 */
 	public String getTagsString() {
 		if (tags == null)
-			return "---";
+			return null;
 		String s = "";
 		
 		for (String s2: tags) {

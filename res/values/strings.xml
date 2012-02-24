@@ -17,9 +17,7 @@
     <string name="details_filesize">Cached size:</string>
     <string name="details_not_available">(not available)</string>
     
-    <string name="gallery_posted_by">Posted by %1$s</string>
-    <string name="fetching_index">Fetching index</string>
-        
+    <string name="gallery_posted_by">%1$s</string>    
     
     <string name="fetch_and_cache">Cache now</string>
     <string name="please_wait">Please wait</string>
@@ -73,6 +71,7 @@
     <string-array name="cache_labels">
         <item>1 MB</item>
         <item>4 MB</item>
+        <item>8 MB</item>
         <item>16 MB</item>
         <item>32 MB</item>
         <item>64 MB</item>
@@ -80,6 +79,7 @@
     <string-array name="cache_values">
         <item>1048576</item>
         <item>4194304</item>
+        <item>8388608</item>
         <item>16777216</item>
         <item>33554432</item>
         <item>67108864</item>
