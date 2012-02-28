@@ -16,6 +16,7 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory.Options;
@@ -71,6 +72,24 @@ public class UploadActivity extends Activity implements OnClickListener {
 		@Override
 		protected Void doInBackground(Uri... params) {
 			InputStream is = null;
+			int orientation = 0;
+			try {
+				Cursor cursor = UploadActivity.this
+						.getContentResolver()
+						.query(params[0],
+								new String[] { MediaStore.Images.ImageColumns.ORIENTATION },
+								null, null, null);
+
+				if (cursor.getCount() == 1) {
+					cursor.moveToFirst();
+					orientation = cursor.getInt(0);
+				}
+				cursor.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
 			try {
 				is = UploadActivity.this.getContentResolver().openInputStream(
 						params[0]);
@@ -89,6 +108,7 @@ public class UploadActivity extends Activity implements OnClickListener {
 				imageDataOriginal = buffer.toByteArray();
 				buffer.close();
 
+				
 				Options options = new Options();
 				options.inJustDecodeBounds = true;
 				options.inInputShareable = true;
@@ -107,9 +127,7 @@ public class UploadActivity extends Activity implements OnClickListener {
 						.abs(options.outHeight - destHeight) >= Math
 						.abs(options.outWidth - destWidth);
 				if (options.outHeight * options.outWidth * 2 >= 16384) {
-					// Load, scaling to smallest power of 2 that'll get it <=
-					// desired
-					// dimensions
+					// Load, scaling to smallest power of 2 that'll get it <= desired dimensions
 					double sampleSize = scaleByHeight ? options.outHeight
 							/ destHeight : options.outWidth / destWidth;
 					options.inSampleSize = (int) Math.pow(2d, Math.floor(Math
@@ -120,12 +138,21 @@ public class UploadActivity extends Activity implements OnClickListener {
 							+ options.inSampleSize);
 				}
 
-				Bitmap b = BitmapFactory.decodeByteArray(imageDataOriginal, 0,
-						imageDataOriginal.length, options);
+				Bitmap b = BitmapFactory.decodeByteArray(imageDataOriginal, 0, imageDataOriginal.length, options);
 				if (b == null) {
 					cancel(false);
 					return null;
 				}
+				
+				/* If original image has orientation information (Exif), rotate our scaled image, which has
+				 * otherwise lost the orientation				 
+				 */
+				if (orientation != 0) {
+					Matrix matrix = new Matrix();
+					matrix.preRotate(orientation);
+					b = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
+				}
+				
 				buffer = new ByteArrayOutputStream();
 				if (b.compress(CompressFormat.JPEG, 90, buffer) == true) {
 					imageDataResized = buffer.toByteArray();
@@ -164,7 +191,6 @@ public class UploadActivity extends Activity implements OnClickListener {
 				image_scale.setChecked(true);
 			}
 		}
-
 	}
 
 	public void updateImageSize() {

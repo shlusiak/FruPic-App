@@ -21,7 +21,7 @@ public class FrupicPreferences extends PreferenceActivity {
 			
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				FrupicFactory.pruneCache(FrupicPreferences.this, 0);
+				FrupicFactory.pruneCache(new FrupicFactory(FrupicPreferences.this), 0);
 				updateCachePreference();
 				return true;
 			}
@@ -31,7 +31,7 @@ public class FrupicPreferences extends PreferenceActivity {
 	
 	
 	public void updateCachePreference() {
-		CacheInfo info = FrupicFactory.pruneCache(this, -1);
+		CacheInfo info = FrupicFactory.pruneCache(new FrupicFactory(this), -1);
 		clear_cache.setSummary(getString(R.string.preferences_cache_clear_summary, info.getCount(), info.getSize() / 1024));
 		clear_cache.setEnabled(info.getCount() > 0);
 	}

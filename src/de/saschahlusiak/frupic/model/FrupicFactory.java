@@ -20,11 +20,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import de.saschahlusiak.frupic.R;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.EditText;
 
 public class FrupicFactory {
 	static final private String tag = FrupicFactory.class.getSimpleName();
@@ -35,6 +42,8 @@ public class FrupicFactory {
 	FrupicCache cache;
 	int targetWidth, targetHeight;
 	int cachesize;
+	File internal_cachedir, external_cachedir;
+	boolean prefer_external_cache;
 
 	public FrupicFactory(Context context, int cachesize) {
 		this.context = context;
@@ -42,6 +51,19 @@ public class FrupicFactory {
 		targetWidth = 800;
 		targetHeight = 800;
 		this.cachesize = DEFAULT_CACHE_SIZE;
+		updateCacheDirs();
+	}
+	
+	public FrupicFactory(Context context) {
+		this(context, 1);
+	}
+	
+	public void updateCacheDirs() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		prefer_external_cache = prefs.getBoolean("external_cache", true);
+
+		this.internal_cachedir = context.getCacheDir();
+		this.external_cachedir = context.getExternalCacheDir();
 	}
 
 	public void setTargetSize(int width, int height) {
@@ -161,6 +183,9 @@ public class FrupicFactory {
 		if (queryResult == null || "".equals(queryResult))
 			return null;
 		
+		if (Thread.interrupted())
+			return null;
+		
 		/* Always cache last query */
 		PrintWriter pwr = new PrintWriter(context.openFileOutput("index", Context.MODE_WORLD_READABLE));
 		pwr.write(queryResult);
@@ -186,11 +211,29 @@ public class FrupicFactory {
 	}
 
 	public CacheInfo pruneCache() {
-		return pruneCache(context, cachesize);
+		return pruneCache(this, cachesize);
+	}
+	
+	public static String getCacheFileName(FrupicFactory factory, Frupic frupic, boolean thumb) {
+		if (factory.external_cachedir != null && factory.prefer_external_cache)
+			return factory.external_cachedir + File.separator + frupic.getFileName(thumb);
+		else
+			return factory.internal_cachedir + File.separator + frupic.getFileName(thumb);			
 	}
 
-	public static synchronized CacheInfo pruneCache(Context context, int limit) {
-		File files[] = context.getCacheDir().listFiles((FilenameFilter) null);
+	public static synchronized CacheInfo pruneCache(FrupicFactory factory, int limit) {
+		File files1[];
+		files1 = factory.internal_cachedir.listFiles((FilenameFilter) null);
+		File files2[] = null;
+		
+		if (factory.external_cachedir != null)
+			files2 = factory.external_cachedir.listFiles((FilenameFilter) null);
+		
+		File files[] = new File[files1.length + ((files2 == null) ? 0 : files2.length)];
+		System.arraycopy(files1, 0, files, 0, files1.length);
+		if (files2 != null)
+			System.arraycopy(files2, 0, files, files1.length, files2.length);		
+		
 		if (files.length == 0)
 			return new CacheInfo(0, 0);
 
@@ -230,13 +273,7 @@ public class FrupicFactory {
 	}
 
 	public String getCacheFileName(Frupic frupic, boolean thumb) {
-		return getCacheFileName(context, frupic, thumb);
-	}
-
-	public static String getCacheFileName(Context context, Frupic frupic,
-			boolean thumb) {
-		return context.getCacheDir() + File.separator
-				+ frupic.getFileName(thumb);
+		return getCacheFileName(this, frupic, thumb);
 	}
 
 	private Bitmap decodeImageFile(String filename, int width, int height) {
@@ -270,7 +307,36 @@ public class FrupicFactory {
 		Bitmap b = BitmapFactory.decodeFile(filename, options);
 		if (b == null) {
 			Log.e("FruPic", "Error decoding image stream: " + file);
+		} else {
+			
+			try {
+				ExifInterface exif = new ExifInterface(filename);
+				Matrix matrix = new Matrix();
+				
+				switch(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
+				case ExifInterface.ORIENTATION_ROTATE_90:
+					matrix.preRotate(90);
+					break;
+				case ExifInterface.ORIENTATION_ROTATE_180:
+					matrix.preRotate(180);
+					break;
+				case ExifInterface.ORIENTATION_ROTATE_270:
+					matrix.preRotate(270);
+					break;
+					
+				default: 
+					matrix = null;
+					break;
+				}
+
+				if (matrix != null)
+					b = Bitmap.createBitmap(b, 0, 0, options.outWidth, options.outHeight, matrix, true);
+			} catch (IOException e) {
+//				e.printStackTrace();
+			}		
 		}
+		
+		
 		return b;
 	}
 
@@ -278,7 +344,7 @@ public class FrupicFactory {
 		void OnProgress(int read, int length);
 	}
 
-	public static synchronized boolean fetchFrupicImage(Context context,
+	public static synchronized boolean fetchFrupicImage(FrupicFactory factory,
 			Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
 		try {
 			URL url = new URL(fetch_thumb ? frupic.thumb_url : frupic.full_url);
@@ -290,7 +356,7 @@ public class FrupicFactory {
 			int copied;
 
 			InputStream myInput = (InputStream) response;
-			OutputStream myOutput = new FileOutputStream(getCacheFileName(context, frupic, fetch_thumb));
+			OutputStream myOutput = new FileOutputStream(getCacheFileName(factory, frupic, fetch_thumb));
 			byte[] buffer = new byte[4096];
 			int length;
 			copied = 0;
@@ -300,9 +366,9 @@ public class FrupicFactory {
 					myOutput.flush();
 					myInput.close();
 					myOutput.close();
-					frupic.getCachedFile(context).delete();
+					frupic.getCachedFile(factory).delete();
 					Log.d(tag, "removed partly downloaded file "
-							+ getCacheFileName(context, frupic, fetch_thumb));
+							+ getCacheFileName(factory, frupic, fetch_thumb));
 					return false;
 				}
 				
@@ -315,14 +381,17 @@ public class FrupicFactory {
 			myOutput.close();
 			return true;
 		} catch (Exception e) {
-			frupic.getCachedFile(context).delete();
-			Log.d(tag, "removed partly downloaded file " + getCacheFileName(context, frupic, fetch_thumb));
+			frupic.getCachedFile(factory).delete();
+			Log.d(tag, "removed partly downloaded file " + getCacheFileName(factory, frupic, fetch_thumb));
 			e.printStackTrace();
 			return false;
 		}
 	}
 
 	public static synchronized boolean copyImageFile(File in, File out) {
+		if (out.exists())
+			return true;
+		
 		try {
 			InputStream is = new FileInputStream(in);
 			OutputStream os = new FileOutputStream(out);
@@ -366,7 +435,7 @@ public class FrupicFactory {
 		File f = new File(filename);
 		/* Fetch file from the Interweb, unless cached locally */
 		if (!f.exists()) {
-			if (! fetchFrupicImage(context, frupic, thumb, onProgress)) {
+			if (! fetchFrupicImage(this, frupic, thumb, onProgress)) {
 				return false;
 			}
 			Log.d(tag, "Downloaded file " + frupic.id);

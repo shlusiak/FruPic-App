@@ -12,7 +12,7 @@
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical" >
 
         <TableLayout
@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content" >
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/textView30"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/details_date"
@@ -107,12 +107,12 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/tableRow4"
+                android:id="@+id/tableRow40"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" >
 
                 <TextView
-                    android:id="@+id/textView5"
+                    android:id="@+id/textView50"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/details_filesize"

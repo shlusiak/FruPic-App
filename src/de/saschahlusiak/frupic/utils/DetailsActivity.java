@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 public class DetailsActivity extends Activity {
 	Frupic frupic;
+	FrupicFactory factory;
 
 	static FetchTask fetchTask = null;
 	ProgressDialog progressDialog;
@@ -36,6 +37,8 @@ public class DetailsActivity extends Activity {
 
 		frupic = (Frupic) getIntent().getSerializableExtra("frupic");
 		setTitle("Frupic #" + frupic.getId());
+		
+		factory = new FrupicFactory(this, 1);
 
 		update();
 	}
@@ -103,11 +106,11 @@ public class DetailsActivity extends Activity {
 		((TextView) findViewById(R.id.date)).setText(frupic.getDate());
 		((TextView) findViewById(R.id.url)).setText(frupic.getFullUrl());
 
-		File f = frupic.getCachedFile(this);
+		File f = frupic.getCachedFile(factory);
 		if (f.exists()) {
 			Options options = new Options();
 			options.inJustDecodeBounds = true;
-			BitmapFactory.decodeFile(FrupicFactory.getCacheFileName(this,
+			BitmapFactory.decodeFile(FrupicFactory.getCacheFileName(factory,
 					frupic, false), options);
 
 			((TextView) findViewById(R.id.size)).setText(String.format(
@@ -127,7 +130,7 @@ public class DetailsActivity extends Activity {
 						@Override
 						public void onClick(View v) {
 							showDialog(DIALOG_PROGRESS);
-							fetchTask = new FetchTask(frupic);
+							fetchTask = new FetchTask(frupic, factory);
 							fetchTask.setActivity(DetailsActivity.this, progressUpdater);
 							fetchTask.execute();
 						}

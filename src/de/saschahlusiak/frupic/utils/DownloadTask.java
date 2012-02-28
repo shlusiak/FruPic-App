@@ -19,9 +19,11 @@ public class DownloadTask extends AsyncTask<Void, Integer, Void> {
 	ProgressTaskActivityInterface activity;
 	String error = null;
 	Frupic frupic;
+	FrupicFactory factory;
 
-	public DownloadTask(Frupic frupic) {
+	public DownloadTask(Frupic frupic, FrupicFactory factory) {
 		this.frupic = frupic;
+		this.factory = factory;
 		filename = frupic.getFileName(false);
 	}
 	
@@ -66,8 +68,8 @@ public class DownloadTask extends AsyncTask<Void, Integer, Void> {
 			return null;
 		}		
 		
-		if (!frupic.getCachedFile(context).exists()) {
-			if (!FrupicFactory.fetchFrupicImage(context, frupic, false,
+		if (!frupic.getCachedFile(factory).exists()) {
+			if (!FrupicFactory.fetchFrupicImage(factory, frupic, false,
 					new FrupicFactory.OnFetchProgress() {
 						@Override
 						public void OnProgress(int read, int length) {
@@ -88,7 +90,7 @@ public class DownloadTask extends AsyncTask<Void, Integer, Void> {
 		File file = new File(path, frupic.getFileName(false));
 		path.mkdirs();
 
-		if (FrupicFactory.copyImageFile(frupic.getCachedFile(context),
+		if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory),
 				file)) {
 			// Tell the media scanner about the new file so that it is
 			// immediately available to the user.

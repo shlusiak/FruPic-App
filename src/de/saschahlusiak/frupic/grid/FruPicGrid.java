@@ -217,17 +217,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	protected void onDestroy() {
 		/* delete all temporary external cache files created from "Share Image" */
-		File dir = getExternalCacheDir();
-		if (dir != null) {
-			String files[] = dir.list();
-			for (String file : files) {
-				if (new File(dir, file).delete())
-					Log.d(tag, "deleted cache file " + file);
-				else
-					Log.w(tag, "unable to delete cache file " + file);
-			}
-		}
-
+		/* TODO: Make sure the cached files are gone for good! */
 		super.onDestroy();
 	}
 
@@ -259,6 +249,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size",
 				"16777216")));
+		factory.updateCacheDirs();
+		
 		refreshTask = new RefreshIndexTask();
 		refreshTask.execute();
 		
@@ -297,38 +289,57 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
 		if (firstVisibleItem + visibleItemCount > count - FRUPICS_STEP) {
-			count += FRUPICS_STEP;
-			if (refreshTask != null)
-				refreshTask.cancel(true);
-			refreshTask = new RefreshIndexTask();
-			refreshTask.execute();
-			return;
+			if (refreshTask == null) {
+				count += FRUPICS_STEP;
+				refreshTask = new RefreshIndexTask();
+				refreshTask.execute();
+			}
 		}
 
-		if (visibleItemCount <= 0)
-			return;
-
 		if (lastVisibleCount != visibleItemCount || lastVisibleStart != firstVisibleItem) {
-			Frupic v[] = new Frupic[visibleItemCount];
-			for (int i = 0; i < visibleItemCount; i++)
-				v[i] = adapter.getItem(firstVisibleItem + i);
-			if (fetchTask != null) {
-				Log.d(tag, "Cancelling running FetchTask");
-				fetchTask.cancel(false);
-				fetchTask = null;
-			}
 			if (fetchTask == null) {
+				Frupic v[] = new Frupic[visibleItemCount];
+				for (int i = 0; i < visibleItemCount; i++)
+					v[i] = adapter.getItem(firstVisibleItem + i);
 				fetchTask = new FetchPreviewTask();
 				fetchTask.execute(v);
 				lastVisibleCount = visibleItemCount;
-				lastVisibleStart = firstVisibleItem;			
+				lastVisibleStart = firstVisibleItem;
 			}
 		}
 	}
 
 	@Override
-	public void onScrollStateChanged(AbsListView arg0, int arg1) {
+	public void onScrollStateChanged(AbsListView view, int state) {
+		if (state == SCROLL_STATE_IDLE) {
+			int firstVisibleItem = grid.getFirstVisiblePosition();
+			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
+			if (firstVisibleItem + visibleItemCount > count - FRUPICS_STEP) {
+				count += FRUPICS_STEP;
+				if (refreshTask != null)
+					refreshTask.cancel(true);
+				refreshTask = new RefreshIndexTask();
+				refreshTask.execute();
+			}
 
+			if (lastVisibleCount != visibleItemCount || lastVisibleStart != firstVisibleItem) {
+				Frupic v[] = new Frupic[visibleItemCount];
+				for (int i = 0; i < visibleItemCount; i++)
+					v[i] = adapter.getItem(firstVisibleItem + i);
+				if (fetchTask != null) {
+					Log.d(tag, "Cancelling running FetchTask");
+					fetchTask.cancel(false);
+					fetchTask = null;
+				}
+				if (fetchTask == null) {
+					fetchTask = new FetchPreviewTask();
+					fetchTask.execute(v);
+					lastVisibleCount = visibleItemCount;
+					lastVisibleStart = firstVisibleItem;			
+				}
+			}
+	
+		}
 	}
 	
 	@Override
@@ -454,7 +465,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 			/* TODO: If file is not in cache yet, download it first or show message */
 			out = new File(out, frupic.getFileName(false));
-			if (FrupicFactory.copyImageFile(frupic.getCachedFile(this), out)) {
+			if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory), out)) {
 				intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("image/?");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));
@@ -465,7 +476,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			return true;
 
 		case R.id.cache_now:
-			downloadTask = new DownloadTask(frupic);
+			downloadTask = new DownloadTask(frupic, factory);
 			showDialog(DIALOG_PROGRESS);
 			downloadTask.setActivity(this, downloadProgress);
 			downloadTask.execute();

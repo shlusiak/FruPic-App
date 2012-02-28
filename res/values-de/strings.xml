@@ -38,6 +38,8 @@
     <string name="upload_to_frupic">FruPic</string>
     <string name="upload_posted_by_label">Benutzername:</string>
     <string name="upload_posted_by_hint">Anonymous</string>
+    <string name="upload_tags_label">Tags:</string>
+    <string name="upload_tags_hint">tag1,tag2,tag3</string>
     <string name="upload_file_name">Bild \"%1$s\" nach FruPic hochladen?</string>
     
     <string name="uploading_message">Lade \"%1$s\" hoch...</string>
@@ -55,6 +57,8 @@
     <string name="preferences_cache">Cache</string>
     <string name="preferences_cache_size">Cache Größe</string>
     <string name="preferences_cache_size_summary">Zwischenspeicher für temporäre Bilddaten</string>
+    <string name="preferences_external_cache">Externen Cache benutzen</string>
+    <string name="preferences_external_cache_summary">Bilder auf SD-Karte cachen, wenn vorhanden</string>
     <string name="preferences_cache_clear">Cache leeren</string>
     <string name="preferences_cache_clear_summary">%2$d Kb, %1$d Bilder</string>
 
@@ -62,7 +66,8 @@
     <string name="preferences_upload_username">Benutzername</string>
     <string name="preferences_upload_username_summary">Standardname für Hochladen</string>
 
-    <string name="preferences_preload_summary">Bilder der Gallery im Voraus laden</string>
+    <string name="preferences_gallery">Gallerie</string>
+    <string name="preferences_preload_summary">Bilder der Gallerie im Voraus laden</string>
     <string name="preferences_preload">Bilder im Voraus laden</string>
         
     <string-array name="cache_labels">
@@ -72,5 +77,13 @@
         <item>16 MB</item>
         <item>32 MB</item>
         <item>64 MB</item>
+    </string-array>
+    <string-array name="cache_values">
+        <item>1048576</item>
+        <item>4194304</item>
+        <item>8388608</item>
+        <item>16777216</item>
+        <item>33554432</item>
+        <item>67108864</item>
     </string-array>
 </resources>

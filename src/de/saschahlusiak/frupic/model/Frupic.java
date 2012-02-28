@@ -46,12 +46,13 @@ public class Frupic implements Serializable {
 	public String getUrl() {
 		return "http://frupic.frubar.net/" + id;
 	}
+	
 	public String getFullUrl() {
 		return full_url;
 	}
 	
-	public File getCachedFile(Context context) {
-		return new File(FrupicFactory.getCacheFileName(context, this, false));
+	public File getCachedFile(FrupicFactory factory) {
+		return new File(FrupicFactory.getCacheFileName(factory, this, false));
 	}
 	
 	public String getFileName(boolean thumb) {

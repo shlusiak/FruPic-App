@@ -403,7 +403,7 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 			return true;
 			
 		case R.id.cache_now:
-			downloadTask = new DownloadTask(frupic);
+			downloadTask = new DownloadTask(frupic, factory);
 			showDialog(DIALOG_PROGRESS);
 			downloadTask.setActivity(this, downloadProgress);
 			downloadTask.execute();
@@ -427,7 +427,7 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 			
 			/* TODO: If file is not in cache yet, download it first or show message */
 			out = new File(out, frupic.getFileName(false));
-			if (FrupicFactory.copyImageFile(frupic.getCachedFile(this), out)) {
+			if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory), out)) {
 				intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("image/?");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));

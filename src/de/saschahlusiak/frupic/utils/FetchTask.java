@@ -9,10 +9,12 @@ public class FetchTask extends AsyncTask<Void, Integer, Void> {
 	String filename;
 	ProgressTaskActivityInterface activity;
 	Frupic frupic;
+	FrupicFactory factory;
 	Context context;
 
-	public FetchTask(Frupic frupic) {
+	public FetchTask(Frupic frupic, FrupicFactory factory) {
 		this.frupic = frupic;
+		this.factory = factory;
 		this.activity = null;
 	}
 
@@ -32,8 +34,8 @@ public class FetchTask extends AsyncTask<Void, Integer, Void> {
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		if (!frupic.getCachedFile(context).exists()) {
-			if (!FrupicFactory.fetchFrupicImage(context, frupic, false,
+		if (!frupic.getCachedFile(factory).exists()) {
+			if (!FrupicFactory.fetchFrupicImage(factory, frupic, false,
 					new FrupicFactory.OnFetchProgress() {
 
 						@Override
