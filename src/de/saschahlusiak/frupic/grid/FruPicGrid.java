@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.UnknownHostException;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
@@ -12,6 +13,7 @@ import de.saschahlusiak.frupic.utils.DownloadTask;
 import de.saschahlusiak.frupic.utils.ProgressTaskActivityInterface;
 import de.saschahlusiak.frupic.utils.UploadActivity;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -30,6 +32,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.Toast;
 import android.widget.AbsListView.OnScrollListener;
@@ -441,9 +444,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			return true;
 
 		case R.id.details:
-			intent = new Intent(this, DetailsActivity.class);
-			intent.putExtra("frupic", frupic);
-			startActivity(intent);
+//			intent = new Intent(this, DetailsActivity.class);
+//			intent.putExtra("frupic", frupic);
+//			startActivity(intent);
+			DetailDialog.create(this, frupic, factory).show();
+			
 			return true;
 
 		case R.id.share_link:
