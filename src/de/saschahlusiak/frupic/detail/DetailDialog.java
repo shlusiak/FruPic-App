@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -28,7 +29,8 @@ public class DetailDialog extends ArrayAdapter<DetailItem> implements DialogInte
 
 	public static AlertDialog create(Context context, Frupic frupic, FrupicFactory factory) {
 		DetailDialog d;
-		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		ContextThemeWrapper ctw = new ContextThemeWrapper( context, R.style.Theme_FruPic_Light_Dialog);		
+		AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
 		builder.setTitle("Frupic #" + frupic.getId());
 		
 		DetailItem items[] = new DetailItem[6];
@@ -38,8 +40,6 @@ public class DetailDialog extends ArrayAdapter<DetailItem> implements DialogInte
 		items[3] = new DetailItem(context.getString(R.string.details_size));
 		items[4] = new DetailItem(context.getString(R.string.details_filesize));
 		items[5] = new DetailItem("URL");
-
-		
 		
 		String tags = frupic.getTagsString();
 		items[0].setValue(frupic.getUsername());
