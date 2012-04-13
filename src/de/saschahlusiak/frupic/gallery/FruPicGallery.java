@@ -32,6 +32,7 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class FruPicGallery extends Activity implements OnItemSelectedListener {
@@ -223,6 +224,8 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 		gallery.setOnItemSelectedListener(this);
 		gallery.setCallbackDuringFling(true);
 		gallery.setAnimationDuration(300);
+		
+		registerForContextMenu(gallery);
         
         if (savedInstanceState != null) {
         	base = savedInstanceState.getInt("base");
@@ -436,7 +439,24 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 			}			
 			
 		default:
-			return super.onOptionsItemSelected(item);
+			return true;
 		}
+	}
+	
+	@Override
+	public void onCreateContextMenu(android.view.ContextMenu menu, View v,
+			android.view.ContextMenu.ContextMenuInfo menuInfo) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.gallery_optionsmenu, menu);
+
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+		Frupic frupic = (Frupic) adapter.getItem((int) info.position);
+
+		menu.setHeaderTitle("#" + frupic.getId());
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		return onOptionsItemSelected(item);
 	}	
 }
