@@ -193,7 +193,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		setContentView(R.layout.grid_activity);
 
-		factory = new FrupicFactory(this, 45);
+		factory = new FrupicFactory(this, 300);
 
 		adapter = new FruPicGridAdapter(this, factory);
 		grid = (GridView) findViewById(R.id.gridView);
