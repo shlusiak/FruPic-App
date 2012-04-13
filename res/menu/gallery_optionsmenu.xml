@@ -3,6 +3,7 @@
     <item
         android:id="@+id/share_link"
         android:icon="@android:drawable/ic_menu_share"
+        android:showAsAction="ifRoom"
         android:title="@string/share_link"/>
         
     <item
