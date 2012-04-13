@@ -256,6 +256,8 @@ public class UploadActivity extends Activity implements OnClickListener {
 				cursor.moveToFirst();
 				fileName = cursor.getString(columnIndex);
 			}
+			if (cursor != null)
+				cursor.close();
 		}
 		if (fileName == null)
 			fileName = "[Unknown]";
