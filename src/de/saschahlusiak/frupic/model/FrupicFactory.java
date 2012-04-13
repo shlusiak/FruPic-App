@@ -341,7 +341,9 @@ public class FrupicFactory {
 
 	public static synchronized boolean fetchFrupicImage(FrupicFactory factory,
 			Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
+		OutputStream myOutput = null;
 		try {
+			myOutput = new FileOutputStream(getCacheFileName(factory, frupic, fetch_thumb));
 			URL url = new URL(fetch_thumb ? frupic.thumb_url : frupic.full_url);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setUseCaches(true);
@@ -351,7 +353,6 @@ public class FrupicFactory {
 			int copied;
 
 			InputStream myInput = (InputStream) response;
-			OutputStream myOutput = new FileOutputStream(getCacheFileName(factory, frupic, fetch_thumb));
 			byte[] buffer = new byte[4096];
 			int length;
 			copied = 0;
@@ -381,6 +382,16 @@ public class FrupicFactory {
 			}
 			return true;
 		} catch (Exception e) {
+			if (myOutput != null) {
+				try {
+					myOutput.flush();
+					myOutput.close();
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+				myOutput = null;
+			}
+			
 			frupic.getCachedFile(factory).delete();
 			Log.d(tag, "removed partly downloaded file " + getCacheFileName(factory, frupic, fetch_thumb));
 			e.printStackTrace();
