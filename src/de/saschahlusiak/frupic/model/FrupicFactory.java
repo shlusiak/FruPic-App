@@ -14,14 +14,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
-
 import org.apache.http.util.ByteArrayBuffer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import de.saschahlusiak.frupic.R;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -31,7 +27,6 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.EditText;
 
 public class FrupicFactory {
 	static final private String tag = FrupicFactory.class.getSimpleName();

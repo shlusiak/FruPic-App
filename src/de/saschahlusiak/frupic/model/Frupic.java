@@ -2,9 +2,6 @@ package de.saschahlusiak.frupic.model;
 
 import java.io.File;
 import java.io.Serializable;
-
-
-import android.content.Context;
 import android.util.Log;
 
 public class Frupic implements Serializable {
