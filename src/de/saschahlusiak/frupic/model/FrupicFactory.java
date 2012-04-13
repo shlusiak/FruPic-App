@@ -379,6 +379,7 @@ public class FrupicFactory {
 				frupic.getCachedFile(factory).delete();
 				Log.d(tag, "removed partly downloaded file "
 						+ getCacheFileName(factory, frupic, fetch_thumb));
+				return false;
 			}
 			return true;
 		} catch (Exception e) {
