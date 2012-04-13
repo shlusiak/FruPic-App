@@ -379,6 +379,11 @@ public class FrupicFactory {
 			myOutput.flush();
 			myInput.close();
 			myOutput.close();
+			if (Thread.interrupted()) {
+				frupic.getCachedFile(factory).delete();
+				Log.d(tag, "removed partly downloaded file "
+						+ getCacheFileName(factory, frupic, fetch_thumb));
+			}
 			return true;
 		} catch (Exception e) {
 			frupic.getCachedFile(factory).delete();
