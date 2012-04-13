@@ -28,11 +28,6 @@
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
         <activity
-            android:label="@string/details_title"
-            android:name=".utils.DetailsActivity"
-            android:theme="@android:style/Theme.Dialog" >
-        </activity>
-        <activity
             android:label="@string/preferences"
             android:name=".preferences.FrupicPreferences" >
         </activity>

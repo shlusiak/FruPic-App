@@ -8,7 +8,6 @@ import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
-import de.saschahlusiak.frupic.utils.DetailsActivity;
 import de.saschahlusiak.frupic.utils.DownloadTask;
 import de.saschahlusiak.frupic.utils.ProgressTaskActivityInterface;
 import de.saschahlusiak.frupic.utils.UploadActivity;

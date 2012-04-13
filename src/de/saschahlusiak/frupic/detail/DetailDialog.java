@@ -5,7 +5,6 @@ import java.io.File;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
-import de.saschahlusiak.frupic.utils.DetailsActivity;
 import de.saschahlusiak.frupic.utils.FetchTask;
 import android.app.AlertDialog;
 import android.content.Context;

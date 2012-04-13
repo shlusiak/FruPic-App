@@ -4,9 +4,9 @@ import java.io.File;
 import java.net.UnknownHostException;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
-import de.saschahlusiak.frupic.utils.DetailsActivity;
 import de.saschahlusiak.frupic.utils.DownloadTask;
 import de.saschahlusiak.frupic.utils.ProgressTaskActivityInterface;
 import android.app.Activity;
@@ -396,9 +396,10 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 			return true;
 
 		case R.id.details:
-			intent = new Intent(this, DetailsActivity.class);
-			intent.putExtra("frupic", frupic);
-			startActivity(intent);
+//			intent = new Intent(this, DetailsActivity.class);
+//			intent.putExtra("frupic", frupic);
+//			startActivity(intent);
+			DetailDialog.create(this, frupic, factory).show();
 
 			return true;
 			
