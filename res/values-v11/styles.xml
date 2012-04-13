@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.FruPic" parent="android:Theme.Holo"></style>
+    <style name="Theme.FruPic.Dialog" parent="android:Theme.Holo.Dialog"></style>
+    <style name="Theme.FruPic.Light.Dialog" parent="android:Theme.Holo.Light.Dialog"></style>
+    <style name="Theme.FruPic.NoTitleBar" parent="android:Theme.Holo.NoActionBar"></style>
+</resources>
