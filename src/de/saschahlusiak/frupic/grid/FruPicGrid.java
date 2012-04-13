@@ -52,8 +52,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	int lastVisibleStart, lastVisibleCount;
 	static DownloadTask downloadTask = null;
 
-	public final int FRUPICS = 20;
-	public final int FRUPICS_STEP = 20;
+	public final int FRUPICS = 50;
+	public final int FRUPICS_STEP = 30;
 
 	RefreshIndexTask refreshTask = null; 
 	FetchPreviewTask fetchTask = null;
