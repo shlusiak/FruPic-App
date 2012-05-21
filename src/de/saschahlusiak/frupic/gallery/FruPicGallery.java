@@ -235,9 +235,13 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
         	/* This makes the picture available but it does not have the right "range".
         	 * A RefreshTask is needed anyway to corrent this
         	 */
+        	/* TODO: the index and the FrupicIndexFromCache might not match caused by a possible race condition. Check again. */
         	int index = getIntent().getIntExtra("index", 0);
         	base = 0;
-        	gallery.setSelection(index, false);
+        	if (index < frupics.length)
+        		gallery.setSelection(index, false);
+        	else
+        		Log.w(tag, "warning, requested index is " + index + ", but frupics.length is " + frupics.length);
         }
         updateLabels();
     }

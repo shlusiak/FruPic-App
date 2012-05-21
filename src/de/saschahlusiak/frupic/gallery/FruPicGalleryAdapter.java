@@ -50,9 +50,13 @@ public class FruPicGalleryAdapter extends BaseAdapter {
 
 	@Override
 	public long getItemId(int position) {
+		Frupic frupic;
 		if (frupics == null)
 			return 0;
-		return getItem(position).getId();
+		frupic = getItem(position);
+		if (frupic == null)
+			return 0;
+		return frupic.getId();
 	}
 
 	@Override
@@ -63,6 +67,9 @@ public class FruPicGalleryAdapter extends BaseAdapter {
 		} else {
 			v = convertView;
 		}
+		if (getItem(position) == null)
+			return v;
+		
 		ImageView i = (ImageView)v.findViewById(R.id.imageView);
 		
 		Bitmap b = factory.getFullBitmap(getItem(position));
