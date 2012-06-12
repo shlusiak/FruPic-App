@@ -137,19 +137,26 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 				if (frupics[i] == null)
 					continue;
 				final int index = i;
-				
-				if (factory.fetchFull(frupics[i], new FrupicFactory.OnFetchProgress() {
+				int ret;
+				ret = factory.fetchFull(frupics[i], new FrupicFactory.OnFetchProgress() {
 					
 					@Override
 					public void OnProgress(int read, int length) {
 						if (!isCancelled())
 							publishProgress(0, index, frupics.length, read, length, frupics[index].getId());
 					}
-				})) {
-					publishProgress(1, index, frupics.length, 1, 1, frupics[index].getId());
-				} else {
+				});
+				switch (ret) {
+				case FrupicFactory.NOT_AVAILABLE:
 					Log.i(tag, "(fetchFull returned false)");
-				}
+					break;
+				case FrupicFactory.FROM_CACHE:
+					break;
+				case FrupicFactory.FROM_FILE:
+				case FrupicFactory.FROM_WEB:
+					publishProgress(1, index, frupics.length, 1, 1, frupics[index].getId());
+					break;
+				}				
 				if (isCancelled())
 					return null;
 			}

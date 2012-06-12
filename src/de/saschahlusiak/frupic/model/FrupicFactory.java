@@ -38,6 +38,11 @@ public class FrupicFactory {
 	static final private String tag = FrupicFactory.class.getSimpleName();
 	static final public int DEFAULT_CACHE_SIZE = 1024 * 1024 * 16; /* 10 MB */
 	static final String INDEX_URL = "http://api.freamware.net/2.0/get.picture";
+	
+	public static final int NOT_AVAILABLE = 0;
+	public static final int FROM_CACHE = 1;
+	public static final int FROM_FILE = 2;
+	public static final int FROM_WEB = 3;
 
 	Context context;
 	FrupicCache cache;
@@ -225,7 +230,10 @@ public class FrupicFactory {
 			return factory.internal_cachedir + File.separator + frupic.getFileName(thumb);			
 	}
 
-	public static synchronized CacheInfo pruneCache(FrupicFactory factory, int limit) {
+	public CacheInfo pruneCache(FrupicFactory factory, int limit) {
+		int total;
+		int number = 0;
+		synchronized(cache) {
 		File files1[];
 		files1 = factory.internal_cachedir.listFiles((FilenameFilter) null);
 		File files2[] = null;
@@ -241,8 +249,7 @@ public class FrupicFactory {
 		if (files.length == 0)
 			return new CacheInfo(0, 0);
 
-		int total;
-		int number = 0;
+
 		do {
 			int oldest = -1;
 			total = 0;
@@ -272,6 +279,7 @@ public class FrupicFactory {
 				files[oldest] = null;
 			}
 		} while (total > limit);
+		}
 		Log.d(tag, "left file cache populated with " + total + " bytes, " + number + " files");
 		return new CacheInfo(total, number);
 	}
@@ -448,8 +456,9 @@ public class FrupicFactory {
 	 * @param onProgress
 	 * @return Did some fetching occur? Do visuals need to be updated?
 	 */
-	public synchronized boolean fetch(Frupic frupic, boolean thumb, int width, int height, OnFetchProgress onProgress) {
+	public int fetch(Frupic frupic, boolean thumb, int width, int height, OnFetchProgress onProgress) {
 		String filename = getCacheFileName(frupic, thumb);
+		int ret;
 
 		/* If file already in memory cache, return */
 
@@ -458,39 +467,43 @@ public class FrupicFactory {
 		 * never updated, it may be pruned from file system while still in memory.
 		 */
 		if (cache.get(getCacheFileName(frupic, thumb)) != null)
-			return false;	/* the picture was available before; don't notify again */
+			return FROM_CACHE;	/* the picture was available before; don't notify again */
 
-		File f = new File(filename);
-		/* Fetch file from the Interweb, unless cached locally */
-		if (!f.exists()) {
-			if (! fetchFrupicImage(frupic, thumb, onProgress)) {
-				return false;
-			}
-			Log.d(tag, "Downloaded file " + frupic.id);
-		}
+		synchronized (this) {
+			File f = new File(filename);
+			/* Fetch file from the Interweb, unless cached locally */
+			if (!f.exists()) {
+				if (! fetchFrupicImage(frupic, thumb, onProgress)) {
+					return NOT_AVAILABLE;
+				}
+				ret = FROM_WEB;
+				Log.d(tag, "Downloaded file " + frupic.id);
+			} else
+				ret = FROM_FILE;
 		
-		/* touch file, so it is purged from cache last */
-		f.setLastModified(new Date().getTime());
-		if (Thread.interrupted())
-			return false;
+			/* touch file, so it is purged from cache last */
+			f.setLastModified(new Date().getTime());
+			if (Thread.interrupted())
+				return NOT_AVAILABLE;
+		}
 
 		/* Load downloaded file and add bitmap to memory cache */
 		Bitmap b = decodeImageFile(filename, width, height);
 		if ((b == null) || (Thread.interrupted())) {
 			Log.d(tag, "Error loading to memory: " + frupic.id);
-			return false;
+			return NOT_AVAILABLE;
 		}
 		Log.d(tag, "Loaded file to memory: " + frupic.id);
 		cache.add(getCacheFileName(frupic, thumb), b);
 
-		return true;
+		return ret;
 	}
 
-	public boolean fetchThumb(Frupic frupic) {
+	public int fetchThumb(Frupic frupic) {
 		return fetch(frupic, true, targetWidth, targetHeight, null);
 	}
 
-	public boolean fetchFull(Frupic frupic, OnFetchProgress onProgress) {
+	public int fetchFull(Frupic frupic, OnFetchProgress onProgress) {
 		return fetch(frupic, false, targetWidth, targetHeight, onProgress);
 	}
 

@@ -8,13 +8,12 @@ public class Frupic implements Serializable {
 
 	private static final long serialVersionUID = 12345L;
 
-	static private final String tag = Frupic.class.getSimpleName();
-	
 	int id;
 	String full_url, thumb_url;
 	String date;
 	String username;
 	String tags[];
+	Object tag;
 	
 	Frupic() {
 		this.tags = null;
@@ -23,7 +22,7 @@ public class Frupic implements Serializable {
 		this.full_url = null;
 		this.thumb_url = null;
 		this.id = 0;
-		
+		this.tag = null;
 	}
 	
 	public String getUsername() {
@@ -60,6 +59,14 @@ public class Frupic implements Serializable {
 	
 	public String[] getTags() {
 		return tags;
+	}
+	
+	public synchronized Object getTag() {
+		return tag;
+	}
+	
+	public synchronized void setTag(Object tag) {
+		this.tag = tag;
 	}
 	
 	/**

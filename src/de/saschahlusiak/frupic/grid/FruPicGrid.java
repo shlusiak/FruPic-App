@@ -28,6 +28,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -46,14 +51,12 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	FrupicFactory factory;
 	ProgressDialog progressDialog;
 	int base, count;
-	int lastVisibleStart, lastVisibleCount;
 	static DownloadTask downloadTask = null;
 
 	public final int FRUPICS = 50;
 	public final int FRUPICS_STEP = 30;
 
 	RefreshIndexTask refreshTask = null; 
-	FetchPreviewTask fetchTask = null;
 	
 	/* TODO: Add a star to new and unseen frupics? */
 	class RefreshIndexTask extends AsyncTask<Void, Void, Frupic[]> {
@@ -90,8 +93,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		protected void onCancelled() {
 			if (error != null)
 				Toast.makeText(FruPicGrid.this, error, Toast.LENGTH_LONG).show();
-			if (fetchTask == null)
-				setProgressBarIndeterminateVisibility(false);
+			setProgressBarIndeterminateVisibility(false);
 			super.onCancelled();
 			refreshTask = null;
 		}
@@ -100,90 +102,14 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		protected void onPostExecute(Frupic result[]) {
 			if (result != null)
 				adapter.setFrupics(result);
-				
-			int visibleItemCount = grid.getLastVisiblePosition() - grid.getFirstVisiblePosition();
-			int firstVisibleItem = grid.getFirstVisiblePosition();
-			
-			Log.d(tag, "RefreshIndexTask.onPostExecute");
-			if (visibleItemCount > 0) {
-				/* Base changed, start a new FetchTask */
-				if (fetchTask != null) {
-					Log.d(tag, "Got FruPic list, restart FetchTask");
-					fetchTask.cancel(false);
-				}
-				
-				lastVisibleCount = visibleItemCount;
-				lastVisibleStart = firstVisibleItem;			
-				
-				Frupic v[] = new Frupic[visibleItemCount];
-				for (int i = 0; i < visibleItemCount; i++)
-					v[i] = adapter.getItem(firstVisibleItem + i);
-				fetchTask = new FetchPreviewTask();
-				fetchTask.execute(v);
-			}
-			if (fetchTask == null)
-				setProgressBarIndeterminateVisibility(false);
-			
+			setProgressBarIndeterminateVisibility(false);
+
 			super.onPostExecute(result);
 			refreshTask = null;
 		}
 	}
 
-	/* TODO: Add a progressbar to grid items that are being loading right now? */
-	class FetchPreviewTask extends AsyncTask<Frupic, Frupic, Void> {
-		FetchPreviewTask() {
-		}
-
-		@Override
-		protected void onPreExecute() {
-			Log.d(tag, "FetchPreviewTask.onPreExecute");
-			setProgressBarIndeterminateVisibility(true);
-			super.onPreExecute();
-		}
-
-		@Override
-		protected Void doInBackground(Frupic... frupics) {
-			factory.pruneCache();
-			if (isCancelled())
-				return null;
-
-			for (Frupic f : frupics) {
-				if (f == null)
-					return null; /* TODO: Find out why this might happen */
-				
-				if (factory.fetchThumb(f))
-					publishProgress(f);
-				
-				if (isCancelled())
-					return null;
-			}
-			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(Frupic... values) {
-			adapter.notifyDataSetChanged();
-			super.onProgressUpdate(values);
-		}
-		
-		@Override
-		protected void onCancelled() {
-			if (refreshTask == null)
-				setProgressBarIndeterminateVisibility(false);
-
-			fetchTask = null;
-			super.onCancelled();
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			Log.d(tag, "FetchPreviewTask.onPostExecute");
-			if (refreshTask == null)
-				setProgressBarIndeterminateVisibility(false);
-			fetchTask = null;
-			super.onPostExecute(result);
-		}
-	}
+	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -201,16 +127,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		grid.setAdapter(adapter);
 		grid.setOnItemClickListener(this);
 		grid.setOnScrollListener(this);
-		registerForContextMenu(grid);
+		registerForContextMenu(grid);				
 		
 		frupics = factory.fetchFrupicIndexFromCache();
 		adapter.setFrupics(frupics);
-		if (fetchTask == null && frupics != null) {
-			/* this loads all frupics in the index */
-			/* TODO: maybe find out exactly how many to load */
-			fetchTask = new FetchPreviewTask();
-			fetchTask.execute(frupics);
-		}
+
 		base = 0;
 		count = FRUPICS;
 	}
@@ -266,9 +187,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		if (refreshTask != null && !refreshTask.isCancelled())
 			refreshTask.cancel(true);
 		refreshTask = null;
-		if (fetchTask != null && !fetchTask.isCancelled())
-			fetchTask.cancel(true);
-		fetchTask = null;
 		
 		if (downloadTask != null)
 			downloadTask.setActivity(null, null);
@@ -296,18 +214,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 				refreshTask.execute();
 			}
 		}
-
-		if (lastVisibleCount != visibleItemCount || lastVisibleStart != firstVisibleItem) {
-			if (fetchTask == null) {
-				Frupic v[] = new Frupic[visibleItemCount];
-				for (int i = 0; i < visibleItemCount; i++)
-					v[i] = adapter.getItem(firstVisibleItem + i);
-				fetchTask = new FetchPreviewTask();
-				fetchTask.execute(v);
-				lastVisibleCount = visibleItemCount;
-				lastVisibleStart = firstVisibleItem;
-			}
-		}
 	}
 
 	@Override
@@ -322,24 +228,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 				refreshTask = new RefreshIndexTask();
 				refreshTask.execute();
 			}
-
-			if (lastVisibleCount != visibleItemCount || lastVisibleStart != firstVisibleItem) {
-				Frupic v[] = new Frupic[visibleItemCount];
-				for (int i = 0; i < visibleItemCount; i++)
-					v[i] = adapter.getItem(firstVisibleItem + i);
-				if (fetchTask != null) {
-					Log.d(tag, "Cancelling running FetchTask");
-					fetchTask.cancel(false);
-					fetchTask = null;
-				}
-				if (fetchTask == null) {
-					fetchTask = new FetchPreviewTask();
-					fetchTask.execute(v);
-					lastVisibleCount = visibleItemCount;
-					lastVisibleStart = firstVisibleItem;			
-				}
-			}
-	
+			factory.pruneCache();
 		}
 	}
 	
