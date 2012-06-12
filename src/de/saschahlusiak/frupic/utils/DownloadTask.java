@@ -69,7 +69,7 @@ public class DownloadTask extends AsyncTask<Void, Integer, Void> {
 		}		
 		
 		if (!frupic.getCachedFile(factory).exists()) {
-			if (!FrupicFactory.fetchFrupicImage(factory, frupic, false,
+			if (!factory.fetchFrupicImage(frupic, false,
 					new FrupicFactory.OnFetchProgress() {
 						@Override
 						public void OnProgress(int read, int length) {

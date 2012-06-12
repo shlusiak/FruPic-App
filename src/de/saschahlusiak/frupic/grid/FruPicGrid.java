@@ -79,6 +79,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			} catch (Exception e) {
 				pics = null;
 				error = "Connection error";
+				e.printStackTrace();
 				cancel(false);
 			}
 

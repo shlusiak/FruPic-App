@@ -35,7 +35,7 @@ public class FetchTask extends AsyncTask<Void, Integer, Void> {
 	@Override
 	protected Void doInBackground(Void... params) {
 		if (!frupic.getCachedFile(factory).exists()) {
-			if (!FrupicFactory.fetchFrupicImage(factory, frupic, false,
+			if (!factory.fetchFrupicImage(frupic, false,
 					new FrupicFactory.OnFetchProgress() {
 
 						@Override

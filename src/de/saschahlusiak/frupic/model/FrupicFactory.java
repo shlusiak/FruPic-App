@@ -14,6 +14,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.ByteArrayBuffer;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +44,7 @@ public class FrupicFactory {
 	int cachesize;
 	File internal_cachedir, external_cachedir;
 	boolean prefer_external_cache;
+	DefaultHttpClient client;
 
 	public FrupicFactory(Context context, int cachesize) {
 		this.context = context;
@@ -46,6 +52,7 @@ public class FrupicFactory {
 		targetWidth = 800;
 		targetHeight = 800;
 		this.cachesize = DEFAULT_CACHE_SIZE;
+		client = new DefaultHttpClient();
 		updateCacheDirs();
 	}
 	
@@ -70,28 +77,29 @@ public class FrupicFactory {
 		this.cachesize = cachesize;
 	}
 
-	private String fetchURL(String url) {
+	private synchronized String fetchURL(String url) {
 		InputStream in = null;
+		HttpResponse resp;
 
 		try {
-			HttpURLConnection urlConn;
-			urlConn = (HttpURLConnection) new URL(url).openConnection();
-			HttpURLConnection httpConn = (HttpURLConnection) urlConn;
-			httpConn.setAllowUserInteraction(false);
-			httpConn.connect();
-			in = httpConn.getInputStream();
-			BufferedInputStream bis = new BufferedInputStream(in);
+			resp = client.execute(new HttpGet(url));
+
+			final StatusLine status = resp.getStatusLine();
+			if (status.getStatusCode() != 200) {
+				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
+				return null;
+			}
+
+			in = resp.getEntity().getContent();
+			
 			ByteArrayBuffer baf = new ByteArrayBuffer(50);
 			int read = 0;
 			int bufSize = 1024;
 			byte[] buffer = new byte[bufSize];
-			while (true) {
-				read = bis.read(buffer);
-				if (read == -1) {
-					break;
-				}
+			while ((read = in.read(buffer)) > 0) {
 				baf.append(buffer, 0, read);
 			}
+			in.close();
 			return new String(baf.toByteArray());
 		} catch (MalformedURLException e1) {
 			e1.printStackTrace();
@@ -339,20 +347,24 @@ public class FrupicFactory {
 		void OnProgress(int read, int length);
 	}
 
-	public static synchronized boolean fetchFrupicImage(FrupicFactory factory,
-			Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
+	public synchronized boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
 		OutputStream myOutput = null;
+		HttpResponse resp;
 		try {
-			myOutput = new FileOutputStream(getCacheFileName(factory, frupic, fetch_thumb));
-			URL url = new URL(fetch_thumb ? frupic.thumb_url : frupic.full_url);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setUseCaches(true);
+			myOutput = new FileOutputStream(getCacheFileName(this, frupic, fetch_thumb));
+			
+			resp = client.execute(new HttpGet(fetch_thumb ? frupic.thumb_url : frupic.full_url));
 
-			Object response = connection.getContent();
-			int maxlength = connection.getContentLength();
+			final StatusLine status = resp.getStatusLine();
+			if (status.getStatusCode() != 200) {
+				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
+				return false;
+			}
+
 			int copied;
 
-			InputStream myInput = (InputStream) response;
+			long maxlength = resp.getEntity().getContentLength();
+			InputStream myInput = resp.getEntity().getContent();
 			byte[] buffer = new byte[4096];
 			int length;
 			copied = 0;
@@ -362,23 +374,23 @@ public class FrupicFactory {
 					myOutput.flush();
 					myInput.close();
 					myOutput.close();
-					frupic.getCachedFile(factory).delete();
+					frupic.getCachedFile(this).delete();
 					Log.d(tag, "removed partly downloaded file "
-							+ getCacheFileName(factory, frupic, fetch_thumb));
+							+ getCacheFileName(this, frupic, fetch_thumb));
 					return false;
 				}
 				
 				if (progress != null)
-					progress.OnProgress(copied, maxlength);
+					progress.OnProgress(copied, (int)maxlength);
 				copied += length;
 			}
 			myOutput.flush();
 			myInput.close();
 			myOutput.close();
 			if (Thread.interrupted()) {
-				frupic.getCachedFile(factory).delete();
+				frupic.getCachedFile(this).delete();
 				Log.d(tag, "removed partly downloaded file "
-						+ getCacheFileName(factory, frupic, fetch_thumb));
+						+ getCacheFileName(this, frupic, fetch_thumb));
 				return false;
 			}
 			return true;
@@ -393,8 +405,8 @@ public class FrupicFactory {
 				myOutput = null;
 			}
 			
-			frupic.getCachedFile(factory).delete();
-			Log.d(tag, "removed partly downloaded file " + getCacheFileName(factory, frupic, fetch_thumb));
+			frupic.getCachedFile(this).delete();
+			Log.d(tag, "removed partly downloaded file " + getCacheFileName(this, frupic, fetch_thumb));
 			e.printStackTrace();
 			return false;
 		}
@@ -447,7 +459,7 @@ public class FrupicFactory {
 		File f = new File(filename);
 		/* Fetch file from the Interweb, unless cached locally */
 		if (!f.exists()) {
-			if (! fetchFrupicImage(this, frupic, thumb, onProgress)) {
+			if (! fetchFrupicImage(frupic, thumb, onProgress)) {
 				return false;
 			}
 			Log.d(tag, "Downloaded file " + frupic.id);
