@@ -18,6 +18,7 @@ import java.util.Date;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.ByteArrayBuffer;
 import org.json.JSONArray;
@@ -351,9 +352,11 @@ public class FrupicFactory {
 		OutputStream myOutput = null;
 		HttpResponse resp;
 		try {
+			HttpUriRequest req;
 			myOutput = new FileOutputStream(getCacheFileName(this, frupic, fetch_thumb));
 			
-			resp = client.execute(new HttpGet(fetch_thumb ? frupic.thumb_url : frupic.full_url));
+			req = new HttpGet(fetch_thumb ? frupic.thumb_url : frupic.full_url);
+			resp = client.execute(req);
 
 			final StatusLine status = resp.getStatusLine();
 			if (status.getStatusCode() != 200) {
@@ -371,6 +374,7 @@ public class FrupicFactory {
 			while ((length = myInput.read(buffer)) > 0) {
 				myOutput.write(buffer, 0, length);
 				if (Thread.interrupted()) {
+					req.abort();
 					myOutput.flush();
 					myInput.close();
 					myOutput.close();
