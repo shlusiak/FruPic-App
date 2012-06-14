@@ -51,6 +51,7 @@ public class FrupicFactory {
 	File internal_cachedir, external_cachedir;
 	boolean prefer_external_cache;
 	DefaultHttpClient client;
+	Object fetchLock = new Object();
 
 	public FrupicFactory(Context context, int cachesize) {
 		this.context = context;
@@ -83,36 +84,38 @@ public class FrupicFactory {
 		this.cachesize = cachesize;
 	}
 
-	private synchronized String fetchURL(String url) {
+	private String fetchURL(String url) {
 		InputStream in = null;
 		HttpResponse resp;
 
-		try {
-			resp = client.execute(new HttpGet(url));
+		synchronized (client) {
+			try {
+				resp = client.execute(new HttpGet(url));
 
-			final StatusLine status = resp.getStatusLine();
-			if (status.getStatusCode() != 200) {
-				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
+				final StatusLine status = resp.getStatusLine();
+				if (status.getStatusCode() != 200) {
+					Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
+					return null;
+				}
+
+				in = resp.getEntity().getContent();
+			
+				ByteArrayBuffer baf = new ByteArrayBuffer(50);
+				int read = 0;
+				int bufSize = 1024;
+				byte[] buffer = new byte[bufSize];
+				while ((read = in.read(buffer)) > 0) {
+					baf.append(buffer, 0, read);
+				}
+				in.close();
+				return new String(baf.toByteArray());
+			} catch (MalformedURLException e1) {
+				e1.printStackTrace();
+				return null;
+			} catch (IOException e1) {
+				e1.printStackTrace();
 				return null;
 			}
-
-			in = resp.getEntity().getContent();
-			
-			ByteArrayBuffer baf = new ByteArrayBuffer(50);
-			int read = 0;
-			int bufSize = 1024;
-			byte[] buffer = new byte[bufSize];
-			while ((read = in.read(buffer)) > 0) {
-				baf.append(buffer, 0, read);
-			}
-			in.close();
-			return new String(baf.toByteArray());
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
-			return null;
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			return null;
 		}
 	}
 	
@@ -156,27 +159,30 @@ public class FrupicFactory {
 	}
 	
 	public Frupic[] fetchFrupicIndexFromCache() {
-		try {
-			InputStream is = context.openFileInput("index");
-			if (is == null)
-				return null;
-			BufferedInputStream bis = new BufferedInputStream(is);
-		
-			ByteArrayBuffer baf = new ByteArrayBuffer(50);
-			int read = 0;
-			int bufSize = 1024;
-			byte[] buffer = new byte[bufSize];
-			while (true) {
-				read = bis.read(buffer);
-				if (read == -1) {
-					break;
+		synchronized (client) {
+			try {
+				InputStream is = context.openFileInput("index");
+				if (is == null)
+					return null;
+				BufferedInputStream bis = new BufferedInputStream(is);
+				
+				ByteArrayBuffer baf = new ByteArrayBuffer(50);
+				int read = 0;
+				int bufSize = 1024;
+				byte[] buffer = new byte[bufSize];
+				while (true) {
+					read = bis.read(buffer);
+					if (read == -1) {
+						break;
+					}
+					baf.append(buffer, 0, read);
 				}
-				baf.append(buffer, 0, read);
+				is.close();
+				return getFrupicIndexFromString(new String(baf.toByteArray()));
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
 			}
-			return getFrupicIndexFromString(new String(baf.toByteArray()));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
 		}
 	}
 
@@ -196,10 +202,12 @@ public class FrupicFactory {
 			return null;
 		
 		/* Always cache last query */
-		PrintWriter pwr = new PrintWriter(context.openFileOutput("index", Context.MODE_WORLD_READABLE));
-		pwr.write(queryResult);
-		pwr.flush();
-		pwr.close();		
+		synchronized (client) {
+			PrintWriter pwr = new PrintWriter(context.openFileOutput("index", Context.MODE_WORLD_READABLE));
+			pwr.write(queryResult);
+			pwr.flush();
+			pwr.close();
+		}
 		
 		return getFrupicIndexFromString(queryResult);
 	}
@@ -233,7 +241,7 @@ public class FrupicFactory {
 	public CacheInfo pruneCache(FrupicFactory factory, int limit) {
 		int total;
 		int number = 0;
-		synchronized(cache) {
+		synchronized(fetchLock) {
 		File files1[];
 		files1 = factory.internal_cachedir.listFiles((FilenameFilter) null);
 		File files2[] = null;
@@ -289,14 +297,17 @@ public class FrupicFactory {
 	}
 
 	private Bitmap decodeImageFile(String filename, int width, int height) {
-		File file = new File(filename);
+		Bitmap b;
+		Options options = new Options();
+		File file;
+		
+		file = new File(filename);
 		if (!file.exists() || !file.canRead())
 			return null;
 
-		Options options = new Options();
 		options.inJustDecodeBounds = true;
 		BitmapFactory.decodeFile(filename, options);
-
+		
 		options.inJustDecodeBounds = false;
 		options.inInputShareable = true;
 		options.inPurgeable = true;
@@ -316,7 +327,8 @@ public class FrupicFactory {
 					+ "), sample " + options.inSampleSize);
 		}
 
-		Bitmap b = BitmapFactory.decodeFile(filename, options);
+		b = BitmapFactory.decodeFile(filename, options);
+		
 		if (b == null) {
 			Log.e("FruPic", "Error decoding image stream: " + file);
 		} else {
@@ -356,12 +368,11 @@ public class FrupicFactory {
 		void OnProgress(int read, int length);
 	}
 
-	public synchronized boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
+	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
 		OutputStream myOutput = null;
 		HttpResponse resp;
 		try {
 			HttpUriRequest req;
-			myOutput = new FileOutputStream(getCacheFileName(this, frupic, fetch_thumb));
 			
 			req = new HttpGet(fetch_thumb ? frupic.thumb_url : frupic.full_url);
 			resp = client.execute(req);
@@ -376,48 +387,53 @@ public class FrupicFactory {
 
 			long maxlength = resp.getEntity().getContentLength();
 			InputStream myInput = resp.getEntity().getContent();
-			byte[] buffer = new byte[4096];
-			int length;
-			copied = 0;
-			while ((length = myInput.read(buffer)) > 0) {
-				myOutput.write(buffer, 0, length);
+			synchronized (fetchLock) {
+				myOutput = new FileOutputStream(getCacheFileName(this, frupic, fetch_thumb));
+				byte[] buffer = new byte[4096];
+				int length;
+				copied = 0;
+				while ((length = myInput.read(buffer)) > 0) {
+					myOutput.write(buffer, 0, length);
+					if (Thread.interrupted()) {
+						req.abort();
+						myOutput.flush();
+						myInput.close();
+						myOutput.close();
+						frupic.getCachedFile(this).delete();
+						Log.d(tag, "removed partly downloaded file "
+								+ getCacheFileName(this, frupic, fetch_thumb));
+						return false;
+					}
+				
+					if (progress != null)
+						progress.OnProgress(copied, (int)maxlength);
+					copied += length;
+				}
+				myOutput.flush();
+				myInput.close();
+				myOutput.close();
 				if (Thread.interrupted()) {
-					req.abort();
-					myOutput.flush();
-					myInput.close();
-					myOutput.close();
 					frupic.getCachedFile(this).delete();
 					Log.d(tag, "removed partly downloaded file "
 							+ getCacheFileName(this, frupic, fetch_thumb));
 					return false;
 				}
-				
-				if (progress != null)
-					progress.OnProgress(copied, (int)maxlength);
-				copied += length;
-			}
-			myOutput.flush();
-			myInput.close();
-			myOutput.close();
-			if (Thread.interrupted()) {
-				frupic.getCachedFile(this).delete();
-				Log.d(tag, "removed partly downloaded file "
-						+ getCacheFileName(this, frupic, fetch_thumb));
-				return false;
 			}
 			return true;
 		} catch (Exception e) {
-			if (myOutput != null) {
-				try {
-					myOutput.flush();
-					myOutput.close();
-				} catch (Exception e2) {
-					e2.printStackTrace();
+			synchronized (fetchLock) {
+				if (myOutput != null) {
+					try {
+						myOutput.flush();
+						myOutput.close();
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
+					myOutput = null;
 				}
-				myOutput = null;
+				
+				frupic.getCachedFile(this).delete();
 			}
-			
-			frupic.getCachedFile(this).delete();
 			Log.d(tag, "removed partly downloaded file " + getCacheFileName(this, frupic, fetch_thumb));
 			e.printStackTrace();
 			return false;
