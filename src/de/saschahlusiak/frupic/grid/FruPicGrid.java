@@ -14,25 +14,23 @@ import de.saschahlusiak.frupic.utils.UploadActivity;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.ScaleAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -52,6 +50,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	ProgressDialog progressDialog;
 	int base, count;
 	static DownloadTask downloadTask = null;
+	Menu optionsMenu;
+	View mRefreshIndeterminateProgressView;
 
 	public final int FRUPICS = 50;
 	public final int FRUPICS_STEP = 30;
@@ -64,9 +64,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		@Override
 		protected void onPreExecute() {
-			setProgressBarIndeterminateVisibility(true);
 			Log.d(tag, "RefreshIndexTask.onPreExecute");
 			error = null;
+			setProgressActionView(true);
 			super.onPreExecute();
 		}
 
@@ -93,7 +93,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		protected void onCancelled() {
 			if (error != null)
 				Toast.makeText(FruPicGrid.this, error, Toast.LENGTH_LONG).show();
-			setProgressBarIndeterminateVisibility(false);
+			setProgressActionView(false);
 			super.onCancelled();
 			refreshTask = null;
 		}
@@ -102,7 +102,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		protected void onPostExecute(Frupic result[]) {
 			if (result != null)
 				adapter.setFrupics(result);
-			setProgressBarIndeterminateVisibility(false);
+			setProgressActionView(false);
 
 			super.onPostExecute(result);
 			refreshTask = null;
@@ -116,7 +116,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		Frupic frupics[];
 		
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		}
 
 		setContentView(R.layout.grid_activity);
 
@@ -259,6 +261,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.grid_optionsmenu, menu);
+		this.optionsMenu = menu;
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -399,6 +402,30 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			}
 			break;
 		}
+	}
+	
+	void setProgressActionView(boolean refreshing) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			setProgressBarIndeterminateVisibility(refreshing);			
+			return;
+		}
+		if (optionsMenu == null)
+			return;
+        final MenuItem refreshItem = optionsMenu.findItem(R.id.refresh);
+        if (refreshItem != null) {
+            if (refreshing) {
+                if (mRefreshIndeterminateProgressView == null) {
+                    LayoutInflater inflater = (LayoutInflater)
+                            getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    mRefreshIndeterminateProgressView = inflater.inflate(
+                            R.layout.actionbar_indeterminate_progress, null);
+                }
+
+                refreshItem.setActionView(mRefreshIndeterminateProgressView);
+            } else {
+                refreshItem.setActionView(null);
+            }
+        }
 	}
 
 }
