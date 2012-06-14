@@ -201,7 +201,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			long id) {
 		Intent intent = new Intent(this, FruPicGallery.class);
 		intent.putExtra("index", position);
-		intent.putExtra("id", id);		
+		intent.putExtra("id", id);
 		startActivity(intent);
 	}
 
@@ -230,7 +230,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 				refreshTask = new RefreshIndexTask();
 				refreshTask.execute();
 			}
-			factory.pruneCache();
+			
+			Thread t = new Thread() {
+				public void run() {					
+					factory.pruneCache();
+				};
+			};
+			t.start();
 		}
 	}
 	
@@ -360,7 +366,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 			/* TODO: If file is not in cache yet, download it first or show message */
 			out = new File(out, frupic.getFileName(false));
-			if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory), out)) {
+			if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory, false), out)) {
 				intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("image/?");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));

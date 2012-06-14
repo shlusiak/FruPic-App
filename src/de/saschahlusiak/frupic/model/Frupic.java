@@ -47,8 +47,8 @@ public class Frupic implements Serializable {
 		return full_url;
 	}
 	
-	public File getCachedFile(FrupicFactory factory) {
-		return new File(FrupicFactory.getCacheFileName(factory, this, false));
+	public File getCachedFile(FrupicFactory factory, boolean thumb) {
+		return new File(FrupicFactory.getCacheFileName(factory, this, thumb));
 	}
 	
 	public String getFileName(boolean thumb) {
@@ -59,14 +59,6 @@ public class Frupic implements Serializable {
 	
 	public String[] getTags() {
 		return tags;
-	}
-	
-	public synchronized Object getTag() {
-		return tag;
-	}
-	
-	public synchronized void setTag(Object tag) {
-		this.tag = tag;
 	}
 	
 	/**

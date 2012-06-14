@@ -47,7 +47,7 @@ public class DetailDialog extends ArrayAdapter<DetailItem> implements DialogInte
 		items[2].setValue(frupic.getDate());
 		items[5].setValue(frupic.getFullUrl());
 
-		File f = frupic.getCachedFile(factory);
+		File f = frupic.getCachedFile(factory, false);
 		if (f.exists()) {
 			Options options = new Options();
 			options.inJustDecodeBounds = true;

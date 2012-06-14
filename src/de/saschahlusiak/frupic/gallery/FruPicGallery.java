@@ -442,7 +442,7 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 			
 			/* TODO: If file is not in cache yet, download it first or show message */
 			out = new File(out, frupic.getFileName(false));
-			if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory), out)) {
+			if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory, false), out)) {
 				intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("image/?");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));

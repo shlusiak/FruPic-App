@@ -51,7 +51,6 @@ public class FrupicFactory {
 	File internal_cachedir, external_cachedir;
 	boolean prefer_external_cache;
 	DefaultHttpClient client;
-	Object fetchLock = new Object();
 
 	public FrupicFactory(Context context, int cachesize) {
 		this.context = context;
@@ -241,7 +240,7 @@ public class FrupicFactory {
 	public CacheInfo pruneCache(FrupicFactory factory, int limit) {
 		int total;
 		int number = 0;
-		synchronized(fetchLock) {
+		synchronized(client) {
 		File files1[];
 		files1 = factory.internal_cachedir.listFiles((FilenameFilter) null);
 		File files2[] = null;
@@ -371,37 +370,43 @@ public class FrupicFactory {
 	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
 		OutputStream myOutput = null;
 		HttpResponse resp;
+		File tmpFile = new File(getCacheFileName(frupic, fetch_thumb) + ".tmp");
 		try {
-			HttpUriRequest req;
-			
-			req = new HttpGet(fetch_thumb ? frupic.thumb_url : frupic.full_url);
-			resp = client.execute(req);
-
-			final StatusLine status = resp.getStatusLine();
-			if (status.getStatusCode() != 200) {
-				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
-				return false;
-			}
-
-			int copied;
-
-			long maxlength = resp.getEntity().getContentLength();
-			InputStream myInput = resp.getEntity().getContent();
-			synchronized (fetchLock) {
-				myOutput = new FileOutputStream(getCacheFileName(this, frupic, fetch_thumb));
+			synchronized (client) {
+				if (Thread.interrupted())
+					return false;
+				HttpUriRequest req;
+				
+				req = new HttpGet(fetch_thumb ? frupic.thumb_url : frupic.full_url);
+				resp = client.execute(req);
+	
+				final StatusLine status = resp.getStatusLine();
+				if (status.getStatusCode() != 200) {
+					Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
+					resp.getEntity().consumeContent();
+					return false;
+				}
+	
+				int copied;
+	
+				long maxlength = resp.getEntity().getContentLength();
+				InputStream myInput = resp.getEntity().getContent();
+				
+				myOutput = new FileOutputStream(tmpFile);
 				byte[] buffer = new byte[4096];
 				int length;
 				copied = 0;
 				while ((length = myInput.read(buffer)) > 0) {
 					myOutput.write(buffer, 0, length);
 					if (Thread.interrupted()) {
-						req.abort();
+						resp.getEntity().consumeContent();
 						myOutput.flush();
 						myInput.close();
 						myOutput.close();
-						frupic.getCachedFile(this).delete();
-						Log.d(tag, "removed partly downloaded file "
-								+ getCacheFileName(this, frupic, fetch_thumb));
+						if (!tmpFile.delete()) {
+							Log.e(tag, "error removing partly downloaded file "
+								+ tmpFile.getName());
+						}
 						return false;
 					}
 				
@@ -413,15 +418,17 @@ public class FrupicFactory {
 				myInput.close();
 				myOutput.close();
 				if (Thread.interrupted()) {
-					frupic.getCachedFile(this).delete();
-					Log.d(tag, "removed partly downloaded file "
-							+ getCacheFileName(this, frupic, fetch_thumb));
+					if (!tmpFile.delete()) {
+						Log.e(tag, "error removing partly downloaded file "
+							+ tmpFile.getName());
+					}
 					return false;
 				}
+				tmpFile.renameTo(frupic.getCachedFile(this, fetch_thumb));
 			}
 			return true;
 		} catch (Exception e) {
-			synchronized (fetchLock) {
+			synchronized (client) {
 				if (myOutput != null) {
 					try {
 						myOutput.flush();
@@ -432,9 +439,13 @@ public class FrupicFactory {
 					myOutput = null;
 				}
 				
-				frupic.getCachedFile(this).delete();
+				if (!tmpFile.delete()) {
+					Log.e(tag, "error removing partly downloaded file " + tmpFile.getName());
+				}
 			}
-			Log.d(tag, "removed partly downloaded file " + getCacheFileName(this, frupic, fetch_thumb));
+			if (!tmpFile.delete()) {
+				Log.e(tag, "error removing partly downloaded file "	+ tmpFile.getName());
+			}
 			e.printStackTrace();
 			return false;
 		}
@@ -485,7 +496,7 @@ public class FrupicFactory {
 		if (cache.get(getCacheFileName(frupic, thumb)) != null)
 			return FROM_CACHE;	/* the picture was available before; don't notify again */
 
-		synchronized (this) {
+		synchronized (client) {
 			File f = new File(filename);
 			/* Fetch file from the Interweb, unless cached locally */
 			if (!f.exists()) {
@@ -497,10 +508,10 @@ public class FrupicFactory {
 			} else
 				ret = FROM_FILE;
 		
-			/* touch file, so it is purged from cache last */
-			f.setLastModified(new Date().getTime());
 			if (Thread.interrupted())
 				return NOT_AVAILABLE;
+			/* touch file, so it is purged from cache last */
+			f.setLastModified(new Date().getTime());
 		}
 
 		/* Load downloaded file and add bitmap to memory cache */

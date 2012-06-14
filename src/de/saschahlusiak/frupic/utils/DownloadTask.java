@@ -68,7 +68,7 @@ public class DownloadTask extends AsyncTask<Void, Integer, Void> {
 			return null;
 		}		
 		
-		if (!frupic.getCachedFile(factory).exists()) {
+		if (!frupic.getCachedFile(factory, false).exists()) {
 			if (!factory.fetchFrupicImage(frupic, false,
 					new FrupicFactory.OnFetchProgress() {
 						@Override
@@ -90,7 +90,7 @@ public class DownloadTask extends AsyncTask<Void, Integer, Void> {
 		File file = new File(path, frupic.getFileName(false));
 		path.mkdirs();
 
-		if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory),
+		if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory, false),
 				file)) {
 			// Tell the media scanner about the new file so that it is
 			// immediately available to the user.
