@@ -240,13 +240,14 @@ public class FrupicFactory {
 	public CacheInfo pruneCache(FrupicFactory factory, int limit) {
 		int total;
 		int number = 0;
-		synchronized(client) {
 		File files1[];
-		files1 = factory.internal_cachedir.listFiles((FilenameFilter) null);
 		File files2[] = null;
+		synchronized(client) {
+			files1 = factory.internal_cachedir.listFiles((FilenameFilter) null);
 		
-		if (factory.external_cachedir != null)
-			files2 = factory.external_cachedir.listFiles((FilenameFilter) null);
+			if (factory.external_cachedir != null)
+				files2 = factory.external_cachedir.listFiles((FilenameFilter) null);
+		}
 		
 		File files[] = new File[files1.length + ((files2 == null) ? 0 : files2.length)];
 		System.arraycopy(files1, 0, files, 0, files1.length);
@@ -280,13 +281,15 @@ public class FrupicFactory {
 			if (total > limit) {
 				Log.i(tag, "purged " + files[oldest].getName()
 						+ " from filesystem");
-				if (files[oldest].delete())
-					total -= files[oldest].length();
+				synchronized (client) {
+					if (files[oldest].delete())
+						total -= files[oldest].length();
+				}
 				number--;
 				files[oldest] = null;
 			}
 		} while (total > limit);
-		}
+		
 		Log.d(tag, "left file cache populated with " + total + " bytes, " + number + " files");
 		return new CacheInfo(total, number);
 	}
