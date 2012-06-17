@@ -59,7 +59,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 	RefreshIndexTask refreshTask = null; 
 	
-	/* TODO: Add a star to new and unseen frupics? */
 	class RefreshIndexTask extends AsyncTask<Void, Void, Frupic[]> {
 		String error;
 		int base, count;
@@ -207,11 +206,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> arg0, View view, int position,
-			long id) {
+	public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
 		Intent intent = new Intent(this, FruPicGallery.class);
-		intent.putExtra("index", position);
-		intent.putExtra("id", id);
+		intent.putExtra("position", position);
 		startActivity(intent);
 	}
 

@@ -23,7 +23,7 @@ public class Frupic implements Serializable {
 	String tags[];
 	Object tag;
 	
-	Frupic() {
+	public Frupic() {
 		this.tags = null;
 		this.username = null;
 		this.date = null;

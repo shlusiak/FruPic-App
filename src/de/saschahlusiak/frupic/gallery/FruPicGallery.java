@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.UnknownHostException;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
@@ -17,6 +18,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,81 +46,15 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 	FrupicFactory factory;
 	ProgressBar progressBar;
 	ProgressBar progressActivity;
-	int base;
 	boolean prefetch_images;
 	public final int FRUPICS = 9;
 	static DownloadTask downloadTask = null;
 	ProgressDialog progressDialog;
+	Cursor cursor;
+	FrupicDB db;
 	
 	
-	class RefreshTask extends AsyncTask<Integer, Void, Frupic[]> {
-		String error;
-		int newbase;
-
-		@Override
-		protected void onPreExecute() {
-			progressActivity.setVisibility(View.VISIBLE);
-			error = null;
-			Log.d(tag, "RefreshTask.onPreExecute");
-			super.onPreExecute();
-		}
-
-		@Override
-		protected Frupic[] doInBackground(Integer... args) {
-			Frupic pics[];
-			newbase = args[0];
-			
-			if (newbase < 0)
-				newbase = 0;
-			
-			try {
-				pics = factory.fetchFrupicIndex(null, newbase, args[1]);
-			} catch (UnknownHostException u) {
-				pics = null;
-				error = "Unknown host";
-				cancel(false);
-			} catch (Exception e) {
-				pics = null;
-				error = "Connection error";
-				cancel(false);
-			}
-
-			return pics;
-		}
-
-		@Override
-		protected void onCancelled() {
-			progressActivity.setVisibility(View.INVISIBLE);
-			if (error != null)
-				Toast.makeText(FruPicGallery.this, error, Toast.LENGTH_LONG).show();
-			Log.d(tag, "RefreshTask.onCancelled");
-			super.onCancelled();
-		}
-
-		@Override
-		protected void onPostExecute(Frupic result[]) {
-			progressActivity.setVisibility(View.INVISIBLE);
-			Log.d(tag, "RefreshTask.onPostExecute");
-			
-			if (result != null) {
-				long id = gallery.getSelectedItemId();
-				if (base != newbase) {
-					adapter.setFrupics(result);
-					base = newbase;
-					for (int i = 0; i < result.length; i++) {
-						if (result[i].getId() == id) {
-							gallery.setSelection(i, false);
-							break;
-						}
-					}
-				}
-			}
-			super.onPostExecute(result);
-		}
-	}
-
 	class FetchTask extends AsyncTask<Frupic, Integer, Void> {
-		
 		@Override
 		protected void onPreExecute() {
 			progressBar.setVisibility(View.VISIBLE);
@@ -195,7 +131,6 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 		}
 	}
 	
-	RefreshTask refreshTask;
 	FetchTask fetchTask;
 	
     @Override
@@ -216,11 +151,14 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
         gallery = (OneFlingScrollGallery) findViewById(R.id.gallery);
         gallery.setAdapter(adapter);
  
-  
+ 
         /* TODO: FIXME */
-        Frupic frupics[] = null; // factory.fetchFrupicIndexFromCache();
-        adapter.setFrupics(frupics);
+        db = new FrupicDB(this);
+        db.open();
         
+        cursor = db.getFrupics(null);
+        adapter.changeCursor(cursor);
+
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
 		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size", "16777216")));
@@ -236,20 +174,14 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 		registerForContextMenu(gallery);
         
         if (savedInstanceState != null) {
-        	base = savedInstanceState.getInt("base");
         	gallery.setSelection(savedInstanceState.getInt("position"), false);
-        	Log.d(tag, "onCreate, base=" + base + ", position=" + savedInstanceState.getInt("position"));
+        	Log.d(tag, "onCreate, position=" + savedInstanceState.getInt("position"));
         } else {
         	/* This makes the picture available but it does not have the right "range".
         	 * A RefreshTask is needed anyway to corrent this
         	 */
         	/* TODO: the index and the FrupicIndexFromCache might not match caused by a possible race condition. Check again. */
-        	int index = getIntent().getIntExtra("index", 0);
-        	base = 0;
-        	if (index < frupics.length)
-        		gallery.setSelection(index, false);
-        	else
-        		Log.w(tag, "warning, requested index is " + index + ", but frupics.length is " + frupics.length);
+       		gallery.setSelection(getIntent().getIntExtra("position", 0), false);
         }
         updateLabels();
     }
@@ -257,12 +189,18 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
     	super.onSaveInstanceState(outState);
-    	outState.putInt("position", gallery.getSelectedItemPosition());
-    	outState.putInt("base", base);
+    	outState.putInt("position", cursor.getPosition());
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	cursor.close();
+    	db.close();
+    	super.onDestroy();
     }
     
 	@Override
-	protected void onStart() {      
+	protected void onStart() {
         if (downloadTask != null)
         	downloadTask.setActivity(this, downloadProgress);
 		
@@ -271,10 +209,6 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 	
 	@Override
 	protected void onStop() {
-		if (refreshTask != null && !refreshTask.isCancelled())
-			refreshTask.cancel(true);
-		refreshTask = null;
-		
 		if (fetchTask != null && !fetchTask.isCancelled())
 			fetchTask.cancel(true);
 		fetchTask = null;
@@ -332,7 +266,7 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 	
 	void updateLabels() {
 		String tags;
-		Frupic frupic = (Frupic)gallery.getSelectedItem();
+		Frupic frupic = new Frupic((Cursor)gallery.getSelectedItem());
 		/* TODO: Display information about unavailable frupic */
 		if (frupic == null) 
 			return;
@@ -355,17 +289,9 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
     
 	@Override
 	public void onItemSelected(AdapterView<?> adapterview, View view, int position,	long id) {
-		Log.d(tag, "position " + position + ", base " + base);
+		Log.d(tag, "position " + position);
 		
 		updateLabels();
-		
-		if (position <= 0 || position >= FRUPICS - 1) {
-			if (refreshTask != null && !refreshTask.isCancelled()) {
-				refreshTask.cancel(true);
-			}
-	        refreshTask = new RefreshTask();
-	        refreshTask.execute(base + position - FRUPICS / 2, FRUPICS);
-		}
 		
 		/* XXX: The View might be created with a dummy image, waiting for the task to fetch it's first
 		 * image, on which the adapter will be notified of the change and the view will be updated.
@@ -380,9 +306,9 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 		fetchTask = new FetchTask();
 		
 		if (prefetch_images)
-			fetchTask.execute(adapter.getItem(position), adapter.getItem(position + 1), adapter.getItem(position - 1), adapter.getItem(position + 2));
+			fetchTask.execute(adapter.getFrupic(position), adapter.getFrupic(position + 1), adapter.getFrupic(position - 1), adapter.getFrupic(position + 2));
 		else
-			fetchTask.execute(adapter.getItem(position));				
+			fetchTask.execute(adapter.getFrupic(position));				
 	}
 
 	@Override
@@ -400,7 +326,7 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Frupic frupic = (Frupic) gallery.getSelectedItem();
+		Frupic frupic = new Frupic((Cursor) gallery.getSelectedItem());
 		Intent intent;
 		
 		switch (item.getItemId()) {
@@ -462,7 +388,7 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-		Frupic frupic = (Frupic) adapter.getItem((int) info.position);
+		Frupic frupic = adapter.getFrupic((int) info.position);
 
 		menu.setHeaderTitle("#" + frupic.getId());
 	}

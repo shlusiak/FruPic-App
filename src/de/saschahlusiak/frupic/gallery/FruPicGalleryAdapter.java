@@ -5,79 +5,52 @@ import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 
 
-public class FruPicGalleryAdapter extends BaseAdapter {
-	Context context;
-	Frupic[] frupics;
+public class FruPicGalleryAdapter extends CursorAdapter {
 	FrupicFactory factory;
 	
-	
 	FruPicGalleryAdapter(Context context, FrupicFactory factory) {
-		this.context = context;
-		this.frupics = null;
+		super(context, null, 0);
 		this.factory = factory;
 	}
 	
-	public void setFrupics(Frupic[] pics) {
-		this.frupics = pics;
-		notifyDataSetChanged();
-	}
-	
-	@Override
-	public int getCount() {
-		if (frupics == null)
-			return 0;
-		return frupics.length;
-	}
-
-	@Override
-	public Frupic getItem(int position) {
-		if (frupics == null)
-			return null;
+	public Frupic getFrupic(int position) {
 		if (position < 0)
 			return null;
-		if (position >= frupics.length)
+		if (position > getCount())
 			return null;
-		return frupics[position];
+		return new Frupic((Cursor)getItem(position));
 	}
 
+	Frupic tmp = new Frupic();
+	
 	@Override
-	public long getItemId(int position) {
-		Frupic frupic;
-		if (frupics == null)
-			return 0;
-		frupic = getItem(position);
-		if (frupic == null)
-			return 0;
-		return frupic.getId();
-	}
-
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		View v;
-		if (convertView == null) {
-			v = LayoutInflater.from(context).inflate(R.layout.gallery_item, parent, false);
-		} else {
-			v = convertView;
-		}
-		if (getItem(position) == null)
-			return v;
+	public void bindView(View convertView, Context context, Cursor cursor) {
+		tmp.fromCursor(cursor);
 		
-		ImageView i = (ImageView)v.findViewById(R.id.imageView);
+		ImageView i = (ImageView)convertView.findViewById(R.id.imageView);
 		
-		Bitmap b = factory.getFullBitmap(getItem(position));
+		Bitmap b = factory.getFullBitmap(tmp);
 		if (b != null)
 			i.setImageBitmap(b);
 		else 
 			i.setImageResource(R.drawable.frupic);
-	
+	}
+
+	@Override
+	public View newView(Context context, Cursor arg1, ViewGroup parent) {
+		View v;
+		
+		v = LayoutInflater.from(context).inflate(R.layout.gallery_item, parent, false);
 		
 		return v;
 	}
