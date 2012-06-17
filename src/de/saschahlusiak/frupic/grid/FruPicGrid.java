@@ -150,6 +150,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	protected void onDestroy() {
 		/* delete all temporary external cache files created from "Share Image" */
 		/* TODO: Make sure the cached files are gone for good! */
+		db.markAllSeen();
 		db.close();
 		super.onDestroy();
 	}
@@ -323,25 +324,27 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		inflater.inflate(R.menu.contextmenu, menu);
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-		Frupic frupic = (Frupic) adapter.getItem((int) info.position);
+		Frupic frupic = new Frupic((Cursor)adapter.getItem((int) info.position));
 
 		menu.setHeaderTitle("#" + frupic.getId());
+		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
 		// menu.findItem(R.id.cache_now).setEnabled(! new
 		// File(factory.getCacheFileName(frupic, false)).exists());
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		Frupic frupic;
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
-		frupic = (Frupic) adapter.getItem((int) info.position);
+		Frupic frupic = new Frupic((Cursor)adapter.getItem((int) info.position));
 		Intent intent;
 
-		if (frupic == null)
-			return false;
-
 		switch (item.getItemId()) {
+		case R.id.star:
+			frupic.setFlags(frupic.getFlags() ^ Frupic.FLAG_FAV);
+			db.setFlags(frupic);
+			cursorChanged();
+			return true;
 		case R.id.openinbrowser:
 			intent = new Intent("android.intent.action.VIEW", Uri.parse(frupic.getUrl()));
 			startActivity(intent);

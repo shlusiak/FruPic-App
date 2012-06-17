@@ -101,6 +101,23 @@ public class FrupicDB {
 			return false;
 		}
 	}
+	
+	public boolean setFlags(Frupic frupic) {
+		ContentValues values = new ContentValues();
+		
+		values.put(FLAGS_ID, frupic.getFlags());
+		db.update(TABLE, values, ID_ID + "=" + frupic.getId(), null);
+		return true;
+	}
+	
+	public boolean markAllSeen() {
+		ContentValues values = new ContentValues();
+
+		values.put(FLAGS_ID, 0);
+
+		db.update(TABLE, values, FLAGS_ID + "=" + Frupic.FLAG_NEW, null);
+		return true;
+	}
 
 	public Cursor getFrupics(String username) {
 		String where;

@@ -105,8 +105,16 @@ public class Frupic implements Serializable {
 		
 		return "[" + s + "]";
 	}
+	
+	public void setFlags(int newFlags) {
+		this.flags = newFlags;
+	}
 
 	public int getFlags() {
 		return flags;
+	}
+	
+	public boolean hasFlag(int flag) {
+		return ((flags & flag) != 0);
 	}
 }

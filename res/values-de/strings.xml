@@ -18,7 +18,9 @@
     <string name="details_not_available">(nicht verfügbar)</string>
     
     <string name="gallery_posted_by">%1$s</string>
-        
+    
+    <string name="star_frupic">Favorit</string>
+    
     <string name="fetch_and_cache">In Cache laden</string>
     <string name="please_wait">Bitte warten</string>
     <string name="fetching_image_message">Lade %1$s</string>

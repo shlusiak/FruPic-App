@@ -27,16 +27,28 @@ public class FruPicGridAdapter extends CursorAdapter {
 	
 	public class ViewHolder {
 		Frupic frupic;
-		ImageView image1, image2;
+		ImageView image1, image2, imageLabel;
 		PreviewFetchTask task;
 		
 		ViewHolder(View convertView) {
 			image1 = (ImageView)convertView.findViewById(R.id.imageView1);
 			image2 = (ImageView)convertView.findViewById(R.id.imageView2);
+			imageLabel = (ImageView)convertView.findViewById(R.id.imageLabel);
 			task = null;
 		}
 		
 		void setFrupic(Frupic frupic) {
+			if (frupic.hasFlag(Frupic.FLAG_FAV)) {
+				imageLabel.setVisibility(View.VISIBLE);
+				imageLabel.setImageResource(R.drawable.star_label);
+			} else if (frupic.hasFlag(Frupic.FLAG_NEW)) {
+				imageLabel.setVisibility(View.VISIBLE);
+				imageLabel.setImageResource(R.drawable.new_label);
+			} else
+				imageLabel.setVisibility(View.INVISIBLE);
+			
+			
+			
 			if ((this.frupic != null) && (this.frupic.getId() == frupic.getId()))
 				return;
 			this.frupic = frupic;

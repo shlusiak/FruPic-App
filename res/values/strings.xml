@@ -17,7 +17,9 @@
     <string name="details_filesize">Cached size:</string>
     <string name="details_not_available">(not available)</string>
     
-    <string name="gallery_posted_by">%1$s</string>    
+    <string name="gallery_posted_by">%1$s</string>
+    
+    <string name="star_frupic">Star</string>
     
     <string name="fetch_and_cache">Cache now</string>
     <string name="please_wait">Please wait</string>
