@@ -141,6 +141,7 @@ public class FrupicFactory {
 					pics[i].full_url = data.getString("url");
 					pics[i].date = data.getString("date");
 					pics[i].username = data.getString("username");
+					pics[i].flags |= Frupic.FLAG_NEW;
 					
 					JSONArray tags = data.getJSONArray("tags");
 					if ((tags != null) && (tags.length() > 0)) {
@@ -155,34 +156,6 @@ public class FrupicFactory {
 			e.printStackTrace();
 			return null;
 		}	
-	}
-	
-	public Frupic[] fetchFrupicIndexFromCache() {
-		synchronized (client) {
-			try {
-				InputStream is = context.openFileInput("index");
-				if (is == null)
-					return null;
-				BufferedInputStream bis = new BufferedInputStream(is);
-				
-				ByteArrayBuffer baf = new ByteArrayBuffer(50);
-				int read = 0;
-				int bufSize = 1024;
-				byte[] buffer = new byte[bufSize];
-				while (true) {
-					read = bis.read(buffer);
-					if (read == -1) {
-						break;
-					}
-					baf.append(buffer, 0, read);
-				}
-				is.close();
-				return getFrupicIndexFromString(new String(baf.toByteArray()));
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
 	}
 
 	public Frupic[] fetchFrupicIndex(String username, int offset, int limit)
@@ -199,12 +172,6 @@ public class FrupicFactory {
 		
 		if (Thread.interrupted())
 			return null;
-		
-		/* Always cache last query */
-		PrintWriter pwr = new PrintWriter(context.openFileOutput("index", Context.MODE_WORLD_READABLE));
-		pwr.write(queryResult);
-		pwr.flush();
-		pwr.close();
 		
 		return getFrupicIndexFromString(queryResult);
 	}

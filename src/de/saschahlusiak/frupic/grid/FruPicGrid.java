@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.UnknownHostException;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
 import de.saschahlusiak.frupic.model.*;
@@ -19,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -48,19 +50,24 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	FruPicGridAdapter adapter;
 	FrupicFactory factory;
 	ProgressDialog progressDialog;
-	int base, count;
 	static DownloadTask downloadTask = null;
 	Menu optionsMenu;
 	View mRefreshIndeterminateProgressView;
+	FrupicDB db;
 
-	public final int FRUPICS = 50;
-	public final int FRUPICS_STEP = 30;
+	public final int FRUPICS_STEP = 60;
 
 	RefreshIndexTask refreshTask = null; 
 	
 	/* TODO: Add a star to new and unseen frupics? */
 	class RefreshIndexTask extends AsyncTask<Void, Void, Frupic[]> {
 		String error;
+		int base, count;
+		
+		public RefreshIndexTask(int base, int count) {
+			this.base = base;
+			this.count = count;
+		}
 
 		@Override
 		protected void onPreExecute() {
@@ -100,8 +107,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		@Override
 		protected void onPostExecute(Frupic result[]) {
-			if (result != null)
-				adapter.setFrupics(result);
+			if (result != null) {
+				db.addFrupics(result);
+				cursorChanged();
+			}
 			setProgressActionView(false);
 
 			super.onPostExecute(result);
@@ -112,10 +121,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		Frupic frupics[];
-		
+	public void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
+		
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		}
@@ -124,6 +132,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		factory = new FrupicFactory(this, 300);
 
+		db = new FrupicDB(this);
+		db.open();
+//		db.clearAll();
+		
 		adapter = new FruPicGridAdapter(this, factory);
 		grid = (GridView) findViewById(R.id.gridView);
 		grid.setAdapter(adapter);
@@ -131,17 +143,14 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		grid.setOnScrollListener(this);
 		registerForContextMenu(grid);				
 		
-		frupics = factory.fetchFrupicIndexFromCache();
-		adapter.setFrupics(frupics);
-
-		base = 0;
-		count = FRUPICS;
+		cursorChanged();
 	}
 
 	@Override
 	protected void onDestroy() {
 		/* delete all temporary external cache files created from "Share Image" */
 		/* TODO: Make sure the cached files are gone for good! */
+		db.close();
 		super.onDestroy();
 	}
 
@@ -175,7 +184,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 				"16777216")));
 		factory.updateCacheDirs();
 		
-		refreshTask = new RefreshIndexTask();
+		refreshTask = new RefreshIndexTask(0, FRUPICS_STEP); /* TODO: this might skip valuable frupics */
 		refreshTask.execute();
 		
 		if (downloadTask != null)
@@ -209,10 +218,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
-		if (firstVisibleItem + visibleItemCount > count - FRUPICS_STEP) {
+		if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
 			if (refreshTask == null) {
-				count += FRUPICS_STEP;
-				refreshTask = new RefreshIndexTask();
+				refreshTask = new RefreshIndexTask(adapter.getCount(), FRUPICS_STEP);
 				refreshTask.execute();
 			}
 		}
@@ -223,11 +231,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		if (state == SCROLL_STATE_IDLE) {
 			int firstVisibleItem = grid.getFirstVisiblePosition();
 			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
-			if (firstVisibleItem + visibleItemCount > count - FRUPICS_STEP) {
-				count += FRUPICS_STEP;
+			if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
+
 				if (refreshTask != null)
 					refreshTask.cancel(true);
-				refreshTask = new RefreshIndexTask();
+				refreshTask = new RefreshIndexTask(adapter.getCount(), FRUPICS_STEP);
 				refreshTask.execute();
 			}
 			
@@ -281,7 +289,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			// adapter.setFrupics(null);
 			// adapter.clearCache();
 
-			refreshTask = new RefreshIndexTask();
+			refreshTask = new RefreshIndexTask(0, adapter.getCount());
 			refreshTask.execute();
 			return true;
 
@@ -433,5 +441,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
             }
         }
 	}
-
+	
+	void cursorChanged() {
+		Cursor cursor = db.getFrupics(null);
+		adapter.changeCursor(cursor);
+	}
 }

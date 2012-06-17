@@ -4,6 +4,7 @@ import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,13 +16,13 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 
 
-public class FruPicGridAdapter extends BaseAdapter {
+public class FruPicGridAdapter extends CursorAdapter {
 	private static final String tag = FruPicGridAdapter.class.getSimpleName();
 	Context context;
-	Frupic[] frupics;
 	FrupicFactory factory;
 	
 	public class ViewHolder {
@@ -81,7 +82,7 @@ public class FruPicGridAdapter extends BaseAdapter {
 		
 		void fetchComplete(Frupic frupic, int ret) {
 			if (frupic != this.frupic)
-				return;
+				return; 
 			Bitmap b = factory.getThumbBitmap(frupic);
 
 			switch (ret) {
@@ -148,55 +149,26 @@ public class FruPicGridAdapter extends BaseAdapter {
 	}
 	
 	FruPicGridAdapter(Context context, FrupicFactory factory) {
+		super(context, null, 0);
 		this.context = context;
-		this.frupics = null;
 		this.factory = factory;
 	}
-	
-	public void setFrupics(Frupic[] pics) {
-		this.frupics = pics;
-		notifyDataSetChanged();
-	}
-	
-	@Override
-	public int getCount() {
-		if (frupics == null)
-			return 0;
-		return frupics.length;
-	}
 
 	@Override
-	public Frupic getItem(int position) {
-		if (frupics == null)
-			return null;
-		if (position < 0)
-			return null;
-		if (position >= frupics.length)
-			return null;
-		return frupics[position];
-	}
-
-	@Override
-	public long getItemId(int position) {
-		if (frupics == null)
-			return 0;
-		return getItem(position).getId();
-	}
-
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public void bindView(View convertView, Context context, Cursor cursor) {
 		ViewHolder v;
-		Frupic frupic = getItem(position);
 
-		if (convertView == null) {
-			convertView = LayoutInflater.from(context).inflate(R.layout.grid_item, parent, false);
-			v = new ViewHolder(convertView);
-			convertView.setTag(v);
-		} else {
-			v = (ViewHolder)convertView.getTag();
-		}
+		v = (ViewHolder)convertView.getTag();
+		Frupic frupic = new Frupic(cursor);
 		v.setFrupic(frupic);
-		
+	}
+
+	@Override
+	public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		ViewHolder v;
+		View convertView = LayoutInflater.from(context).inflate(R.layout.grid_item, parent, false);
+		v = new ViewHolder(convertView);
+		convertView.setTag(v);
 		return convertView;
 	}
 }

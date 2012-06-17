@@ -217,7 +217,8 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
         gallery.setAdapter(adapter);
  
   
-        Frupic frupics[] = factory.fetchFrupicIndexFromCache();
+        /* TODO: FIXME */
+        Frupic frupics[] = null; // factory.fetchFrupicIndexFromCache();
         adapter.setFrupics(frupics);
         
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());

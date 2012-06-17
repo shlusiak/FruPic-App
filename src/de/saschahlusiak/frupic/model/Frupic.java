@@ -2,13 +2,21 @@ package de.saschahlusiak.frupic.model;
 
 import java.io.File;
 import java.io.Serializable;
+
+import de.saschahlusiak.frupic.db.FrupicDB;
+
+import android.database.Cursor;
 import android.util.Log;
 
 public class Frupic implements Serializable {
 
 	private static final long serialVersionUID = 12345L;
+	
+	public static final int FLAG_NEW = 0x01;
+	public static final int FLAG_FAV = 0x02;
 
 	int id;
+	int flags;
 	String full_url, thumb_url;
 	String date;
 	String username;
@@ -23,6 +31,21 @@ public class Frupic implements Serializable {
 		this.thumb_url = null;
 		this.id = 0;
 		this.tag = null;
+		this.flags = 0;
+	}
+	
+	public Frupic(Cursor cursor) {
+		this();
+		fromCursor(cursor);
+	}
+	
+	public void fromCursor(Cursor cursor) {
+		this.id = cursor.getInt(FrupicDB.ID_INDEX);
+		this.full_url = cursor.getString(FrupicDB.FULLURL_INDEX);
+		this.thumb_url = cursor.getString(FrupicDB.THUMBURL_INDEX);
+		this.username = cursor.getString(FrupicDB.USERNAME_INDEX);
+		this.date = cursor.getString(FrupicDB.DATE_INDEX);
+		this.flags = cursor.getInt(FrupicDB.FLAGS_INDEX);
 	}
 	
 	public String getUsername() {
@@ -45,6 +68,11 @@ public class Frupic implements Serializable {
 	
 	public String getFullUrl() {
 		return full_url;
+	}
+	
+
+	public String getThumbUrl() {
+		return thumb_url;
 	}
 	
 	public File getCachedFile(FrupicFactory factory, boolean thumb) {
@@ -76,5 +104,9 @@ public class Frupic implements Serializable {
 		}
 		
 		return "[" + s + "]";
+	}
+
+	public int getFlags() {
+		return flags;
 	}
 }
