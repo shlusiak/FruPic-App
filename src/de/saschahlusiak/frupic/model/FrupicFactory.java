@@ -201,12 +201,10 @@ public class FrupicFactory {
 			return null;
 		
 		/* Always cache last query */
-		synchronized (client) {
-			PrintWriter pwr = new PrintWriter(context.openFileOutput("index", Context.MODE_WORLD_READABLE));
-			pwr.write(queryResult);
-			pwr.flush();
-			pwr.close();
-		}
+		PrintWriter pwr = new PrintWriter(context.openFileOutput("index", Context.MODE_WORLD_READABLE));
+		pwr.write(queryResult);
+		pwr.flush();
+		pwr.close();
 		
 		return getFrupicIndexFromString(queryResult);
 	}
@@ -499,23 +497,21 @@ public class FrupicFactory {
 		if (cache.get(getCacheFileName(frupic, thumb)) != null)
 			return FROM_CACHE;	/* the picture was available before; don't notify again */
 
-		synchronized (client) {
-			File f = new File(filename);
-			/* Fetch file from the Interweb, unless cached locally */
-			if (!f.exists()) {
-				if (! fetchFrupicImage(frupic, thumb, onProgress)) {
-					return NOT_AVAILABLE;
-				}
-				ret = FROM_WEB;
-				Log.d(tag, "Downloaded file " + frupic.id);
-			} else
-				ret = FROM_FILE;
-		
-			if (Thread.interrupted())
+		File f = new File(filename);
+		/* Fetch file from the Interweb, unless cached locally */
+		if (!f.exists()) {
+			if (! fetchFrupicImage(frupic, thumb, onProgress)) {
 				return NOT_AVAILABLE;
-			/* touch file, so it is purged from cache last */
-			f.setLastModified(new Date().getTime());
-		}
+			}
+			ret = FROM_WEB;
+			Log.d(tag, "Downloaded file " + frupic.id);
+		} else
+			ret = FROM_FILE;
+		
+		if (Thread.interrupted())
+			return NOT_AVAILABLE;
+		/* touch file, so it is purged from cache last */
+		f.setLastModified(new Date().getTime());
 
 		/* Load downloaded file and add bitmap to memory cache */
 		Bitmap b = decodeImageFile(filename, width, height);

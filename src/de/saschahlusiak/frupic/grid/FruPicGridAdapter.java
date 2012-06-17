@@ -107,12 +107,12 @@ public class FruPicGridAdapter extends BaseAdapter {
 		void startFadeAnimation() {
 			Animation a1, a2;
 			a1 = new AlphaAnimation(1.0f, 0.0f);
-			a1.setDuration(600);
+			a1.setDuration(400);
 			a1.setFillAfter(true);
 			a1.setInterpolator(new LinearInterpolator());
 
 			a2 = new AlphaAnimation(0.0f, 1.0f);
-			a2.setDuration(600);
+			a2.setDuration(400);
 			a2.setStartOffset(0);
 			a1.setInterpolator(new LinearInterpolator());
 
@@ -128,15 +128,15 @@ public class FruPicGridAdapter extends BaseAdapter {
 			a1 = new ScaleAnimation(1.0f, 0.0f, 1.0f, 1.0f,
 					Animation.RELATIVE_TO_SELF, 0.5f,
 					Animation.RELATIVE_TO_SELF, 0.5f);
-			a1.setDuration(150);
+			a1.setDuration(130);
 			a1.setFillAfter(true);
 			a1.setInterpolator(new AccelerateDecelerateInterpolator());
 
 			a2 = new ScaleAnimation(0.0f, 1.0f, 1.0f, 1.0f,
 					Animation.RELATIVE_TO_SELF, 0.5f,
 					Animation.RELATIVE_TO_SELF, 0.5f);
-			a2.setDuration(150);
-			a2.setStartOffset(150);
+			a2.setDuration(130);
+			a2.setStartOffset(130);
 			a2.setInterpolator(new AccelerateDecelerateInterpolator());
 
 			image1.clearAnimation();
