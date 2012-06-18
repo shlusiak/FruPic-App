@@ -94,9 +94,9 @@ public class FrupicDB {
 		return true;
 	}
 
-	public boolean clearAll() {
+	public boolean clearAll(boolean includeFavourite) {
 		try {
-			return db.delete(TABLE, null, null) > 0;
+			return db.delete(TABLE, includeFavourite ? null : ("NOT " + FLAGS_ID + "=" + Frupic.FLAG_FAV), null) > 0;
 		} catch (Exception e) {
 			return false;
 		}
