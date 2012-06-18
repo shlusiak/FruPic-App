@@ -13,6 +13,7 @@ public class OneFlingScrollGallery extends Gallery {
 
 	public OneFlingScrollGallery(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		setFadingEdgeLength(0);
 	}
 
 	@Override
