@@ -161,7 +161,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 	}
 	
 	FruPicGridAdapter(Context context, FrupicFactory factory) {
-		super(context, null, 0);
+		super(context, null, false);
 		this.context = context;
 		this.factory = factory;
 	}
