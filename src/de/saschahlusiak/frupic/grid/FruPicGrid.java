@@ -54,6 +54,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	Menu optionsMenu;
 	View mRefreshIndeterminateProgressView;
 	FrupicDB db;
+	Cursor cursor;
 
 	public final int FRUPICS_STEP = 60;
 
@@ -64,6 +65,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		int base, count;
 		
 		public RefreshIndexTask(int base, int count) {
+			if (base < 0)
+				base = 0;
 			this.base = base;
 			this.count = count;
 		}
@@ -148,9 +151,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	protected void onDestroy() {
 		/* delete all temporary external cache files created from "Share Image" */
-		/* TODO: Make sure the cached files are gone for good! */
+		
+		if (cursor != null)
+			cursor.close();
+		cursor = null;
 		db.markAllSeen();
 		db.close();
+		db = null;
 		super.onDestroy();
 	}
 
@@ -218,7 +225,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			int visibleItemCount, int totalItemCount) {
 		if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
 			if (refreshTask == null) {
-				refreshTask = new RefreshIndexTask(adapter.getCount(), FRUPICS_STEP);
+				refreshTask = new RefreshIndexTask(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 				refreshTask.execute();
 			}
 		}
@@ -233,7 +240,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 				if (refreshTask != null)
 					refreshTask.cancel(true);
-				refreshTask = new RefreshIndexTask(adapter.getCount(), FRUPICS_STEP);
+				refreshTask = new RefreshIndexTask(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 				refreshTask.execute();
 			}
 			
@@ -336,7 +343,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		switch (item.getItemId()) {
 		case R.id.star:
-			frupic.setFlags(frupic.getFlags() ^ Frupic.FLAG_FAV);
+			frupic.setFlags((frupic.getFlags() ^ Frupic.FLAG_FAV) & ~Frupic.FLAG_NEW);
 			db.setFlags(frupic);
 			cursorChanged();
 			return true;
@@ -441,7 +448,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	}
 	
 	void cursorChanged() {
-		Cursor cursor = db.getFrupics(null);
+		cursor = db.getFrupics(null);
 		adapter.changeCursor(cursor);
 	}
 }

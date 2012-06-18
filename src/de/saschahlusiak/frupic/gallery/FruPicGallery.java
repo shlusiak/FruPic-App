@@ -157,6 +157,7 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
         db.open();
         
         cursor = db.getFrupics(null);
+		startManagingCursor(cursor);
         adapter.changeCursor(cursor);
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -194,7 +195,6 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
     
     @Override
     protected void onDestroy() {
-    	cursor.close();
     	db.close();
     	super.onDestroy();
     }

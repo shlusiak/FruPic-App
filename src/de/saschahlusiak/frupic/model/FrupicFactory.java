@@ -244,7 +244,7 @@ public class FrupicFactory {
 				break;
 			
 			if (total > limit) {
-				Log.i(tag, "purged " + files[oldest].getName()
+				Log.d(tag, "purged " + files[oldest].getName()
 						+ " from filesystem");
 				synchronized (client) {
 					if (files[oldest].delete())
@@ -255,7 +255,7 @@ public class FrupicFactory {
 			}
 		} while (total > limit);
 		
-		Log.d(tag, "left file cache populated with " + total + " bytes, " + number + " files");
+		Log.i(tag, "left file cache populated with " + total + " bytes, " + number + " files");
 		return new CacheInfo(total, number);
 	}
 
