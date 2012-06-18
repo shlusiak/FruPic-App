@@ -11,10 +11,6 @@ class FrupicCache {
 	class CacheItem {
 		String url;
 		Bitmap bitmap;
-		@Override
-		protected void finalize() throws Throwable {
-			super.finalize();
-		}
 	}
 	int memcount;
 	

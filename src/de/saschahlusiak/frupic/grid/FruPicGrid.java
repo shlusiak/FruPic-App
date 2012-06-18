@@ -284,11 +284,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		switch (item.getItemId()) {
 		case R.id.refresh:
-			// adapter.setFrupics(null);
-			// adapter.clearCache();
-
-			refreshTask = new RefreshIndexTask(0, adapter.getCount());
+			refreshTask = new RefreshIndexTask(0, FRUPICS_STEP); /* this might skip valuable frupics */
 			refreshTask.execute();
+			db.markAllSeen();
 			return true;
 
 		case R.id.upload:

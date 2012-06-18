@@ -507,5 +507,9 @@ public class FrupicFactory {
 	public Bitmap getFullBitmap(Frupic frupic) {
 		return cache.get(getCacheFileName(frupic, false));
 	}
+	
+	public void clearCache() {
+		cache.clear();
+	}
 
 }
