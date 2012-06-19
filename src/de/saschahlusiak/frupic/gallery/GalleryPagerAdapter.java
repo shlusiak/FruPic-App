@@ -1,14 +1,12 @@
 package de.saschahlusiak.frupic.gallery;
 
 import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.grid.PreviewFetchTask;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;

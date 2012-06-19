@@ -1,7 +1,6 @@
 package de.saschahlusiak.frupic.gallery;
 
 import java.io.File;
-import java.net.UnknownHostException;
 
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.db.FrupicDB;
@@ -20,7 +19,6 @@ import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
@@ -31,12 +29,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 public class FruPicGallery extends Activity implements ViewPager.OnPageChangeListener {
 	private static final String tag = FruPicGallery.class.getSimpleName();
