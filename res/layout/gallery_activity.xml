@@ -3,32 +3,12 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-    <de.saschahlusiak.frupic.gallery.OneFlingScrollGallery
-        android:id="@+id/gallery"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:spacing="40dp"
-        android:unselectedAlpha="1" />
-
-     <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:visibility="invisible" />
-
-    <ProgressBar
-        android:id="@+id/progressActivity"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:visibility="invisible" />
+        android:layout_alignParentTop="true" />
 
     <TextView
         android:id="@+id/url"

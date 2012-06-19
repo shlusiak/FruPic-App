@@ -26,6 +26,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -109,7 +110,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		@Override
 		protected void onPostExecute(Frupic result[]) {
-			if (result != null) {
+
+			if (result != null && db != null) {
 				db.addFrupics(result);
 				cursorChanged();
 			}

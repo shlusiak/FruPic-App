@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -37,12 +38,12 @@ import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-public class FruPicGallery extends Activity implements OnItemSelectedListener {
+public class FruPicGallery extends Activity implements ViewPager.OnPageChangeListener {
 	private static final String tag = FruPicGallery.class.getSimpleName();
 	private static final int DIALOG_PROGRESS = 1;
 	
-	OneFlingScrollGallery gallery;
-	FruPicGalleryAdapter adapter;
+	ViewPager pager;
+	GalleryPagerAdapter adapter;
 	FrupicFactory factory;
 	ProgressBar progressBar;
 	ProgressBar progressActivity;
@@ -110,10 +111,10 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 
 			/* XXX: This dataSetChanged() sometimes screws up fling of the gallery */
 			/* only update on first item, which is the currently visible one */
-			if ((values[0] == 1) && (values[5] == gallery.getSelectedItemId())) {
-				adapter.notifyDataSetChanged();
-				Log.i(tag, "FetchTask::notifyDataSetChanged");
-			}
+//			if ((values[0] == 1) && (values[5] == gallery.getSelectedItemId())) {
+//				adapter.notifyDataSetChanged();
+//				Log.i(tag, "FetchTask::notifyDataSetChanged");
+//			}
 			super.onProgressUpdate(values);
 		}
 		
@@ -137,9 +138,6 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_activity);
-        
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressActivity = (ProgressBar) findViewById(R.id.progressActivity);
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
@@ -147,9 +145,10 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
         factory = new FrupicFactory(this, 8);
         factory.setTargetSize(display.getWidth(), display.getHeight());
         
-        adapter = new FruPicGalleryAdapter(this, factory);
-        gallery = (OneFlingScrollGallery) findViewById(R.id.gallery);
-        gallery.setAdapter(adapter);
+        adapter = new GalleryPagerAdapter(this, factory);
+        pager = (ViewPager) findViewById(R.id.viewPager);
+        pager.setOnPageChangeListener(this);
+        pager.setAdapter(adapter);
  
  
         /* TODO: FIXME */
@@ -158,31 +157,20 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
         
         cursor = db.getFrupics(null);
 		startManagingCursor(cursor);
-        adapter.changeCursor(cursor);
+		adapter.setCursor(cursor);
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
 		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size", "16777216")));
 		prefetch_images = prefs.getBoolean("preload", true);
-
-		/* This ensures that subsequent calls to gallery.setSelection() result in onItemSelected being called, which
-		 * it self runs FetchTask and RefreshTask
-		 */
-		gallery.setOnItemSelectedListener(this);
-		gallery.setCallbackDuringFling(true);
-		gallery.setAnimationDuration(300);
 		
-		registerForContextMenu(gallery);
+		registerForContextMenu(pager);
         
         if (savedInstanceState != null) {
-        	gallery.setSelection(savedInstanceState.getInt("position"), false);
+        	pager.setCurrentItem(savedInstanceState.getInt("position"));
         	Log.d(tag, "onCreate, position=" + savedInstanceState.getInt("position"));
         } else {
-        	/* This makes the picture available but it does not have the right "range".
-        	 * A RefreshTask is needed anyway to corrent this
-        	 */
-        	/* TODO: the index and the FrupicIndexFromCache might not match caused by a possible race condition. Check again. */
-       		gallery.setSelection(getIntent().getIntExtra("position", 0), false);
+        	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
         }
         updateLabels();
     }
@@ -266,10 +254,9 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 	
 	void updateLabels() {
 		String tags;
-		Frupic frupic = new Frupic((Cursor)gallery.getSelectedItem());
+		Frupic frupic;
+		frupic = getCurrentFrupic();
 		/* TODO: Display information about unavailable frupic */
-		if (frupic == null) 
-			return;
 		
 		TextView t = (TextView)findViewById(R.id.url);
 		t.setText(frupic.getUrl());
@@ -284,10 +271,8 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 			t.setText(tags);
 			t.setVisibility(View.VISIBLE);
 		}
-		
 	}
     
-	@Override
 	public void onItemSelected(AdapterView<?> adapterview, View view, int position,	long id) {
 		Log.d(tag, "position " + position);
 		
@@ -305,17 +290,13 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 		}
 		fetchTask = new FetchTask();
 		
+		/*
 		if (prefetch_images)
 			fetchTask.execute(adapter.getFrupic(position), adapter.getFrupic(position + 1), adapter.getFrupic(position - 1), adapter.getFrupic(position + 2));
 		else
-			fetchTask.execute(adapter.getFrupic(position));				
+			fetchTask.execute(adapter.getFrupic(position)); */				
 	}
 
-	@Override
-	public void onNothingSelected(AdapterView<?> arg0) {
-		
-	}
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -326,8 +307,10 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Frupic frupic = new Frupic((Cursor) gallery.getSelectedItem());
+		Frupic frupic;
 		Intent intent;
+
+		frupic = getCurrentFrupic();
 		
 		switch (item.getItemId()) {
 		case R.id.openinbrowser:
@@ -388,13 +371,31 @@ public class FruPicGallery extends Activity implements OnItemSelectedListener {
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-		Frupic frupic = adapter.getFrupic((int) info.position);
-
-		menu.setHeaderTitle("#" + frupic.getId());
+		Frupic frupic = getCurrentFrupic();
+	}
+	
+	Frupic getCurrentFrupic() {
+		cursor.moveToPosition(pager.getCurrentItem());
+		return new Frupic(cursor);
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		return onOptionsItemSelected(item);
-	}	
+	}
+	
+	@Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+		
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+       Log.i(tag, "onPageSelected(" + position + ")");
+       updateLabels();
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+    }
 }
