@@ -69,10 +69,6 @@
     <string name="preferences_upload_username">Username</string>
     <string name="preferences_upload_username_summary">Username used for uploading</string>
     
-    <string name="preferences_gallery">Gallery</string>
-    <string name="preferences_preload_summary">Prefetch and load images in gallery</string>
-    <string name="preferences_preload">Prefetch images</string>
-        
     <string-array name="cache_labels">
         <item>1 MB</item>
         <item>4 MB</item>

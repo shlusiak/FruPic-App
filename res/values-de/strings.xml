@@ -67,10 +67,6 @@
     <string name="preferences_upload">Hochladen</string>
     <string name="preferences_upload_username">Benutzername</string>
     <string name="preferences_upload_username_summary">Standardname für Hochladen</string>
-
-    <string name="preferences_gallery">Gallerie</string>
-    <string name="preferences_preload_summary">Bilder der Gallerie im Voraus laden</string>
-    <string name="preferences_preload">Bilder im Voraus laden</string>
         
     <string-array name="cache_labels">
         <item>1 MB</item>

@@ -25,14 +25,6 @@
             android:summary="@string/preferences_cache_clear_summary"
             android:title="@string/preferences_cache_clear" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/preferences_gallery" >
-        <CheckBoxPreference
-            android:defaultValue="1"
-            android:key="preload"
-            android:persistent="true"
-            android:summary="@string/preferences_preload_summary"
-            android:title="@string/preferences_preload" />
-    </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_upload" >
         <EditTextPreference
             android:key="username"

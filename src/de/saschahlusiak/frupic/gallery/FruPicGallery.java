@@ -45,94 +45,11 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	ViewPager pager;
 	GalleryPagerAdapter adapter;
 	FrupicFactory factory;
-	ProgressBar progressBar;
-	ProgressBar progressActivity;
-	boolean prefetch_images;
 	public final int FRUPICS = 9;
 	static DownloadTask downloadTask = null;
 	ProgressDialog progressDialog;
 	Cursor cursor;
-	FrupicDB db;
-	
-	
-	class FetchTask extends AsyncTask<Frupic, Integer, Void> {
-		@Override
-		protected void onPreExecute() {
-			progressBar.setVisibility(View.VISIBLE);
-			progressBar.setMax(100);
-			Log.i(tag, "FetchTask.onPreExecute");
-			super.onPreExecute();
-		}
-		
-		@Override
-		protected Void doInBackground(final Frupic... frupics) {
-			factory.pruneCache();
-			if (isCancelled())
-				return null;
-
-			for (int i = 0; i < frupics.length; i++) {
-				if (frupics[i] == null)
-					continue;
-				final int index = i;
-				int ret;
-				ret = factory.fetchFull(frupics[i], new FrupicFactory.OnFetchProgress() {
-					
-					@Override
-					public void OnProgress(int read, int length) {
-						if (!isCancelled())
-							publishProgress(0, index, frupics.length, read, length, frupics[index].getId());
-					}
-				});
-				switch (ret) {
-				case FrupicFactory.NOT_AVAILABLE:
-					Log.i(tag, "(fetchFull returned false)");
-					break;
-				case FrupicFactory.FROM_CACHE:
-					break;
-				case FrupicFactory.FROM_FILE:
-				case FrupicFactory.FROM_WEB:
-					publishProgress(1, index, frupics.length, 1, 1, frupics[index].getId());
-					break;
-				}				
-				if (isCancelled())
-					return null;
-			}
-			return null;
-		}
-		
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			/* first value indicates if download is complete (>0) or pending (==0) */
-			int p = (int)((float)values[1] / (float)values[2] * 100.0f);
-			int sp = p + (int)((float)values[3] / (float)values[4] / (float)values[2] * 100.0f);
-			
-			progressBar.setProgress(p);
-			progressBar.setSecondaryProgress(sp);
-
-			/* XXX: This dataSetChanged() sometimes screws up fling of the gallery */
-			/* only update on first item, which is the currently visible one */
-//			if ((values[0] == 1) && (values[5] == gallery.getSelectedItemId())) {
-//				adapter.notifyDataSetChanged();
-//				Log.i(tag, "FetchTask::notifyDataSetChanged");
-//			}
-			super.onProgressUpdate(values);
-		}
-		
-		@Override
-		protected void onCancelled() {
-			Log.i(tag, "FetchTask.onCancelled");
-			super.onCancelled();
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			Log.i(tag, "FetchTask.onPostExecute");
-			progressBar.setVisibility(View.INVISIBLE);			
-			super.onPostExecute(result);
-		}
-	}
-	
-	FetchTask fetchTask;
+	FrupicDB db;	
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -149,9 +66,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         pager = (ViewPager) findViewById(R.id.viewPager);
         pager.setOnPageChangeListener(this);
         pager.setAdapter(adapter);
- 
- 
-        /* TODO: FIXME */
+  
         db = new FrupicDB(this);
         db.open();
         
@@ -162,13 +77,12 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
 		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size", "16777216")));
-		prefetch_images = prefs.getBoolean("preload", true);
 		
+		/* TODO: FIXME */
 		registerForContextMenu(pager);
         
         if (savedInstanceState != null) {
         	pager.setCurrentItem(savedInstanceState.getInt("position"));
-        	Log.d(tag, "onCreate, position=" + savedInstanceState.getInt("position"));
         } else {
         	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
         }
@@ -197,10 +111,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	
 	@Override
 	protected void onStop() {
-		if (fetchTask != null && !fetchTask.isCancelled())
-			fetchTask.cancel(true);
-		fetchTask = null;
-		
 		if (downloadTask != null)
 			downloadTask.setActivity(null, null);
 		
@@ -273,30 +183,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		}
 	}
     
-	public void onItemSelected(AdapterView<?> adapterview, View view, int position,	long id) {
-		Log.d(tag, "position " + position);
-		
-		updateLabels();
-		
-		/* XXX: The View might be created with a dummy image, waiting for the task to fetch it's first
-		 * image, on which the adapter will be notified of the change and the view will be updated.
-		 * 
-		 * There is a window when the job finishes, puts the file to cache but being cancelled before the adapter is triggered.
-		 * The next job will assume the image existed before and that the view used it successfully, thus not triggering
-		 * the adapter to not screw up the gallery. Result is the dummy image still showing till the view is recreated. 
-		 */
-		if (fetchTask != null) {
-			fetchTask.cancel(true);
-		}
-		fetchTask = new FetchTask();
-		
-		/*
-		if (prefetch_images)
-			fetchTask.execute(adapter.getFrupic(position), adapter.getFrupic(position + 1), adapter.getFrupic(position - 1), adapter.getFrupic(position + 2));
-		else
-			fetchTask.execute(adapter.getFrupic(position)); */				
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
