@@ -29,6 +29,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -44,6 +47,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	static DownloadTask downloadTask = null;
 	ProgressDialog progressDialog;
 	Cursor cursor;
+	CheckBox star;
 	FrupicDB db;	
 	
     @Override
@@ -58,6 +62,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         factory.setTargetSize(display.getWidth(), display.getHeight());
         
         adapter = new GalleryPagerAdapter(this, factory);
+        star = (CheckBox) findViewById(R.id.star);
         pager = (ViewPager) findViewById(R.id.viewPager);
         pager.setOnPageChangeListener(this);
         pager.setAdapter(adapter);
@@ -82,7 +87,25 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
         }
         updateLabels();
+        
+        star.setOnCheckedChangeListener(starChangedListener);
     }
+    
+    OnCheckedChangeListener starChangedListener = new OnCheckedChangeListener() {
+		
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+			Frupic frupic = getCurrentFrupic();
+			if (frupic.hasFlag(Frupic.FLAG_FAV) == isChecked)
+				return;
+			
+			frupic.setFlags((frupic.getFlags() ^ Frupic.FLAG_FAV) & ~Frupic.FLAG_NEW);
+			db.setFlags(frupic);
+			cursor = db.getFrupics(null);
+			adapter.setCursor(cursor);
+			adapter.notifyDataSetChanged();
+		}
+	};
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -167,6 +190,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		t.setText(frupic.getUrl());
 		t = (TextView)findViewById(R.id.username);
 		t.setText(getString(R.string.gallery_posted_by, frupic.getUsername()));
+		
+		star.setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
 		
 		t = (TextView)findViewById(R.id.tags);
 		tags = frupic.getTagsString();
