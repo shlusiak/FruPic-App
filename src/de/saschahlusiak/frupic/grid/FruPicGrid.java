@@ -282,6 +282,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.grid_optionsmenu, menu);
 		this.optionsMenu = menu;
+		
+		/* in case the tasks gets started before the options menu is created */
+		if (refreshTask != null)
+			setProgressActionView(true);
 
 		return super.onCreateOptionsMenu(menu);
 	}
