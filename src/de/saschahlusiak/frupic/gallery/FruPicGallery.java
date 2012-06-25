@@ -86,7 +86,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         } else {
         	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
         }
-        updateLabels();
         
         star.setOnCheckedChangeListener(starChangedListener);
     }
@@ -180,10 +179,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		}
 	}
 	
-	void updateLabels() {
+	void updateLabels(Frupic frupic) {
 		String tags;
-		Frupic frupic;
-		frupic = getCurrentFrupic();
 		/* TODO: Display information about unavailable frupic */
 		
 		TextView t = (TextView)findViewById(R.id.url);
@@ -297,8 +294,15 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 
     @Override
     public void onPageSelected(int position) {
-       Log.i(tag, "onPageSelected(" + position + ")");
-       updateLabels();
+    	Log.i(tag, "onPageSelected(" + position + ")");
+	    Frupic frupic;
+		frupic = getCurrentFrupic();
+		if (frupic.hasFlag(Frupic.FLAG_NEW)) {
+			frupic.setFlags(frupic.getFlags() & ~Frupic.FLAG_NEW);
+			db.setFlags(frupic);
+		}
+		
+	    updateLabels(frupic);
     }
 
     @Override

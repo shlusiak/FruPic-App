@@ -212,6 +212,12 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		
 		super.onStop();
 	}
+	
+	@Override
+	protected void onResume() {
+		cursorChanged();
+		super.onResume();
+	}
 
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
