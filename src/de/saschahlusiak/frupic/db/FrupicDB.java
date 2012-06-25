@@ -135,4 +135,19 @@ public class FrupicDB {
 		
 		return c;
 	}
+	
+	public Cursor getFavFrupics() {
+		String where;
+		
+		where = FLAGS_ID + "=" + Frupic.FLAG_FAV;
+		
+		Cursor c = db.query(TABLE, null, where, null, null, null, ID_ID + " DESC", null);
+		if (c.getCount() <= 0) {
+			c.close();
+			return null;
+		}
+		
+		return c;
+	}
+	
 }
