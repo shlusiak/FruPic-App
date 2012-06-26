@@ -99,11 +99,12 @@ public class FruPicGridAdapter extends CursorAdapter {
 
 			switch (ret) {
 			case FrupicFactory.NOT_AVAILABLE:
+				image1.clearAnimation();
 				Log.e(tag, "fetchThumb returned NOT_AVAILABLE");
 				break;
 			case FrupicFactory.FROM_CACHE:
-				startFadeAnimation();
 				setImage(b);
+				startFadeAnimation();
 				break;
 			case FrupicFactory.FROM_FILE:
 				setImage(b);
