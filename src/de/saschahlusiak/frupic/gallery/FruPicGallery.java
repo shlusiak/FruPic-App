@@ -48,7 +48,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	ProgressDialog progressDialog;
 	Cursor cursor;
 	CheckBox star;
-	FrupicDB db;	
+	FrupicDB db;
+	boolean showFavs;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
+        
         
         factory = new FrupicFactory(this, 8);
         factory.setTargetSize(display.getWidth(), display.getHeight());
@@ -70,9 +72,13 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         db = new FrupicDB(this);
         db.open();
         
-        cursor = db.getFrupics(null);
-		startManagingCursor(cursor);
-		adapter.setCursor(cursor);
+        if (savedInstanceState != null) {
+        	showFavs = savedInstanceState.getBoolean("showFavs", false);
+        } else {
+        	showFavs = getIntent().getBooleanExtra("showFavs", false);
+        }
+
+        cursorChanged();
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
@@ -87,11 +93,15 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
         }
         
+        /* TODO: changing the star currently changes the DB and the Cursor and thus disturbs the ViewPager.
+         * Hide Star control for now */
+        if (showFavs)
+        	star.setVisibility(View.GONE);
         star.setOnCheckedChangeListener(starChangedListener);
     }
     
     OnCheckedChangeListener starChangedListener = new OnCheckedChangeListener() {
-		
+
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 			Frupic frupic = getCurrentFrupic();
@@ -100,9 +110,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			
 			frupic.setFlags((frupic.getFlags() ^ Frupic.FLAG_FAV) & ~Frupic.FLAG_NEW);
 			db.setFlags(frupic);
-			cursor = db.getFrupics(null);
-			adapter.setCursor(cursor);
-			adapter.notifyDataSetChanged();
+			cursorChanged();
 		}
 	};
     
@@ -110,6 +118,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     protected void onSaveInstanceState(Bundle outState) {
     	super.onSaveInstanceState(outState);
     	outState.putInt("position", cursor.getPosition());
+        outState.putBoolean("showFavs", showFavs);
+
     }
     
     @Override
@@ -132,6 +142,16 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			downloadTask.setActivity(null, null);
 		
 		super.onStop();
+	}
+	
+	void cursorChanged() {
+		if (showFavs)
+			cursor = db.getFavFrupics();
+		else
+			cursor = db.getFrupics(null);
+		
+		startManagingCursor(cursor);
+		adapter.setCursor(cursor);
 	}
 
 	ProgressTaskActivityInterface downloadProgress = new ProgressTaskActivityInterface() {
@@ -279,7 +299,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	
 	Frupic getCurrentFrupic() {
 		cursor.moveToPosition(pager.getCurrentItem());
-		return new Frupic(cursor);
+		Frupic frupic = new Frupic(cursor);
+		return frupic;
 	}
 
 	@Override

@@ -235,6 +235,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
 		Intent intent = new Intent(this, FruPicGallery.class);
 		intent.putExtra("position", position);
+		intent.putExtra("id", id);
+		intent.putExtra("showFavs", showFavs);
 		startActivity(intent);
 	}
 

@@ -150,4 +150,21 @@ public class FrupicDB {
 		return c;
 	}
 	
+
+	public boolean getFrupicFlags(Frupic frupic) {
+		String where = ID_ID + "=" + frupic.getId();
+		String cols[] = { FLAGS_ID };
+		
+		Cursor c = db.query(TABLE, cols, where, null, null, null, ID_ID + " DESC", null);
+		if (c.getCount() <= 0) {
+			c.close();
+			return false;
+		}
+		c.moveToFirst();
+		frupic.setFlags(c.getInt(FLAGS_INDEX));
+		
+		c.close();
+		return true;
+	}
+	
 }
