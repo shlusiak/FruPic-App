@@ -8,6 +8,7 @@
     <string name="refresh">Aktualisieren</string>
     <string name="details">Details</string>
     <string name="openinbrowser">In Browser öffnen</string>
+    <string name="menu_show_starred_frupics">Favoriten zeigen</string>
     
     <string name="details_title">Details</string>
     <string name="details_posted_by">Geposted von:</string>

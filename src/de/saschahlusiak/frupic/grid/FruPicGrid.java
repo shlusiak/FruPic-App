@@ -12,6 +12,7 @@ import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.utils.DownloadTask;
 import de.saschahlusiak.frupic.utils.ProgressTaskActivityInterface;
 import de.saschahlusiak.frupic.utils.UploadActivity;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -55,6 +56,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	View mRefreshIndeterminateProgressView;
 	FrupicDB db;
 	Cursor cursor;
+	
+	boolean showFavs = false;
 
 	public final int FRUPICS_STEP = 60;
 
@@ -144,7 +147,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		grid.setAdapter(adapter);
 		grid.setOnItemClickListener(this);
 		grid.setOnScrollListener(this);
-		registerForContextMenu(grid);				
+		registerForContextMenu(grid);
+		
+		if (savedInstanceState != null) {
+			showFavs = savedInstanceState.getBoolean("showFavs", false);
+		}
 		
 		cursorChanged();
 	}
@@ -161,6 +168,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		db = null;
 		super.onDestroy();
 	}
+	
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("showFavs", showFavs);
+	};
 
 	ProgressTaskActivityInterface downloadProgress = new ProgressTaskActivityInterface() {
 		
@@ -230,7 +242,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
-		if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
+		if (!showFavs && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
 			if (refreshTask == null) {
 				refreshTask = new RefreshIndexTask(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 				refreshTask.execute();
@@ -240,7 +252,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int state) {
-		if (state == SCROLL_STATE_IDLE) {
+		if (state == SCROLL_STATE_IDLE && (!showFavs)) {
 			int firstVisibleItem = grid.getFirstVisiblePosition();
 			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
 			if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
@@ -292,6 +304,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		/* in case the tasks gets started before the options menu is created */
 		if (refreshTask != null)
 			setProgressActionView(true);
+		
+		menu.findItem(R.id.showStars).setIcon(showFavs ? R.drawable.star_label : R.drawable.star_empty);
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -312,6 +326,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			intent.setType("image/*");
 			startActivityForResult(Intent.createChooser(intent,
 					getString(R.string.upload)), REQUEST_PICK_PICTURE);
+			return true;
+			
+		case R.id.showStars:
+			showFavs = !showFavs;
+			cursorChanged();
+			item.setChecked(showFavs);
+			item.setIcon(showFavs ? R.drawable.star_label : R.drawable.star_empty);
 			return true;
 
 		case R.id.gotowebsite:
@@ -459,7 +480,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	}
 	
 	void cursorChanged() {
-		cursor = db.getFrupics(null);
+		if (showFavs)
+			cursor = db.getFavFrupics();
+		else
+			cursor = db.getFrupics(null);
 		adapter.changeCursor(cursor);
 	}
 }
