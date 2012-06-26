@@ -92,6 +92,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         } else {
         	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
         }
+        updateLabels(getCurrentFrupic());
         
         /* TODO: changing the star currently changes the DB and the Cursor and thus disturbs the ViewPager.
          * Hide Star control for now */
