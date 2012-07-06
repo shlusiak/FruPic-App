@@ -99,6 +99,16 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 				e.printStackTrace();
 				cancel(false);
 			}
+			if (pics == null) {
+				/* increasing the frupic index failed, so to prevent the gridview to fire up another
+				 * RefreshIndexTask right away, we just add a delay until we can detect network connectivity
+				 */
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 
 			return pics;
 		}
@@ -114,7 +124,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		@Override
 		protected void onPostExecute(Frupic result[]) {
-
 			if (result != null && db != null) {
 				db.addFrupics(result);
 				cursorChanged();
