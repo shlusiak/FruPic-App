@@ -18,8 +18,8 @@
     <string name="details_tags">Tags:</string>
     <string name="details_date">Date:</string>
     <string name="details_size">Image size:</string>
-    <string name="details_filesize">Cached size:</string>
     <string name="details_not_available">(not available)</string>
+    <string name="copied_to_clipboard">Copied URL to clipboard</string>
     
     <string name="gallery_posted_by">%1$s</string>
     
