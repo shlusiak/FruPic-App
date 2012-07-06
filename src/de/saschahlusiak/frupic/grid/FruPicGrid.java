@@ -12,9 +12,10 @@ import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.utils.DownloadTask;
 import de.saschahlusiak.frupic.utils.ProgressTaskActivityInterface;
 import de.saschahlusiak.frupic.utils.UploadActivity;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.DownloadManager;
+import android.app.DownloadManager.Request;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,6 +27,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -424,10 +426,22 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			return true;
 
 		case R.id.cache_now:
-			downloadTask = new DownloadTask(frupic, factory);
-			showDialog(DIALOG_PROGRESS);
-			downloadTask.setActivity(this, downloadProgress);
-			downloadTask.execute();
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+				DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+				DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
+			
+				req.allowScanningByMediaScanner();
+				req.setTitle(frupic.getFileName(false));
+				req.setDescription("Frupic " + frupic.getId());
+				req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+				req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
+				dm.enqueue(req);
+			}else {
+				downloadTask = new DownloadTask(frupic, factory);
+				showDialog(DIALOG_PROGRESS);
+				downloadTask.setActivity(this, downloadProgress);
+				downloadTask.execute();
+			}
 
 			return true;
 
