@@ -16,13 +16,11 @@
         android:icon="@android:drawable/ic_menu_save"
         android:title="@string/download"/>
     
+	<item android:id="@+id/openinbrowser" android:title="@string/openinbrowser"
+		android:icon="@android:drawable/ic_menu_set_as" />
+	
 	<item
         android:id="@+id/details"
         android:icon="@android:drawable/ic_menu_info_details"
         android:title="@string/details"/>
-
-    
-	<item android:id="@+id/openinbrowser" android:title="@string/openinbrowser"
-		android:icon="@android:drawable/ic_menu_set_as" />
-	
 </menu>

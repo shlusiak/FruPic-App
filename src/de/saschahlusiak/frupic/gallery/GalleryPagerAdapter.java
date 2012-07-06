@@ -4,6 +4,7 @@ import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -19,7 +20,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 	private final static String tag = GalleryPagerAdapter.class.getSimpleName();
 
 	FrupicFactory factory;
-	Context context;
+	Activity context;
 	Cursor cursor;
 	
 	class FetchTask extends Thread implements OnFetchProgress {
@@ -88,7 +89,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		}
 	}
 	
-	public GalleryPagerAdapter(Context context, FrupicFactory factory) {
+	public GalleryPagerAdapter(Activity context, FrupicFactory factory) {
 		this.context = context;
 		this.factory = factory;
 	}
@@ -105,6 +106,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		Frupic frupic = new Frupic(cursor);
 
 		View view = LayoutInflater.from(context).inflate(R.layout.gallery_item, container, false);
+		context.registerForContextMenu(view);
 		ImageView i = (ImageView)view.findViewById(R.id.imageView);
 		
 		Bitmap b = factory.getFullBitmap(frupic);

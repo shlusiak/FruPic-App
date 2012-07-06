@@ -87,9 +87,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
 		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size", "16777216")));
-		
-		/* TODO: FIXME */
-		registerForContextMenu(pager);
         
         if (savedInstanceState != null) {
         	pager.setCurrentItem(savedInstanceState.getInt("position"));
@@ -312,6 +309,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 		Frupic frupic = getCurrentFrupic();
+		menu.setHeaderTitle("#" + frupic.getId());
 	}
 	
 	Frupic getCurrentFrupic() {
