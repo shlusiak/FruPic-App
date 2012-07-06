@@ -32,7 +32,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -54,6 +57,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	CheckBox star;
 	FrupicDB db;
 	boolean showFavs;
+	View controls;
+	Animation fadeAnimation;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,6 +75,14 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         adapter = new GalleryPagerAdapter(this, factory);
         star = (CheckBox) findViewById(R.id.star);
         pager = (ViewPager) findViewById(R.id.viewPager);
+        controls = findViewById(R.id.all_controls);
+        fadeAnimation = new AlphaAnimation(1.0f, 0.0f);
+        fadeAnimation.setDuration(400);
+        fadeAnimation.setStartOffset(1500);
+        fadeAnimation.setFillAfter(true);
+
+        
+        
         pager.setOnPageChangeListener(this);
         pager.setAdapter(adapter);
   
@@ -100,12 +113,24 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         if (showFavs)
         	star.setVisibility(View.GONE);
         star.setOnCheckedChangeListener(starChangedListener);
+        findViewById(R.id.save).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startDownload();				
+			}
+		});
+    }
+    
+    void showControls() {
+    	controls.clearAnimation();
+    	controls.startAnimation(fadeAnimation);
     }
     
     OnCheckedChangeListener starChangedListener = new OnCheckedChangeListener() {
 
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+			showControls();
 			Frupic frupic = getCurrentFrupic();
 			if (frupic.hasFlag(Frupic.FLAG_FAV) == isChecked)
 				return;
@@ -229,6 +254,26 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		
 		return super.onCreateOptionsMenu(menu);
 	}
+	
+	void startDownload() {
+		Frupic frupic = getCurrentFrupic();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+			DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+			DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
+		
+			req.allowScanningByMediaScanner();
+			req.setTitle(frupic.getFileName(false));
+			req.setDescription("Frupic " + frupic.getId());
+			req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+			req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
+			dm.enqueue(req);
+		}else {
+			downloadTask = new DownloadTask(frupic, factory);
+			showDialog(DIALOG_PROGRESS);
+			downloadTask.setActivity(this, downloadProgress);
+			downloadTask.execute();
+		}		
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -253,22 +298,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			return true;
 			
 		case R.id.cache_now:
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-				DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-				DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
-			
-				req.allowScanningByMediaScanner();
-				req.setTitle(frupic.getFileName(false));
-				req.setDescription("Frupic " + frupic.getId());
-				req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-				req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
-				dm.enqueue(req);
-			}else {
-				downloadTask = new DownloadTask(frupic, factory);
-				showDialog(DIALOG_PROGRESS);
-				downloadTask.setActivity(this, downloadProgress);
-				downloadTask.execute();
-			}
+			startDownload();
 			return true;
 
 		case R.id.share_link:
@@ -338,6 +368,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			db.setFlags(frupic);
 		}
 		
+		showControls();
 	    updateLabels(frupic);
     }
 

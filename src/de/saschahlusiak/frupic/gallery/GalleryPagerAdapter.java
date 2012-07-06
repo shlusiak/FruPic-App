@@ -12,6 +12,7 @@ import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -20,7 +21,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 	private final static String tag = GalleryPagerAdapter.class.getSimpleName();
 
 	FrupicFactory factory;
-	Activity context;
+	FruPicGallery context;
 	Cursor cursor;
 	
 	class FetchTask extends Thread implements OnFetchProgress {
@@ -91,7 +92,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		}
 	}
 	
-	public GalleryPagerAdapter(Activity context, FrupicFactory factory) {
+	public GalleryPagerAdapter(FruPicGallery context, FrupicFactory factory) {
 		this.context = context;
 		this.factory = factory;
 	}
@@ -108,8 +109,16 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		Frupic frupic = new Frupic(cursor);
 
 		View view = LayoutInflater.from(context).inflate(R.layout.gallery_item, container, false);
-		context.registerForContextMenu(view);
 		ImageView i = (ImageView)view.findViewById(R.id.imageView);
+		context.registerForContextMenu(i);
+		i.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				context.showControls();
+				
+			}
+		});
 		
 		Bitmap b = factory.getFullBitmap(frupic);
 
