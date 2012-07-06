@@ -71,6 +71,8 @@ public class GalleryPagerAdapter extends PagerAdapter {
 
 					if (b != null) {
 						i.setImageBitmap(b);
+					} else {
+						i.setImageResource(R.drawable.broken_frupic);
 					}
 					progress.setVisibility(View.GONE);
 				}
