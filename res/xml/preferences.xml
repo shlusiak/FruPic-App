@@ -33,6 +33,24 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/about" >
         <PreferenceScreen
+            android:title="http://frupic.frubar.net..."
+            android:summary="@string/gotowebsite" >
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://frupic.frubar.net" />
+        </PreferenceScreen>
+        
+        <PreferenceScreen
+            android:summary="@string/frupic_in_the_market_long"
+            android:title="@string/frupic_in_the_market" >
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="market://details?id=de.saschahlusiak.frupic" />
+        </PreferenceScreen>        
+        
+        <PreferenceScreen
             android:summary="Copyright (c) by Sascha Hlusiak, 2012."
             android:title="@string/about" >
             <intent android:action="de.saschahlusiak.frupic.SHOW_ABOUT" />

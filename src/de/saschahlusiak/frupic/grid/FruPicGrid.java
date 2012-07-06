@@ -339,12 +339,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			item.setIcon(showFavs ? R.drawable.star_label : R.drawable.star_empty);
 			return true;
 
-		case R.id.gotowebsite:
-			intent = new Intent("android.intent.action.VIEW", Uri
-					.parse("http://frupic.frubar.net"));
-			startActivity(intent);
-			return true;
-
 		case R.id.preferences:
 			intent = new Intent(this, FrupicPreferences.class);
 			startActivity(intent);

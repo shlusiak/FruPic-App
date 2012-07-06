@@ -3,11 +3,14 @@
 
     <string name="app_name">FruPic</string>
     <string name="about">Über...</string>
-    <string name="about_frupic">Über FruPic</string>
+    <string name="about_frupic">Über FruPic App</string>
     <string name="gotowebsite">In Browser öffnen</string>
     <string name="refresh">Aktualisieren</string>
     <string name="details">Details</string>
     <string name="openinbrowser">In Browser öffnen</string>
+    <string name="frupic_in_the_market">FruPic App in Google Play...</string>
+    <string name="frupic_in_the_market_long">FruPic App in Google Play zeigen</string>    
+    
     <string name="menu_show_starred_frupics">Favoriten zeigen</string>
     
     <string name="details_title">Details</string>

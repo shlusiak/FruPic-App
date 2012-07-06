@@ -13,14 +13,6 @@
 	    android:showAsAction="ifRoom"
 	    android:icon="@android:drawable/ic_menu_upload" />
 	
-	
-	<item android:id="@+id/gotowebsite" android:title="@string/gotowebsite"
-		android:icon="@android:drawable/ic_menu_set_as" />
-	
-<!-- <item android:id="@+id/about" android:title="@string/about"
-		android:icon="@android:drawable/ic_menu_info_details" />  -->	
-	
 	<item android:id="@+id/preferences" android:title="@string/preferences"
 		android:icon="@android:drawable/ic_menu_preferences" />
-	
 </menu>
