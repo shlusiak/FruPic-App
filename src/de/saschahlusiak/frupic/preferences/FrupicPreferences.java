@@ -5,13 +5,17 @@ import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.model.FrupicFactory.CacheInfo;
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 
-public class FrupicPreferences extends PreferenceActivity {
+public class FrupicPreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	Preference clear_cache;
 	
 	class PruneCacheTask extends AsyncTask<Void,Void,Void> {
@@ -64,10 +68,34 @@ public class FrupicPreferences extends PreferenceActivity {
 		updateCachePreference();
 	}
 	
-	public void updateCachePreference() {
-		FrupicFactory factory = new FrupicFactory(FrupicPreferences.this);		
+	@Override
+	protected void onResume() {
+		SharedPreferences prefs = getPreferenceScreen().getSharedPreferences();
+		onSharedPreferenceChanged(prefs, "cache_size");
+		onSharedPreferenceChanged(prefs, "username");
+		prefs.registerOnSharedPreferenceChangeListener(this);
+
+		super.onResume();
+	}
+	
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+		if (key.equals("cache_size")) {
+			ListPreference pref = (ListPreference)findPreference(key);
+			pref.setSummary(pref.getEntry());
+			updateCachePreference();
+		}
+	}
+	
+	void updateCachePreference() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		FrupicFactory factory = new FrupicFactory(FrupicPreferences.this);
 		CacheInfo info = factory.pruneCache(new FrupicFactory(this), -1);
-		clear_cache.setSummary(getString(R.string.preferences_cache_clear_summary, info.getCount(), info.getSize() / 1024));
+		clear_cache.setSummary(getString(R.string.preferences_cache_clear_summary, 
+				info.getCount(), 
+				(float)info.getSize() / 1024.0f / 1024.0f, 
+				100.0f * (float)info.getSize() / (float)Integer.parseInt(prefs.getString("cache_size", "16777216"))));
 		clear_cache.setEnabled(info.getCount() > 0);
 	}
 }

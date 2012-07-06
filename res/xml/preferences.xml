@@ -10,8 +10,12 @@
             android:entryValues="@array/cache_values"
             android:key="cache_size"
             android:persistent="true"
-            android:summary="@string/preferences_cache_size_summary"
             android:title="@string/preferences_cache_size" />
+        
+        <PreferenceScreen
+            android:key="clear_cache"
+            android:summary="@string/preferences_cache_clear_summary"
+            android:title="@string/preferences_cache_clear" />
 
         <CheckBoxPreference
             android:defaultValue="1"
@@ -19,11 +23,6 @@
             android:persistent="true"
             android:summary="@string/preferences_external_cache_summary"
             android:title="@string/preferences_external_cache" />
-
-        <PreferenceScreen
-            android:key="clear_cache"
-            android:summary="@string/preferences_cache_clear_summary"
-            android:title="@string/preferences_cache_clear" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_upload" >
         <EditTextPreference

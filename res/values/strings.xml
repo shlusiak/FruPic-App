@@ -63,11 +63,10 @@
     <string name="preferences">Preferences</string>
     <string name="preferences_cache">Cache</string>
     <string name="preferences_cache_size">Cache size limit</string>
-    <string name="preferences_cache_size_summary">Cache size limit for temporary images</string>
     <string name="preferences_external_cache">Use external cache</string>
     <string name="preferences_external_cache_summary">Prefer cache on external SD card instead of internal flash</string>
     <string name="preferences_cache_clear">Clear cache</string>
-    <string name="preferences_cache_clear_summary">%2$d Kb, %1$d images</string>
+    <string name="preferences_cache_clear_summary">%1$d images , %2$.1f MB (%3$.1f %%)</string>
 
     <string name="preferences_upload">Uploading</string>
     <string name="preferences_upload_username">Username</string>

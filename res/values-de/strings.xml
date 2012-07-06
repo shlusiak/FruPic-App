@@ -61,12 +61,11 @@
         
     <string name="preferences">Einstellungen</string>
     <string name="preferences_cache">Cache</string>
-    <string name="preferences_cache_size">Cache Größe</string>
-    <string name="preferences_cache_size_summary">Zwischenspeicher für temporäre Bilddaten</string>
+    <string name="preferences_cache_size">Größe Zwischenspeicher</string>
     <string name="preferences_external_cache">Externen Cache benutzen</string>
-    <string name="preferences_external_cache_summary">Bilder auf SD-Karte cachen, wenn vorhanden</string>
-    <string name="preferences_cache_clear">Cache leeren</string>
-    <string name="preferences_cache_clear_summary">%2$d Kb, %1$d Bilder</string>
+    <string name="preferences_external_cache_summary">Bevorzugt auf SD-Karte cachen</string>
+    <string name="preferences_cache_clear">Zwischenspeicher leeren</string>
+    <string name="preferences_cache_clear_summary">%1$d Bilder, %2$.1f MB (%3$.1f %%)</string>
 
     <string name="preferences_upload">Hochladen</string>
     <string name="preferences_upload_username">Benutzername</string>
