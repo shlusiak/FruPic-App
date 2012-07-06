@@ -353,15 +353,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public void onCreateContextMenu(android.view.ContextMenu menu, View v,
 			android.view.ContextMenu.ContextMenuInfo menuInfo) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.contextmenu, menu);
+		inflater.inflate(R.menu.grid_contextmenu, menu);
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 		Frupic frupic = new Frupic((Cursor)adapter.getItem((int) info.position));
 
 		menu.setHeaderTitle("#" + frupic.getId());
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
-		// menu.findItem(R.id.cache_now).setEnabled(! new
-		// File(factory.getCacheFileName(frupic, false)).exists());
 	}
 
 	@Override
@@ -383,9 +381,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			return true;
 
 		case R.id.details:
-//			intent = new Intent(this, DetailsActivity.class);
-//			intent.putExtra("frupic", frupic);
-//			startActivity(intent);
 			DetailDialog.create(this, frupic, factory).show();
 			
 			return true;
@@ -397,26 +392,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.getId());
 			startActivity(Intent.createChooser(intent,
 					getString(R.string.share_link)));
-			return true;
-
-		case R.id.share_picture:
-			File out = getExternalCacheDir();
-			if (out == null) {
-				Toast.makeText(this, R.string.error_no_storage, Toast.LENGTH_SHORT).show();
-				return true;
-			}
-			/* The created external files are deleted somewhen in onDestroy() */
-
-			/* TODO: If file is not in cache yet, download it first or show message */
-			out = new File(out, frupic.getFileName(false));
-			if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory, false), out)) {
-				intent = new Intent(Intent.ACTION_SEND);
-				intent.setType("image/?");
-				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));
-				startActivity(Intent.createChooser(intent,
-						getString(R.string.share_picture)));
-			}
-
 			return true;
 
 		case R.id.cache_now:

@@ -7,11 +7,7 @@
     <item
         android:id="@+id/openinbrowser"
         android:title="@string/openinbrowser"/>
-
-    <item
-        android:id="@+id/share_picture"
-        android:title="@string/share_picture"/>
-        
+      
     <item
         android:id="@+id/share_link"
         android:title="@string/share_link"/>
