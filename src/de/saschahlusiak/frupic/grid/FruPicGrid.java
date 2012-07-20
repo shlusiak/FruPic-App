@@ -1,8 +1,6 @@
 package de.saschahlusiak.frupic.grid;
 
-import java.io.File;
 import java.net.UnknownHostException;
-
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
@@ -23,11 +21,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.database.Cursor;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,9 +36,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -135,7 +138,19 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		}
 	}
 
-	
+	private final class RemoveWindow implements Runnable {
+        public void run() {
+            removeWindow();
+        }
+    }
+
+    private RemoveWindow mRemoveWindow = new RemoveWindow();
+    Handler mHandler = new Handler();
+    private WindowManager mWindowManager;
+    private TextView mDialogText;
+    private boolean mShowing;
+    private boolean mReady;
+
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
@@ -164,6 +179,27 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			showFavs = savedInstanceState.getBoolean("showFavs", false);
 		}
 		
+        mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+        
+        LayoutInflater inflate = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        
+        mDialogText = (TextView) inflate.inflate(R.layout.grid_list_position, null);
+        mDialogText.setVisibility(View.INVISIBLE);
+        
+		mHandler.post(new Runnable() {
+			public void run() {
+				mReady = true;
+				WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+						LayoutParams.WRAP_CONTENT,
+						LayoutParams.WRAP_CONTENT,
+						WindowManager.LayoutParams.TYPE_APPLICATION,
+						WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+								| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+						PixelFormat.TRANSLUCENT);
+				mWindowManager.addView(mDialogText, lp);
+			}
+		});		
+		
 		cursorChanged();
 	}
 
@@ -177,6 +213,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		db.markAllSeen();
 		db.close();
 		db = null;
+        mWindowManager.removeView(mDialogText);
+        mReady = false;		
 		super.onDestroy();
 	}
 	
@@ -238,8 +276,16 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	@Override
 	protected void onResume() {
+		mReady = true;
 		cursorChanged();
 		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		removeWindow();
+		mReady = false;
 	}
 
 	@Override
@@ -251,6 +297,14 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		startActivity(intent);
 	}
 
+    private void removeWindow() {
+        if (mShowing) {
+            mShowing = false;
+            mDialogText.setVisibility(View.INVISIBLE);
+        }
+    }
+    
+    String mPrevDate = "";
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
@@ -261,6 +315,25 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 				refreshTask.execute();
 			}
 		}
+        if (mReady) {
+        	Cursor first = (Cursor)adapter.getItem(firstVisibleItem);
+        	if (first != null) {
+	            String date = first.getString(FrupicDB.DATE_INDEX);
+	            if (date == null)
+	            	date = "";
+	            else date = date.substring(0, 10);
+	            
+	            if (!mShowing && !date.equals(mPrevDate)) {
+	                mShowing = true;
+	                mDialogText.setVisibility(View.VISIBLE);
+	            }
+	            mDialogText.setText(date);
+	            mHandler.removeCallbacks(mRemoveWindow);
+	            mHandler.postDelayed(mRemoveWindow, 1500);
+	            mPrevDate = date;
+        	}
+        }
+		
 	}
 
 	@Override
