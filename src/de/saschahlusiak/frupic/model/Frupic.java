@@ -46,6 +46,15 @@ public class Frupic implements Serializable {
 		this.username = cursor.getString(FrupicDB.USERNAME_INDEX);
 		this.date = cursor.getString(FrupicDB.DATE_INDEX);
 		this.flags = cursor.getInt(FrupicDB.FLAGS_INDEX);
+		String s = cursor.getString(FrupicDB.TAGS_INDEX);
+		if (s != null) {
+			if (s.length() > 0)
+				this.tags = s.split(", ");
+			else
+				this.tags = null;
+			if (this.tags != null && this.tags.length == 0)
+				this.tags = null;
+		}
 	}
 	
 	public String getUsername() {

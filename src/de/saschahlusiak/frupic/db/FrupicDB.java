@@ -21,6 +21,7 @@ public class FrupicDB {
 	public static final String DATE_ID = "date";				/* 3 */
 	public static final String USERNAME_ID = "username";		/* 4 */
 	public static final String FLAGS_ID = "flags";				/* 5 */
+	public static final String TAGS_ID = "tags";				/* 6 */
 
 	/* NEVER CHANGE THE INDEX OF COLUMNS FOR BACKWARDS COMPATIBILITY */
 	public static final int ID_INDEX = 0;
@@ -29,17 +30,21 @@ public class FrupicDB {
 	public static final int DATE_INDEX = 3;
 	public static final int USERNAME_INDEX = 4;
 	public static final int FLAGS_INDEX = 5;
+	public static final int TAGS_INDEX = 6;
 	
 	
 	/* WARNING: The IDs are used in Cursors to query the colums, for compatibility they should NEVER be changed.
 	 * Make sure to ONLY append colums. */
 	public static final String CREATE_TABLE = "CREATE TABLE " + TABLE + " (" +
 			ID_ID + " INTEGER PRIMARY KEY, " + 		/* 0 */
-			FULLURL_ID + " TEXT, " +		/* 1 */
-			THUMBURL_ID + " TEXTL, " +		/* 2 */
-			DATE_ID + " TEXTL, " +			/* 3 */
-			USERNAME_ID + " TEXT, " +		/* 4 */
-			FLAGS_ID + " INTEGER);";				/* 5 */
+			FULLURL_ID + " TEXT, " +				/* 1 */
+			THUMBURL_ID + " TEXT, " +				/* 2 */
+			DATE_ID + " TEXT, " +					/* 3 */
+			USERNAME_ID + " TEXT, " +				/* 4 */
+			FLAGS_ID + " INTEGER, " +				/* 5 */
+			TAGS_ID + " TEXT);";					/* 6 */
+	
+	public static final String UPGRADE_FROM_1 = "ALTER TABLE " + TABLE + " ADD " + TAGS_ID + " TEXT;";
 	
 	public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE + ";";
 
@@ -76,6 +81,15 @@ public class FrupicDB {
 			values.put(DATE_ID, frupic.getDate());
 			values.put(USERNAME_ID, frupic.getUsername());
 			values.put(FLAGS_ID, frupic.getFlags());
+			
+			String tags_s = "";
+			String tags[] = frupic.getTags();
+			if (tags != null) {
+				for (int i = 0; i < tags.length - 1; i++)
+					tags_s += tags[i] + ", ";
+				tags_s += tags[tags.length - 1];
+			}
+			values.put(TAGS_ID, tags_s);
 
 			db.insert(TABLE, null, values);
 			return true;

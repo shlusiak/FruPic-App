@@ -1,5 +1,4 @@
 package de.saschahlusiak.frupic.db;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -7,7 +6,7 @@ import android.util.Log;
 
 public class FrupicDBOpenHandler extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "frupic.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private static final String tag = FrupicDBOpenHandler.class.getSimpleName();
 
 	public FrupicDBOpenHandler(Context context) {
@@ -23,9 +22,13 @@ public class FrupicDBOpenHandler extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		try {
-
+			if (oldVersion < 2) {
+				db.execSQL(FrupicDB.UPGRADE_FROM_1);
+			}
 		}catch (Exception e) {
-		//	onCreate(db);
+			e.printStackTrace();
+			db.execSQL(FrupicDB.DROP_TABLE);
+			onCreate(db);
 		}
 	}
 
