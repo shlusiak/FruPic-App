@@ -61,7 +61,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	boolean showFavs = false;
 
-	public final int FRUPICS_STEP = 60;
+	public final int FRUPICS_STEP = 100;
 
 	RefreshIndexTask refreshTask = null; 
 	
