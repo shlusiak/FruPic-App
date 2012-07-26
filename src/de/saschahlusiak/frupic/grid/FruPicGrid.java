@@ -481,10 +481,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 				DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 				DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
 			
-				req.allowScanningByMediaScanner();
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+					req.allowScanningByMediaScanner();
+					req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+				}
+				
 				req.setTitle(frupic.getFileName(false));
 				req.setDescription("Frupic " + frupic.getId());
-				req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 				req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
 				dm.enqueue(req);
 			}else {
