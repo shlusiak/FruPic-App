@@ -258,6 +258,9 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	void startDownload() {
 		Frupic frupic = getCurrentFrupic();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+			/* Make sure, destination directory exists */
+			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
+
 			DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 			DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
 		
