@@ -13,15 +13,32 @@
         android:scaleType="centerInside"
         android:src="@drawable/frupic" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="220dp"
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="36dp"
-        android:max="100"
-        android:progress="30" />
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="96dp"
+        android:gravity="center" >
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="30" />
+
+        <ImageButton
+            android:id="@+id/stopButton"
+            style="@android:style/Widget.Button.Small"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:scaleType="fitCenter"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
+    </LinearLayout>
 
 </RelativeLayout>

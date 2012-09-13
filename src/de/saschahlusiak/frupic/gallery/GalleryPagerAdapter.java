@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -30,14 +31,34 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		boolean cancelled = false;
 		ProgressBar progress;
 
-		FetchTask(View view, Frupic frupic) {
+		FetchTask(final View view, final Frupic frupic) {
 			this.view = view;
 			this.frupic = frupic;
+			final ImageButton stopButton = (ImageButton)view.findViewById(R.id.stopButton);
 			
 			progress = (ProgressBar)view.findViewById(R.id.progressBar);
 			progress.setIndeterminate(false);
 			progress.setMax(100);
 			progress.setProgress(0);
+			progress.setVisibility(View.VISIBLE);
+			
+			stopButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
+			stopButton.setVisibility(View.VISIBLE);
+			stopButton.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					if (isCancelled()) {
+						Thread t = new FetchTask(view, frupic);
+						view.setTag(t);
+						t.start();
+					} else {
+						progress.setProgress(0);
+						stopButton.setImageResource(android.R.drawable.ic_menu_revert);
+						cancel();
+					}
+				}
+			});
 		}
 	
 		public synchronized void cancel() {
@@ -76,6 +97,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 						i.setImageResource(R.drawable.broken_frupic);
 					}
 					progress.setVisibility(View.GONE);
+					view.findViewById(R.id.stopButton).setVisibility(View.GONE);
 				}
 			});
 		}
@@ -83,9 +105,10 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		@Override
 		public void OnProgress(final int read, final int length) {
 			view.post(new Runnable() {
-				
 				@Override
 				public void run() {
+					if (isCancelled())
+						return;
 					progress.setProgress((100 * read) / length);
 				}
 			});
@@ -116,7 +139,6 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			@Override
 			public void onClick(View v) {
 				context.showControls();
-				
 			}
 		});
 		
@@ -128,8 +150,8 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			view.setTag(t);
 			t.start();
 		} else {
-			ProgressBar progress = (ProgressBar) view.findViewById(R.id.progressBar);
-			progress.setVisibility(View.GONE);
+			view.findViewById(R.id.progressBar).setVisibility(View.GONE);
+			view.findViewById(R.id.stopButton).setVisibility(View.GONE);
 			i.setImageBitmap(b);
 		}
 		
