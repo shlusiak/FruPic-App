@@ -23,6 +23,8 @@
     
     <string name="gallery_posted_by">%1$s</string>
     
+    <string name="waiting_to_start">In Warteschlange...</string>
+    
     <string name="star_frupic">Favorit</string>
     
     <string name="fetch_and_cache">In Cache laden</string>

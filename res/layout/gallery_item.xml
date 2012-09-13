@@ -12,15 +12,23 @@
         android:adjustViewBounds="false"
         android:scaleType="centerInside"
         android:src="@drawable/frupic" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout1"
+    
+    <LinearLayout 
+        android:id="@+id/linearLayout2" 
+        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginBottom="96dp"
+        android:gravity="center"        
+        >
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:gravity="center" >
 
         <ProgressBar
@@ -40,5 +48,14 @@
             android:src="@android:drawable/ic_menu_close_clear_cancel" />
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="progress"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</LinearLayout>
 
 </RelativeLayout>

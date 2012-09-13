@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 public class GalleryPagerAdapter extends PagerAdapter {
 	private final static String tag = GalleryPagerAdapter.class.getSimpleName();
@@ -30,6 +31,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		View view;
 		boolean cancelled = false;
 		ProgressBar progress;
+		TextView progressText;
 
 		FetchTask(final View view, final Frupic frupic) {
 			this.view = view;
@@ -42,6 +44,10 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			progress.setProgress(0);
 			progress.setVisibility(View.VISIBLE);
 			
+			progressText = (TextView)view.findViewById(R.id.progress);
+			progressText.setVisibility(View.VISIBLE);
+			progressText.setText(R.string.waiting_to_start);
+			
 			stopButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
 			stopButton.setVisibility(View.VISIBLE);
 			stopButton.setOnClickListener(new OnClickListener() {
@@ -53,8 +59,8 @@ public class GalleryPagerAdapter extends PagerAdapter {
 						view.setTag(t);
 						t.start();
 					} else {
-						progress.setProgress(0);
 						stopButton.setImageResource(android.R.drawable.ic_menu_revert);
+						progressText.setText(R.string.cancelled);
 						cancel();
 					}
 				}
@@ -97,6 +103,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 						i.setImageResource(R.drawable.broken_frupic);
 					}
 					progress.setVisibility(View.GONE);
+					progressText.setVisibility(View.GONE);
 					view.findViewById(R.id.stopButton).setVisibility(View.GONE);
 				}
 			});
@@ -110,6 +117,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 					if (isCancelled())
 						return;
 					progress.setProgress((100 * read) / length);
+					progressText.setText(String.format("%dkb / %dkb (%d%%)", read / 1024, length / 1024, (length > 0) ? read * 100 / length : 0));
 				}
 			});
 		}
@@ -152,6 +160,8 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		} else {
 			view.findViewById(R.id.progressBar).setVisibility(View.GONE);
 			view.findViewById(R.id.stopButton).setVisibility(View.GONE);
+			view.findViewById(R.id.progress).setVisibility(View.GONE);
+
 			i.setImageBitmap(b);
 		}
 		

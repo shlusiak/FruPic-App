@@ -34,7 +34,8 @@
     <string name="error_fetching">Could not fetch image file</string>
     <string name="error_no_storage">External storage not available</string>
     <string name="error_saving">Error saving file to storage</string>
-        
+       
+    <string name="waiting_to_start">scheduled...</string>
 
     <string name="upload">Upload</string>
     <string name="cancelled">Cancelled</string>
