@@ -275,6 +275,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			req.setDescription("Frupic " + frupic.getId());
 			req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
 			dm.enqueue(req);
+			
+			Toast.makeText(this, getString(R.string.fetching_image_message, frupic.getFileName(false)), Toast.LENGTH_SHORT).show();
 		}else {
 			downloadTask = new DownloadTask(frupic, factory);
 			showDialog(DIALOG_PROGRESS);
