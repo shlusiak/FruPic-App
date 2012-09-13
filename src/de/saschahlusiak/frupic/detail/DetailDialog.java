@@ -6,13 +6,12 @@ import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.text.ClipboardManager;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DetailDialog extends ArrayAdapter<DetailItem> implements DialogInterface.OnClickListener{
+public class DetailDialog extends ArrayAdapter<DetailItem> {
 	Context context;
 	Frupic frupic;
 	
@@ -65,7 +64,8 @@ public class DetailDialog extends ArrayAdapter<DetailItem> implements DialogInte
 		
 	
 		d = new DetailDialog(context, items, frupic);
-		/* TODO: Specifying an OnClickListener here will dismiss the dialog on select. Do not want! */
+		/* Specifying an OnClickListener here will dismiss the dialog on select. 
+		 * Do not want! See hack in getView */
 		builder.setAdapter(d, null);
 		builder.setIcon(null);
 		builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
@@ -80,26 +80,22 @@ public class DetailDialog extends ArrayAdapter<DetailItem> implements DialogInte
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, ViewGroup parent) {
 		View v = super.getView(position, convertView, parent);
 		TextView t = (TextView) v.findViewById(android.R.id.text2);
 //		t.setTextColor(android.R.color.widget_edittext_dark);
 //		t.setTextAppearance(context, android.R.attr.textAppearanceLarge);
 		
 		t.setText(getItem(position).getValue());
+		
+		v.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+				clipboard.setText(getItem(position).getValue());				
+				Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();				
+			}
+		});
 		return v;
-	}
-
-	@Override
-	public void onClick(DialogInterface dialog, int which) {
-		/* TODO: this is not called; see setAdapter(...) above */ 
-		switch (which) {
-		case 4:
-			ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText("simple text",frupic.getFullUrl());
-			clipboard.setPrimaryClip(clip);
-			Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-			break;
-		}
 	}
 }
