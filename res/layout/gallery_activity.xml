@@ -22,7 +22,7 @@
             android:layout_alignParentBottom="true"
             android:layout_toLeftOf="@+id/username"
             android:autoLink="web"
-            android:background="#3f000000"
+            android:background="#9f0f0f0f"
             android:gravity="left"
             android:linksClickable="true"
             android:text="URL"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:background="#3f000000"
+            android:background="#9f0f0f0f"
             android:text="Username"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -44,32 +44,42 @@
             android:layout_height="wrap_content"
             android:layout_above="@+id/username"
             android:layout_alignParentRight="true"
-            android:background="#3f000000"
+            android:background="#9f0f0f0f"
             android:text="[Tags]"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <RelativeLayout
+       	<RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="#3f000000"
+            android:background="#9f0f0f0f"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true" >
 
-            <CheckBox
+            <ImageButton
                 android:id="@+id/star"
-                style="@android:style/Widget.CompoundButton.Star"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true" />
-
-            <ImageView
-                android:id="@+id/save"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_alignParentLeft="true"
+                style="@android:style/Widget.ActionButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:layout_alignParentTop="true"
-                android:src="@android:drawable/ic_menu_save" />
+                android:layout_alignParentRight="true"
+                android:src="@drawable/star_empty" />
+            
+            <ImageButton
+                android:id="@+id/save"
+                style="@android:style/Widget.ActionButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_alignParentTop="true"
+                android:src="@drawable/ic_download" />
+            
+            <ImageButton
+                android:id="@+id/copy_to_clipboard"
+                style="@android:style/Widget.ActionButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/save"
+                android:src="@drawable/ic_clipboard" />
 
         </RelativeLayout>
 

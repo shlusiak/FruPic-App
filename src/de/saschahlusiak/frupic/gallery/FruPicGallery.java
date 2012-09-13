@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
+import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -36,9 +37,11 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -54,7 +57,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	static DownloadTask downloadTask = null;
 	ProgressDialog progressDialog;
 	Cursor cursor;
-	CheckBox star;
+	ImageButton starButton, saveButton, clipboardButton;
 	FrupicDB db;
 	boolean showFavs;
 	View controls;
@@ -73,13 +76,39 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         factory.setTargetSize(display.getWidth(), display.getHeight());
         
         adapter = new GalleryPagerAdapter(this, factory);
-        star = (CheckBox) findViewById(R.id.star);
-        pager = (ViewPager) findViewById(R.id.viewPager);
+        /* TODO: replace this by actionBar awesomeness. */
         controls = findViewById(R.id.all_controls);
+        starButton = (ImageButton) findViewById(R.id.star);
+        saveButton = (ImageButton) findViewById(R.id.save);
+        clipboardButton = (ImageButton) findViewById(R.id.copy_to_clipboard);
+        
+        pager = (ViewPager) findViewById(R.id.viewPager);
         fadeAnimation = new AlphaAnimation(1.0f, 0.0f);
         fadeAnimation.setDuration(400);
-        fadeAnimation.setStartOffset(1500);
+        fadeAnimation.setStartOffset(2000);
         fadeAnimation.setFillAfter(true);
+        fadeAnimation.setAnimationListener(new AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				if (!showFavs)
+					starButton.setVisibility(View.VISIBLE);
+		        saveButton.setVisibility(View.VISIBLE);
+		        clipboardButton.setVisibility(View.VISIBLE);
+				findViewById(R.id.url).setVisibility(View.VISIBLE);
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				starButton.setVisibility(View.INVISIBLE);
+				saveButton.setVisibility(View.INVISIBLE);
+				clipboardButton.setVisibility(View.INVISIBLE);
+				findViewById(R.id.url).setVisibility(View.INVISIBLE);
+			}
+		});
 
         
         
@@ -111,12 +140,24 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         /* TODO: changing the star currently changes the DB and the Cursor and thus disturbs the ViewPager.
          * Hide Star control for now */
         if (showFavs)
-        	star.setVisibility(View.GONE);
-        star.setOnCheckedChangeListener(starChangedListener);
+        	starButton.setVisibility(View.GONE);
+        starButton.setOnClickListener(starClickedListener);
         findViewById(R.id.save).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				showControls();
 				startDownload();				
+			}
+		});
+        findViewById(R.id.copy_to_clipboard).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showControls();
+				Frupic frupic = getCurrentFrupic();
+				
+				ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+				clipboard.setText(frupic.getUrl());				
+				Toast.makeText(FruPicGallery.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();				
 			}
 		});
     }
@@ -126,18 +167,18 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     	controls.startAnimation(fadeAnimation);
     }
     
-    OnCheckedChangeListener starChangedListener = new OnCheckedChangeListener() {
+    OnClickListener starClickedListener = new OnClickListener() {
 
 		@Override
-		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		public void onClick(View v) {
 			showControls();
 			Frupic frupic = getCurrentFrupic();
-			if (frupic.hasFlag(Frupic.FLAG_FAV) == isChecked)
-				return;
 			
 			frupic.setFlags((frupic.getFlags() ^ Frupic.FLAG_FAV) & ~Frupic.FLAG_NEW);
 			db.setFlags(frupic);
 			cursorChanged();
+			
+			starButton.setImageResource(frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty);
 		}
 	};
     
@@ -235,7 +276,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		t = (TextView)findViewById(R.id.username);
 		t.setText(getString(R.string.gallery_posted_by, frupic.getUsername()));
 		
-		star.setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
+		
+		starButton.setImageResource(frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty);
 		
 		t = (TextView)findViewById(R.id.tags);
 		tags = frupic.getTagsString();
