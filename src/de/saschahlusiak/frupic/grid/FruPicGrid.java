@@ -306,6 +306,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     
     String mPrevDate = "";
 
+    int lastScrollState = SCROLL_STATE_IDLE;
+    
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
@@ -323,21 +325,24 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	            	date = "";
 	            else date = date.substring(0, 10);
 	            
-	            if (!mShowing && !date.equals(mPrevDate)) {
+	            if (!mShowing && !date.equals(mPrevDate) && lastScrollState == SCROLL_STATE_FLING) {
 	                mShowing = true;
 	                mDialogText.setVisibility(View.VISIBLE);
 	            }
-	            mDialogText.setText(date);
-	            mHandler.removeCallbacks(mRemoveWindow);
-	            mHandler.postDelayed(mRemoveWindow, 1500);
+	            if (mShowing) {
+	            	mDialogText.setText(date);
+	            	mHandler.removeCallbacks(mRemoveWindow);
+	            	mHandler.postDelayed(mRemoveWindow, 1500);
+	            }
 	            mPrevDate = date;
         	}
         }
-		
 	}
+
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int state) {
+		lastScrollState = state;
 		if (state == SCROLL_STATE_IDLE && (!showFavs)) {
 			int firstVisibleItem = grid.getFirstVisiblePosition();
 			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
