@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.gallery;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -150,7 +151,20 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			String filename = factory.getCacheFileName(frupic, false);
             InputStream stream = null;
 			try {
+				/* Movie calls reset() which the InputStream must support.
+				 * 
+				 * FileInputStream does NOT
+				 * BufferedInputStream does, but somehow we need to call mark(x) first, with x>0. WTF?
+				 * ByteArrayInputStream does
+				 * 
+				 * I do not trust BufferedInputStream and because it will probably map the whole file anyway,
+				 * I can just save it in a byte array.
+				 */
 				stream = new FileInputStream(filename);
+				
+//				stream = new BufferedInputStream(stream);
+//				stream.mark(1);
+				
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				byte buf[] = new byte[4096];
 				while (stream.read(buf) > 0) {
