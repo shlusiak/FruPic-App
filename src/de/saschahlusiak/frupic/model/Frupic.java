@@ -126,4 +126,8 @@ public class Frupic implements Serializable {
 	public boolean hasFlag(int flag) {
 		return ((flags & flag) != 0);
 	}
+	
+	public boolean isAnimated() {
+		return full_url.endsWith(".gif") || full_url.endsWith(".GIF");
+	}
 }

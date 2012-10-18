@@ -24,6 +24,16 @@
             android:summary="@string/preferences_external_cache_summary"
             android:title="@string/preferences_external_cache" />
     </PreferenceCategory>
+    
+    <PreferenceCategory android:title="@string/preferences_display" >
+        <CheckBoxPreference
+            android:defaultValue="1"
+            android:key="animatedgifs"
+            android:persistent="true"
+            android:summary="@string/preferences_show_animated_gifs_summary"
+            android:title="@string/preferences_show_animated_gifs" />
+     </PreferenceCategory>
+     
     <PreferenceCategory android:title="@string/preferences_upload" >
         <EditTextPreference
             android:key="username"

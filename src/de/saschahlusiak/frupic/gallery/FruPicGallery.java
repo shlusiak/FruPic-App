@@ -70,12 +70,13 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         
         
         factory = new FrupicFactory(this, 8);
         factory.setTargetSize(display.getWidth(), display.getHeight());
         
-        adapter = new GalleryPagerAdapter(this, factory);
+        adapter = new GalleryPagerAdapter(this, factory, prefs.getBoolean("animatedgifs", true));
         /* TODO: replace this by actionBar awesomeness. */
         controls = findViewById(R.id.all_controls);
         starButton = (ImageButton) findViewById(R.id.star);
@@ -125,8 +126,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         }
 
         cursorChanged();
-
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
 		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size", "16777216")));
         

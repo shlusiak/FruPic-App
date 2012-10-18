@@ -68,6 +68,10 @@
     <string name="preferences_external_cache_summary">Prefer cache on external SD card instead of internal flash</string>
     <string name="preferences_cache_clear">Clear cache</string>
     <string name="preferences_cache_clear_summary">%1$d images , %2$.1f MB (%3$.1f %%)</string>
+    
+    <string name="preferences_display">Display</string>
+    <string name="preferences_show_animated_gifs_summary">Show animated gif images (experimental)</string>
+    <string name="preferences_show_animated_gifs">Animate GIFs</string>
 
     <string name="preferences_upload">Uploading</string>
     <string name="preferences_upload_username">Username</string>

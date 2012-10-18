@@ -1,11 +1,15 @@
 package de.saschahlusiak.frupic.gallery;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
-import android.app.Activity;
-import android.content.Context;
+
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.support.v4.view.PagerAdapter;
@@ -25,6 +29,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 	FrupicFactory factory;
 	FruPicGallery context;
 	Cursor cursor;
+	boolean showAnimations;
 	
 	class FetchTask extends Thread implements OnFetchProgress {
 		Frupic frupic;
@@ -94,12 +99,15 @@ public class GalleryPagerAdapter extends PagerAdapter {
 				@Override
 				public void run() {
 					ImageView i = (ImageView)view.findViewById(R.id.imageView);
+					GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
 					
 					Bitmap b = factory.getFullBitmap(frupic);
 
 					if (b != null) {
-						i.setImageBitmap(b);
+						showFrupic(view, frupic, b);
 					} else {
+						i.setVisibility(View.VISIBLE);
+						v.setVisibility(View.GONE);
 						i.setImageResource(R.drawable.broken_frupic);
 					}
 					progress.setVisibility(View.GONE);
@@ -123,13 +131,45 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		}
 	}
 	
-	public GalleryPagerAdapter(FruPicGallery context, FrupicFactory factory) {
+	public GalleryPagerAdapter(FruPicGallery context, FrupicFactory factory, boolean showAnimations) {
 		this.context = context;
 		this.factory = factory;
+		this.showAnimations = showAnimations;
 	}
 
 	public void setCursor(Cursor cursor) {
 		this.cursor = cursor;
+	}
+	
+	public void showFrupic(View view, Frupic frupic, Bitmap b) {
+		GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
+		ImageView i = (ImageView)view.findViewById(R.id.imageView);
+		if (showAnimations && frupic.isAnimated()) {
+			v.setVisibility(View.VISIBLE);
+			i.setVisibility(View.GONE);
+			String filename = factory.getCacheFileName(frupic, false);
+            InputStream stream = null;
+			try {
+				stream = new FileInputStream(filename);
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				byte buf[] = new byte[4096];
+				while (stream.read(buf) > 0) {
+					bos.write(buf);
+				}
+				bos.flush();
+				stream.close();
+				stream = new ByteArrayInputStream(bos.toByteArray());
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			
+			v.setStream(stream);
+		} else {
+			i.setVisibility(View.VISIBLE);
+			v.setVisibility(View.GONE);
+			i.setImageBitmap(b);
+		}
+
 	}
 
 	@Override
@@ -141,18 +181,30 @@ public class GalleryPagerAdapter extends PagerAdapter {
 
 		View view = LayoutInflater.from(context).inflate(R.layout.gallery_item, container, false);
 		ImageView i = (ImageView)view.findViewById(R.id.imageView);
+		GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
+		
 		context.registerForContextMenu(i);
+		context.registerForContextMenu(v);
 		i.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
 				context.showControls();
 			}
 		});
+		v.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				context.showControls();
+			}
+		});
+
 		
 		Bitmap b = factory.getFullBitmap(frupic);
 
 		if (b == null) {
+			i.setVisibility(View.VISIBLE);
+			v.setVisibility(View.GONE);
+			
 			i.setImageResource(R.drawable.frupic);
 			Thread t = new FetchTask(view, frupic);
 			view.setTag(t);
@@ -162,7 +214,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			view.findViewById(R.id.stopButton).setVisibility(View.GONE);
 			view.findViewById(R.id.progress).setVisibility(View.GONE);
 
-			i.setImageBitmap(b);
+			showFrupic(view, frupic, b);
 		}
 		
 		container.addView(view);
@@ -187,5 +239,4 @@ public class GalleryPagerAdapter extends PagerAdapter {
 	public boolean isViewFromObject(View view, Object object) {
 		return view == object;
 	}
-
 }

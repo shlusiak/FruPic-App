@@ -69,6 +69,10 @@
     <string name="preferences_cache_clear">Zwischenspeicher leeren</string>
     <string name="preferences_cache_clear_summary">%1$d Bilder, %2$.1f MB (%3$.1f %%)</string>
 
+    <string name="preferences_display">Anzeige</string>
+    <string name="preferences_show_animated_gifs_summary">Animierte GIFs zeigen (experimentell)</string>
+    <string name="preferences_show_animated_gifs">GIF-Animationen</string>
+    
     <string name="preferences_upload">Hochladen</string>
     <string name="preferences_upload_username">Benutzername</string>
     <string name="preferences_upload_username_summary">Standardname für Hochladen</string>
