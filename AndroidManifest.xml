@@ -30,8 +30,7 @@
         </activity>
         <activity
             android:label="@string/app_name"
-            android:name=".gallery.FruPicGallery"
-            android:theme="@style/Theme.FruPic.NoTitleBar" >
+            android:name=".gallery.FruPicGallery" >
         </activity>
         <activity
             android:label="@string/preferences"

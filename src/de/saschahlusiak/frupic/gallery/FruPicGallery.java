@@ -33,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -62,10 +63,24 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	boolean showFavs;
 	View controls;
 	Animation fadeAnimation;
+	boolean hasActionBar;
+	Menu menu;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /* On Android < 3 we don't have an ActionBar that we can use.
+         * Hide the title bar there
+         */
+        if (Build.VERSION.SDK_INT < 11) {
+        	requestWindowFeature(Window.FEATURE_NO_TITLE);
+        	hasActionBar = false;
+        } else {
+        	/* we have an ActionBar. Set to Overlay */
+        	requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        	hasActionBar = true;
+        }
+        
         setContentView(R.layout.gallery_activity);
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
@@ -77,11 +92,15 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         factory.setTargetSize(display.getWidth(), display.getHeight());
         
         adapter = new GalleryPagerAdapter(this, factory, prefs.getBoolean("animatedgifs", true));
+        
         /* TODO: replace this by actionBar awesomeness. */
         controls = findViewById(R.id.all_controls);
         starButton = (ImageButton) findViewById(R.id.star);
         saveButton = (ImageButton) findViewById(R.id.save);
         clipboardButton = (ImageButton) findViewById(R.id.copy_to_clipboard);
+        if (hasActionBar) {
+        	findViewById(R.id.my_action_bar).setVisibility(View.GONE);
+        }
         
         pager = (ViewPager) findViewById(R.id.viewPager);
         fadeAnimation = new AlphaAnimation(1.0f, 0.0f);
@@ -96,6 +115,9 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		        saveButton.setVisibility(View.VISIBLE);
 		        clipboardButton.setVisibility(View.VISIBLE);
 				findViewById(R.id.url).setVisibility(View.VISIBLE);
+				if (hasActionBar)
+					if (! getActionBar().isShowing())
+						getActionBar().show();
 			}
 			
 			@Override
@@ -108,6 +130,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 				saveButton.setVisibility(View.INVISIBLE);
 				clipboardButton.setVisibility(View.INVISIBLE);
 				findViewById(R.id.url).setVisibility(View.INVISIBLE);
+				if (hasActionBar)
+					getActionBar().hide();
 			}
 		});
 
@@ -164,10 +188,12 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     void showControls() {
     	controls.clearAnimation();
     	controls.startAnimation(fadeAnimation);
+    	if (hasActionBar)
+    		if (!getActionBar().isShowing())
+    			getActionBar().show();
     }
     
     OnClickListener starClickedListener = new OnClickListener() {
-
 		@Override
 		public void onClick(View v) {
 			showControls();
@@ -186,7 +212,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     	super.onSaveInstanceState(outState);
     	outState.putInt("position", cursor.getPosition());
         outState.putBoolean("showFavs", showFavs);
-
     }
     
     @Override
@@ -275,8 +300,14 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		t = (TextView)findViewById(R.id.username);
 		t.setText(getString(R.string.gallery_posted_by, frupic.getUsername()));
 		
+		if (hasActionBar) {
+			getActionBar().setTitle(String.format("#%d", frupic.getId()));
+		}
 		
 		starButton.setImageResource(frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty);
+		if (menu != null) {
+			menu.findItem(R.id.star).setIcon(frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty);
+		}
 		
 		t = (TextView)findViewById(R.id.tags);
 		tags = frupic.getTagsString();
@@ -292,6 +323,9 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
+		this.menu = menu;
+		
+		updateLabels(getCurrentFrupic());
 		
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -375,7 +409,21 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 				intent.setType("image/?");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));
 				startActivity(Intent.createChooser(intent, getString(R.string.share_picture)));
-			}			
+			}
+			return true;
+
+		case R.id.star:
+			frupic.setFlags((frupic.getFlags() ^ Frupic.FLAG_FAV) & ~Frupic.FLAG_NEW);
+			db.setFlags(frupic);
+			cursorChanged();
+			item.setIcon((frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty));
+			return true;
+
+		case R.id.copy_to_clipboard:
+			ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboard.setText(frupic.getUrl());
+			Toast.makeText(FruPicGallery.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+			return true;
 			
 		default:
 			return true;

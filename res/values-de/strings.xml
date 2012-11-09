@@ -19,6 +19,7 @@
     <string name="details_date">Datum:</string>
     <string name="details_size">Bildgröße:</string>
     <string name="details_not_available">(nicht verfügbar)</string>
+    <string name="copy_url_to_clipboard">URL in Zwischenablage kopieren</string>
     <string name="copied_to_clipboard">Text in Zwischenablage kopiert </string>
     
     <string name="gallery_posted_by">%1$s</string>

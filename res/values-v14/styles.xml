@@ -3,5 +3,4 @@
     <style name="Theme.FruPic" parent="android:Theme.DeviceDefault"></style>
     <style name="Theme.FruPic.Dialog" parent="android:Theme.DeviceDefault.Dialog"></style>
     <style name="Theme.FruPic.Light.Dialog" parent="android:Theme.DeviceDefault.Light.Dialog"></style>
-    <style name="Theme.FruPic.NoTitleBar" parent="android:Theme.DeviceDefault.NoActionBar"></style>
 </resources>

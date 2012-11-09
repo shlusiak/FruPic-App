@@ -53,6 +53,7 @@
             android:layout_height="wrap_content"
             android:background="#9f0f0f0f"
             android:layout_alignParentLeft="true"
+            android:id="@+id/my_action_bar"
             android:layout_alignParentTop="true" >
 
             <ImageButton

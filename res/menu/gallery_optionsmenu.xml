@@ -1,22 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/share_link"
-        android:icon="@android:drawable/ic_menu_share"
-        android:showAsAction="ifRoom"
-        android:title="@string/share_link"/>
-        
-    <item
         android:id="@+id/share_picture"
         android:icon="@android:drawable/ic_menu_share"
         android:title="@string/share_picture"/>
     
     <item
+        android:id="@+id/share_link"
+        android:icon="@android:drawable/ic_menu_share"
+        android:showAsAction="always"
+        android:title="@string/share_link"/>
+
+    <item
+        android:id="@+id/copy_to_clipboard"
+        android:icon="@drawable/ic_clipboard"
+        android:showAsAction="ifRoom"
+        android:title="@string/copy_url_to_clipboard" />
+    
+    <item
         android:id="@+id/cache_now"
         android:icon="@android:drawable/ic_menu_save"
+        android:showAsAction="always"
         android:title="@string/download"/>
     
-	<item android:id="@+id/openinbrowser" android:title="@string/openinbrowser"
+    <item
+        android:id="@+id/star"
+        android:icon="@drawable/star_empty"
+        android:showAsAction="always"
+        android:title="@string/star_frupic" />
+    
+	<item android:id="@+id/openinbrowser"
+	    android:title="@string/openinbrowser"
 		android:icon="@android:drawable/ic_menu_set_as" />
 	
 	<item
