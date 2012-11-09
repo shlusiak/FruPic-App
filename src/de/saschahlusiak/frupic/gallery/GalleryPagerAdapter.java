@@ -202,17 +202,17 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		i.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				context.showControls();
+				context.toggleControls();
 			}
 		});
 		v.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				context.showControls();
+				context.toggleControls();
 			}
 		});
 
-		
+
 		Bitmap b = factory.getFullBitmap(frupic);
 
 		if (b == null) {

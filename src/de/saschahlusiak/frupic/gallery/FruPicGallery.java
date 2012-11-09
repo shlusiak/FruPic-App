@@ -54,16 +54,13 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	ViewPager pager;
 	GalleryPagerAdapter adapter;
 	FrupicFactory factory;
-	public final int FRUPICS = 9;
 	static DownloadTask downloadTask = null;
 	ProgressDialog progressDialog;
 	Cursor cursor;
-	ImageButton starButton, saveButton, clipboardButton;
 	FrupicDB db;
 	boolean showFavs;
 	View controls;
 	Animation fadeAnimation;
-	boolean hasActionBar;
 	Menu menu;
 	
     @Override
@@ -74,11 +71,13 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
          */
         if (Build.VERSION.SDK_INT < 11) {
         	requestWindowFeature(Window.FEATURE_NO_TITLE);
-        	hasActionBar = false;
+        	throw(new UnsupportedOperationException("needs actionbar / not implemented yet"));
+//        	hasActionBar = false;
         } else {
         	/* we have an ActionBar. Set to Overlay */
         	requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        	hasActionBar = true;
+        	getActionBar().setDisplayShowHomeEnabled(false);
+//			hasActionBar = true;
         }
         
         setContentView(R.layout.gallery_activity);
@@ -93,45 +92,26 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         
         adapter = new GalleryPagerAdapter(this, factory, prefs.getBoolean("animatedgifs", true));
         
-        /* TODO: replace this by actionBar awesomeness. */
         controls = findViewById(R.id.all_controls);
-        starButton = (ImageButton) findViewById(R.id.star);
-        saveButton = (ImageButton) findViewById(R.id.save);
-        clipboardButton = (ImageButton) findViewById(R.id.copy_to_clipboard);
-        if (hasActionBar) {
-        	findViewById(R.id.my_action_bar).setVisibility(View.GONE);
-        }
         
         pager = (ViewPager) findViewById(R.id.viewPager);
         fadeAnimation = new AlphaAnimation(1.0f, 0.0f);
         fadeAnimation.setDuration(400);
-        fadeAnimation.setStartOffset(2000);
         fadeAnimation.setFillAfter(true);
         fadeAnimation.setAnimationListener(new AnimationListener() {
 			@Override
 			public void onAnimationStart(Animation animation) {
-				if (!showFavs)
-					starButton.setVisibility(View.VISIBLE);
-		        saveButton.setVisibility(View.VISIBLE);
-		        clipboardButton.setVisibility(View.VISIBLE);
 				findViewById(R.id.url).setVisibility(View.VISIBLE);
-				if (hasActionBar)
-					if (! getActionBar().isShowing())
-						getActionBar().show();
 			}
-			
+
 			@Override
 			public void onAnimationRepeat(Animation animation) {
 			}
-			
+
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				starButton.setVisibility(View.INVISIBLE);
-				saveButton.setVisibility(View.INVISIBLE);
-				clipboardButton.setVisibility(View.INVISIBLE);
+				/* hide URL view, because with alpha of 0, it's still clickable */
 				findViewById(R.id.url).setVisibility(View.INVISIBLE);
-				if (hasActionBar)
-					getActionBar().hide();
 			}
 		});
 
@@ -160,53 +140,23 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         }
         updateLabels(getCurrentFrupic());
         
-        /* TODO: changing the star currently changes the DB and the Cursor and thus disturbs the ViewPager.
-         * Hide Star control for now */
-        if (showFavs)
-        	starButton.setVisibility(View.GONE);
-        starButton.setOnClickListener(starClickedListener);
-        findViewById(R.id.save).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				showControls();
-				startDownload();				
-			}
-		});
-        findViewById(R.id.copy_to_clipboard).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				showControls();
-				Frupic frupic = getCurrentFrupic();
-				
-				ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
-				clipboard.setText(frupic.getUrl());				
-				Toast.makeText(FruPicGallery.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();				
-			}
-		});
+        /* TODO: changing the star currently changes the DB and the Cursor and thus disturbs the ViewPager. */
     }
     
-    void showControls() {
-    	controls.clearAnimation();
-    	controls.startAnimation(fadeAnimation);
-    	if (hasActionBar)
-    		if (!getActionBar().isShowing())
-    			getActionBar().show();
+    /**
+     * toggles visibility of the controls
+     */
+    void toggleControls() {
+    	if (getActionBar().isShowing()) {
+    		getActionBar().hide();
+    		controls.startAnimation(fadeAnimation);
+    	} else {
+    		getActionBar().show();
+    		controls.clearAnimation();
+			findViewById(R.id.url).setVisibility(View.VISIBLE);
+    	}
     }
-    
-    OnClickListener starClickedListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			showControls();
-			Frupic frupic = getCurrentFrupic();
-			
-			frupic.setFlags((frupic.getFlags() ^ Frupic.FLAG_FAV) & ~Frupic.FLAG_NEW);
-			db.setFlags(frupic);
-			cursorChanged();
-			
-			starButton.setImageResource(frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty);
-		}
-	};
-    
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
     	super.onSaveInstanceState(outState);
@@ -219,7 +169,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     	db.close();
     	super.onDestroy();
     }
-    
+
 	@Override
 	protected void onStart() {
         if (downloadTask != null)
@@ -300,11 +250,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		t = (TextView)findViewById(R.id.username);
 		t.setText(getString(R.string.gallery_posted_by, frupic.getUsername()));
 		
-		if (hasActionBar) {
-			getActionBar().setTitle(String.format("#%d", frupic.getId()));
-		}
+		getActionBar().setTitle(String.format("#%d", frupic.getId()));
 		
-		starButton.setImageResource(frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty);
 		if (menu != null) {
 			menu.findItem(R.id.star).setIcon(frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty);
 		}
@@ -466,8 +413,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			frupic.setFlags(frupic.getFlags() & ~Frupic.FLAG_NEW);
 			db.setFlags(frupic);
 		}
-		
-		showControls();
+
+//		showControls();
 	    updateLabels(frupic);
     }
 
