@@ -102,15 +102,15 @@ public class GalleryPagerAdapter extends PagerAdapter {
 					ImageView i = (ImageView)view.findViewById(R.id.imageView);
 					GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
 					
-					if (!showFrupic(v, frupic)) {
+					progress.setVisibility(View.GONE);
+					progressText.setVisibility(View.GONE);
+					view.findViewById(R.id.stopButton).setVisibility(View.GONE);
+					
+					if (!showFrupic(view, frupic)) {
 						i.setVisibility(View.VISIBLE);
 						v.setVisibility(View.GONE);
 						i.setImageResource(R.drawable.broken_frupic);
 					}
-					
-					progress.setVisibility(View.GONE);
-					progressText.setVisibility(View.GONE);
-					view.findViewById(R.id.stopButton).setVisibility(View.GONE);
 				}
 			});
 		}
@@ -171,28 +171,30 @@ public class GalleryPagerAdapter extends PagerAdapter {
 				bos.flush();
 				stream.close();
 				stream = new ByteArrayInputStream(bos.toByteArray());
+				
+				v.setStream(stream);
+				return true;
+			} catch (OutOfMemoryError e2) {
+				stream = null;
+				System.gc();
+				Log.e("OutOfMemoryError", "trying to load gif animation as Bitmap instead");
+				/* fall-through to load Bitmap instead*/
 			} catch (Exception e1) {
 				e1.printStackTrace();
 				return false;
-			}
-			
-			v.setStream(stream);
+			}			
+		}
+		
+		/* fall-through, if loading animation failed */
+		Bitmap b = factory.getFullBitmap(frupic);
+		
+		if (b == null) {
+			return false;
+		} else {				
+			i.setVisibility(View.VISIBLE);
+			v.setVisibility(View.GONE);
+			i.setImageBitmap(b);
 			return true;
-		} else {
-			Bitmap b = factory.getFullBitmap(frupic);
-			
-			if (b == null) {
-				return false;
-			} else {
-				view.findViewById(R.id.progressBar).setVisibility(View.GONE);
-				view.findViewById(R.id.stopButton).setVisibility(View.GONE);
-				view.findViewById(R.id.progress).setVisibility(View.GONE);
-					
-				i.setVisibility(View.VISIBLE);
-				v.setVisibility(View.GONE);
-				i.setImageBitmap(b);
-				return true;
-			}
 		}
 	}
 
@@ -232,6 +234,10 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			Thread t = new FetchTask(view, frupic);
 			view.setTag(t);
 			t.start();
+		} else {
+			view.findViewById(R.id.progressBar).setVisibility(View.GONE);
+			view.findViewById(R.id.stopButton).setVisibility(View.GONE);
+			view.findViewById(R.id.progress).setVisibility(View.GONE);
 		}
 		
 		container.addView(view);
