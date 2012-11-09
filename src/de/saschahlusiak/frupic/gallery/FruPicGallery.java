@@ -180,7 +180,9 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		getActionBar().setTitle(String.format("#%d", frupic.getId()));
 		
 		if (menu != null) {
-			menu.findItem(R.id.star).setIcon(frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty);
+			MenuItem item = menu.findItem(R.id.star);
+			item.setIcon(frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty);
+			item.setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
 		}
 		
 		t = (TextView)findViewById(R.id.tags);
@@ -280,7 +282,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			frupic.setFlags((frupic.getFlags() ^ Frupic.FLAG_FAV) & ~Frupic.FLAG_NEW);
 			db.setFlags(frupic);
 			cursorChanged();
-			item.setIcon((frupic.hasFlag(Frupic.FLAG_FAV) ? R.drawable.star_label : R.drawable.star_empty));
+			updateLabels(frupic);
 			return true;
 
 		case R.id.copy_to_clipboard:
@@ -303,6 +305,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 		Frupic frupic = getCurrentFrupic();
 		menu.setHeaderTitle("#" + frupic.getId());
+		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
 	}
 	
 	Frupic getCurrentFrupic() {

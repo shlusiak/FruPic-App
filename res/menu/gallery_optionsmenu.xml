@@ -27,6 +27,7 @@
         android:id="@+id/star"
         android:icon="@drawable/star_empty"
         android:showAsAction="always"
+        android:checkable="true"        
         android:title="@string/star_frupic" />
     
 	<item android:id="@+id/openinbrowser"
