@@ -102,15 +102,12 @@ public class GalleryPagerAdapter extends PagerAdapter {
 					ImageView i = (ImageView)view.findViewById(R.id.imageView);
 					GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
 					
-					Bitmap b = factory.getFullBitmap(frupic);
-
-					if (b != null) {
-						showFrupic(view, frupic, b);
-					} else {
+					if (!showFrupic(v, frupic)) {
 						i.setVisibility(View.VISIBLE);
 						v.setVisibility(View.GONE);
 						i.setImageResource(R.drawable.broken_frupic);
 					}
+					
 					progress.setVisibility(View.GONE);
 					progressText.setVisibility(View.GONE);
 					view.findViewById(R.id.stopButton).setVisibility(View.GONE);
@@ -142,9 +139,10 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		this.cursor = cursor;
 	}
 	
-	public void showFrupic(View view, Frupic frupic, Bitmap b) {
+	public boolean showFrupic(View view, Frupic frupic) {
 		GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
 		ImageView i = (ImageView)view.findViewById(R.id.imageView);
+
 		if (showAnimations && frupic.isAnimated()) {
 			v.setVisibility(View.VISIBLE);
 			i.setVisibility(View.GONE);
@@ -175,15 +173,27 @@ public class GalleryPagerAdapter extends PagerAdapter {
 				stream = new ByteArrayInputStream(bos.toByteArray());
 			} catch (Exception e1) {
 				e1.printStackTrace();
+				return false;
 			}
 			
 			v.setStream(stream);
+			return true;
 		} else {
-			i.setVisibility(View.VISIBLE);
-			v.setVisibility(View.GONE);
-			i.setImageBitmap(b);
+			Bitmap b = factory.getFullBitmap(frupic);
+			
+			if (b == null) {
+				return false;
+			} else {
+				view.findViewById(R.id.progressBar).setVisibility(View.GONE);
+				view.findViewById(R.id.stopButton).setVisibility(View.GONE);
+				view.findViewById(R.id.progress).setVisibility(View.GONE);
+					
+				i.setVisibility(View.VISIBLE);
+				v.setVisibility(View.GONE);
+				i.setImageBitmap(b);
+				return true;
+			}
 		}
-
 	}
 
 	@Override
@@ -213,22 +223,15 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		});
 
 
-		Bitmap b = factory.getFullBitmap(frupic);
-
-		if (b == null) {
+		if (!showFrupic(view, frupic)) {
 			i.setVisibility(View.VISIBLE);
 			v.setVisibility(View.GONE);
 			
 			i.setImageResource(R.drawable.frupic);
+			
 			Thread t = new FetchTask(view, frupic);
 			view.setTag(t);
 			t.start();
-		} else {
-			view.findViewById(R.id.progressBar).setVisibility(View.GONE);
-			view.findViewById(R.id.stopButton).setVisibility(View.GONE);
-			view.findViewById(R.id.progress).setVisibility(View.GONE);
-
-			showFrupic(view, frupic, b);
 		}
 		
 		container.addView(view);
