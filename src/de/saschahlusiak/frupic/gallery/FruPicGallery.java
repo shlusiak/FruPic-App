@@ -7,18 +7,13 @@ import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
-import de.saschahlusiak.frupic.utils.DownloadTask;
-import de.saschahlusiak.frupic.utils.ProgressTaskActivityInterface;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.app.DownloadManager.Request;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnCancelListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -34,27 +29,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class FruPicGallery extends Activity implements ViewPager.OnPageChangeListener {
 	private static final String tag = FruPicGallery.class.getSimpleName();
-	private static final int DIALOG_PROGRESS = 1;
 	
 	ViewPager pager;
 	GalleryPagerAdapter adapter;
 	FrupicFactory factory;
-	static DownloadTask downloadTask = null;
 	ProgressDialog progressDialog;
 	Cursor cursor;
 	FrupicDB db;
@@ -169,22 +157,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     	db.close();
     	super.onDestroy();
     }
-
-	@Override
-	protected void onStart() {
-        if (downloadTask != null)
-        	downloadTask.setActivity(this, downloadProgress);
-		
-		super.onStart();
-	}
-	
-	@Override
-	protected void onStop() {
-		if (downloadTask != null)
-			downloadTask.setActivity(null, null);
-		
-		super.onStop();
-	}
 	
 	void cursorChanged() {
 		if (showFavs)
@@ -194,51 +166,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		
 		startManagingCursor(cursor);
 		adapter.setCursor(cursor);
-	}
-
-	ProgressTaskActivityInterface downloadProgress = new ProgressTaskActivityInterface() {
-		
-		@Override
-		public void updateProgressDialog(int progress, int max) {
-			progressDialog.setMax(max);
-			progressDialog.setProgress(progress);			
-		}
-		
-		@Override
-		public void success() {
-			Toast.makeText(FruPicGallery.this,
-				getString(R.string.frupic_downloaded_toast, downloadTask.getFrupic().getFileName(false)),
-				Toast.LENGTH_SHORT).show();			
-		}
-		
-		@Override
-		public void dismiss() {
-			dismissDialog(DIALOG_PROGRESS);
-		}
-	};
-
-	
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch (id) {
-		case DIALOG_PROGRESS:
-			progressDialog = new ProgressDialog(this);
-			progressDialog.setTitle(getString(R.string.please_wait));
-			progressDialog.setMessage(getString(R.string.fetching_image_message,
-					downloadTask.getFrupic().getFileName(false)));
-			progressDialog.setCancelable(true);
-			progressDialog.setIndeterminate(false);
-			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			progressDialog.setOnCancelListener(new OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					downloadTask.cancel(true);
-				}
-			});
-			return progressDialog;
-		default:
-			return super.onCreateDialog(id);
-		}
 	}
 	
 	void updateLabels(Frupic frupic) {
@@ -279,32 +206,26 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	
 	void startDownload() {
 		Frupic frupic = getCurrentFrupic();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-			/* Make sure, destination directory exists */
-			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
-
-			DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-			DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
-			req.setVisibleInDownloadsUi(true);
 		
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				req.allowScanningByMediaScanner();
-				req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-			} else
-				req.setShowRunningNotification(true);
-			
-			req.setTitle(frupic.getFileName(false));
-			req.setDescription("Frupic " + frupic.getId());
-			req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
-			dm.enqueue(req);
-			
-			Toast.makeText(this, getString(R.string.fetching_image_message, frupic.getFileName(false)), Toast.LENGTH_SHORT).show();
-		}else {
-			downloadTask = new DownloadTask(frupic, factory);
-			showDialog(DIALOG_PROGRESS);
-			downloadTask.setActivity(this, downloadProgress);
-			downloadTask.execute();
-		}		
+		/* Make sure, destination directory exists */
+		Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
+
+		DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+		DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
+		req.setVisibleInDownloadsUi(true);
+	
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			req.allowScanningByMediaScanner();
+			req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+		} else
+			req.setShowRunningNotification(true);
+		
+		req.setTitle(frupic.getFileName(false));
+		req.setDescription("Frupic " + frupic.getId());
+		req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
+		dm.enqueue(req);
+		
+		Toast.makeText(this, getString(R.string.fetching_image_message, frupic.getFileName(false)), Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -322,11 +243,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			return true;
 
 		case R.id.details:
-//			intent = new Intent(this, DetailsActivity.class);
-//			intent.putExtra("frupic", frupic);
-//			startActivity(intent);
 			DetailDialog.create(this, frupic, factory).show();
-
 			return true;
 			
 		case R.id.cache_now:
@@ -348,7 +265,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 				return true;
 			}
 			/* The created external files are deleted in onDestroy() */
-			
+
 			/* TODO: If file is not in cache yet, download it first or show message */
 			out = new File(out, frupic.getFileName(false));
 			if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory, false), out)) {
