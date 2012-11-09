@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.grid;
 
 import java.net.UnknownHostException;
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.about.AboutActivity;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
@@ -371,6 +372,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		case R.id.preferences:
 			intent = new Intent(this, FrupicPreferences.class);
+			startActivity(intent);
+			return true;
+			
+		case R.id.about:
+			intent = new Intent(this, AboutActivity.class);
 			startActivity(intent);
 			return true;
 
