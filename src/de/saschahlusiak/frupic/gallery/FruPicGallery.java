@@ -203,6 +203,9 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
 		this.menu = menu;
 		
+		if (showFavs)
+			menu.findItem(R.id.star).setVisible(false);
+		
 		updateLabels(getCurrentFrupic());
 		
 		return super.onCreateOptionsMenu(menu);
@@ -308,6 +311,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		Frupic frupic = getCurrentFrupic();
 		menu.setHeaderTitle("#" + frupic.getId());
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
+		if (showFavs)
+			menu.findItem(R.id.star).setVisible(false);
 	}
 	
 	Frupic getCurrentFrupic() {
