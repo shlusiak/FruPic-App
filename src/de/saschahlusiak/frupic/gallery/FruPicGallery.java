@@ -127,10 +127,19 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
         }
         updateLabels(getCurrentFrupic());
-    	toggleControls();
+        
+        
+        pager.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if (getActionBar().isShowing())
+					toggleControls();
+			}
+		}, 2500);
 
         
-        /* TODO: changing the star currently changes the DB and the Cursor and thus disturbs the ViewPager. */
+        /* TODO: changing the star currently changes the DB and the Cursor and thus disturbs the ViewPager.
+         * we have to disable the star menu item, wen showFavs is true */
     }
     
     /**
@@ -341,7 +350,16 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			db.setFlags(frupic);
 		}
 
-//		showControls();
+		if (!getActionBar().isShowing()) {
+			toggleControls();
+	        pager.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					if (getActionBar().isShowing())
+						toggleControls();
+				}
+			}, 2500);
+	    }
 	    updateLabels(frupic);
     }
 
