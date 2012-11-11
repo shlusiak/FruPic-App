@@ -135,7 +135,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 				if (getActionBar().isShowing())
 					toggleControls();
 			}
-		}, 2500);
+		}, 2000);
 
         
         /* TODO: changing the star currently changes the DB and the Cursor and thus disturbs the ViewPager.
@@ -358,7 +358,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 					if (getActionBar().isShowing())
 						toggleControls();
 				}
-			}, 2500);
+			}, 2000);
 	    }
 	    updateLabels(frupic);
     }
