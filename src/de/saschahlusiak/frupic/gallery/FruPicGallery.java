@@ -12,7 +12,6 @@ import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.app.DownloadManager.Request;
@@ -207,6 +206,11 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
 		if (showFavs)
 			menu.findItem(R.id.star).setVisible(false);
 		
+		if (Build.VERSION.SDK_INT < 9) {
+			/* hide Download, which is not supported on API 8 and lower */
+			menu.findItem(R.id.cache_now).setVisible(false);
+		}
+		
 		updateLabels(getCurrentFrupic());
 		
 		return super.onCreateOptionsMenu(menu);
@@ -314,6 +318,11 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
 		if (showFavs)
 			menu.findItem(R.id.star).setVisible(false);
+		
+		if (Build.VERSION.SDK_INT < 9) {
+			/* hide Download, which is not supported on API 8 and lower */
+			menu.findItem(R.id.cache_now).setVisible(false);
+		}
 	}
 	
 	Frupic getCurrentFrupic() {

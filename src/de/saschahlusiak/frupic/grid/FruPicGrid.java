@@ -396,6 +396,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		menu.setHeaderTitle("#" + frupic.getId());
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
+		if (Build.VERSION.SDK_INT < 9) {
+			/* hide Download, which is not supported on API 8 and lower */
+			menu.findItem(R.id.cache_now).setVisible(false);
+		}
 	}
 
 	@Override
