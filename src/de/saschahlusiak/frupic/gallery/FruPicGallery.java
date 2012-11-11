@@ -2,6 +2,11 @@ package de.saschahlusiak.frupic.gallery;
 
 import java.io.File;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
@@ -24,9 +29,6 @@ import android.support.v4.view.ViewPager;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Display;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -37,7 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class FruPicGallery extends Activity implements ViewPager.OnPageChangeListener {
+public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageChangeListener {
 	private static final String tag = FruPicGallery.class.getSimpleName();
 	
 	ViewPager pager;
@@ -54,19 +56,9 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /* On Android < 3 we don't have an ActionBar that we can use.
-         * Hide the title bar there
-         */
-        if (Build.VERSION.SDK_INT < 11) {
-        	requestWindowFeature(Window.FEATURE_NO_TITLE);
-        	throw(new UnsupportedOperationException("needs actionbar / not implemented yet"));
-//        	hasActionBar = false;
-        } else {
-        	/* we have an ActionBar. Set to Overlay */
-        	requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        	getActionBar().setDisplayShowHomeEnabled(false);
-//			hasActionBar = true;
-        }
+        
+       	requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+       	getSupportActionBar().setDisplayShowHomeEnabled(false);
         
         setContentView(R.layout.gallery_activity);
 
@@ -132,7 +124,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         pager.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				if (getActionBar().isShowing())
+				if (getSupportActionBar().isShowing())
 					toggleControls();
 			}
 		}, 2000);
@@ -146,11 +138,11 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
      * toggles visibility of the controls
      */
     void toggleControls() {
-    	if (getActionBar().isShowing()) {
-    		getActionBar().hide();
+    	if (getSupportActionBar().isShowing()) {
+    		getSupportActionBar().hide();
     		controls.startAnimation(fadeAnimation);
     	} else {
-    		getActionBar().show();
+    		getSupportActionBar().show();
     		controls.clearAnimation();
 			findViewById(R.id.url).setVisibility(View.VISIBLE);
     	}
@@ -188,7 +180,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		t = (TextView)findViewById(R.id.username);
 		t.setText(getString(R.string.gallery_posted_by, frupic.getUsername()));
 		
-		getActionBar().setTitle(String.format("#%d", frupic.getId()));
+		getSupportActionBar().setTitle(String.format("#%d", frupic.getId()));
 		
 		if (menu != null) {
 			MenuItem item = menu.findItem(R.id.star);
@@ -208,7 +200,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
+		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
 		this.menu = menu;
 		
@@ -313,7 +305,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	@Override
 	public void onCreateContextMenu(android.view.ContextMenu menu, View v,
 			android.view.ContextMenu.ContextMenuInfo menuInfo) {
-		MenuInflater inflater = getMenuInflater();
+		android.view.MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
@@ -331,7 +323,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	}
 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
+	public boolean onContextItemSelected(android.view.MenuItem item) {
 		return onOptionsItemSelected(item);
 	}
 	
@@ -350,12 +342,12 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			db.setFlags(frupic);
 		}
 
-		if (!getActionBar().isShowing()) {
+		if (!getSupportActionBar().isShowing()) {
 			toggleControls();
 	        pager.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					if (getActionBar().isShowing())
+					if (getSupportActionBar().isShowing())
 						toggleControls();
 				}
 			}, 2000);

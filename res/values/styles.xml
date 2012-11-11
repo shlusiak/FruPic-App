@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.FruPic" parent="android:Theme.Black"></style>
+
+    <style name="Theme.FruPic.ActionBarOverlay" parent="Theme.Sherlock">
+        <item name="windowActionBarOverlay">true</item>
+		<item name="windowActionModeOverlay">true</item>
+    </style>
+    <style name="Theme.FruPic.ActionBar" parent="Theme.Sherlock"></style>
     <style name="Theme.FruPic.Dialog" parent="android:Theme.Dialog"></style>
     <style name="Theme.FruPic.Light.Dialog" parent="android:Theme.Dialog"></style>
+
 </resources>
