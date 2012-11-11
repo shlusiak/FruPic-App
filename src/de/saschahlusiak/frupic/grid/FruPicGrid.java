@@ -151,10 +151,6 @@ public class FruPicGrid extends SherlockActivity implements OnItemClickListener,
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
-		
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		}
 
 		setContentView(R.layout.grid_activity);
 
@@ -483,10 +479,6 @@ public class FruPicGrid extends SherlockActivity implements OnItemClickListener,
 	}
 	
 	void setProgressActionView(boolean refreshing) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			setProgressBarIndeterminateVisibility(refreshing);			
-			return;
-		}
 		if (optionsMenu == null)
 			return;
         final MenuItem refreshItem = optionsMenu.findItem(R.id.refresh);
