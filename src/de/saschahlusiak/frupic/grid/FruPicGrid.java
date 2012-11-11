@@ -1,6 +1,12 @@
 package de.saschahlusiak.frupic.grid;
 
 import java.net.UnknownHostException;
+
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.about.AboutActivity;
 import de.saschahlusiak.frupic.db.FrupicDB;
@@ -9,7 +15,6 @@ import de.saschahlusiak.frupic.gallery.FruPicGallery;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.utils.UploadActivity;
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
 import android.app.ProgressDialog;
@@ -27,9 +32,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -43,7 +45,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener {
+public class FruPicGrid extends SherlockActivity implements OnItemClickListener, OnScrollListener {
 	static private final String tag = FruPicGrid.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
@@ -332,7 +334,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
+		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.grid_optionsmenu, menu);
 		this.optionsMenu = menu;
 		
@@ -388,7 +390,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onCreateContextMenu(android.view.ContextMenu menu, View v,
 			android.view.ContextMenu.ContextMenuInfo menuInfo) {
-		MenuInflater inflater = getMenuInflater();
+		android.view.MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.grid_contextmenu, menu);
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
@@ -403,7 +405,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	}
 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
+	public boolean onContextItemSelected(android.view.MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 				.getMenuInfo();
 		Frupic frupic = new Frupic((Cursor)adapter.getItem((int) info.position));
