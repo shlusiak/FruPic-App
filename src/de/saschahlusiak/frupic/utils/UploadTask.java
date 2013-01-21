@@ -69,7 +69,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 			conn.setDoOutput(true);
 
 			conn.setUseCaches(false);
-			conn.setChunkedStreamingMode(0);
+		//	conn.setChunkedStreamingMode(0);
 
 			publishProgress(1, 5);
 
@@ -80,30 +80,35 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 			conn.setRequestProperty("Connection", "Keep-Alive");
 			conn.setRequestProperty("Content-Type",
 					"multipart/form-data;boundary=" + boundary);
+			
+			
+			// Tags
+			String header = lineEnd + twoHyphens + boundary + lineEnd +
+							"Content-Disposition: form-data;name='tags';" +
+							lineEnd + lineEnd + tags + ";" + lineEnd +
+							lineEnd + twoHyphens + boundary + lineEnd;
+			if (!username.equals("")) {
+				header += lineEnd + twoHyphens + boundary + lineEnd;
+				header += "Content-Disposition: form-data;name='username';";
+				header += lineEnd + lineEnd + username + ";" + lineEnd +
+						  lineEnd + twoHyphens + boundary + lineEnd;
+			}
+			header += "Content-Disposition: form-data;" + "name='file';" +
+					  "filename='frup0rn.png'" + lineEnd + lineEnd;
+			
+			String footer = lineEnd + twoHyphens + boundary + twoHyphens + lineEnd;
+			
+//			conn.setRequestProperty("Content-Length", "" + (header.length() + footer.length() + imageData.length));
+			conn.setFixedLengthStreamingMode(header.length() + footer.length() + imageData.length);
+			
 
 			OutputStream os = conn.getOutputStream();
 			dos = new DataOutputStream(os);
 			publishProgress(2, 5);
 
-			// Tags
-			dos.writeBytes(lineEnd + twoHyphens + boundary + lineEnd);
-			dos.writeBytes("Content-Disposition: form-data;name='tags';");
-			dos.writeBytes(lineEnd + lineEnd + tags + ";" + lineEnd
-					+ lineEnd + twoHyphens + boundary + lineEnd);
+			dos.writeBytes(header);
 
 			publishProgress(3, 5);
-
-			if (!username.equals("")) {
-				dos.writeBytes(lineEnd + twoHyphens + boundary + lineEnd);
-				dos
-						.writeBytes("Content-Disposition: form-data;name='username';");
-				dos.writeBytes(lineEnd + lineEnd + username + ";" + lineEnd
-						+ lineEnd + twoHyphens + boundary + lineEnd);
-			}
-
-			dos.writeBytes("Content-Disposition: form-data;" + "name='file';"
-					+ "filename='frup0rn.png'" + lineEnd);
-			dos.writeBytes(lineEnd);
 
 			publishProgress(4, 5);
 
@@ -131,8 +136,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 			// Log.d(TAG, "FINISHED sending the image");
 
 			// send multipart form data necesssary after file data...
-			dos.writeBytes(lineEnd);
-			dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+			dos.writeBytes(footer);
 
 			// close the stream
 			// Log.d(TAG, "closing the stream");
