@@ -228,6 +228,8 @@ public class UploadActivity extends Activity implements OnClickListener {
 			finish();
 			return;
 		}
+		/* TODO: support ACTION_SEND_MULTIPLE */
+		/* TODO: possibly use a service instead of AsyncTask */
 		if (!Intent.ACTION_SEND.equals(getIntent().getAction())) {
 			finish();
 			return;
