@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:padding="8dp" >
 
     <ScrollView
         android:id="@+id/scrollView1"
@@ -28,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:singleLine="true"
-                android:text="Copyright (c) Sascha Hlusiak, 2012."
+                android:text="Copyright (c) Sascha Hlusiak, 2012-2013."
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
