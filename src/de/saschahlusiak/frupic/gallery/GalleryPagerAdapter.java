@@ -137,6 +137,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 
 	public void setCursor(Cursor cursor) {
 		this.cursor = cursor;
+		notifyDataSetChanged();
 	}
 	
 	public boolean showFrupic(View view, Frupic frupic) {
@@ -255,6 +256,8 @@ public class GalleryPagerAdapter extends PagerAdapter {
 
 	@Override
 	public int getCount() {
+		if (cursor == null)
+			return 0;
 		return cursor.getCount();
 	}
 

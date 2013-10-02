@@ -2,19 +2,16 @@ package de.saschahlusiak.frupic.gallery;
 
 import java.io.File;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.app.DownloadManager.Request;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,9 +22,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
-import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -38,7 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageChangeListener {
+public class FruPicGallery extends Activity implements ViewPager.OnPageChangeListener {
 	private static final String tag = FruPicGallery.class.getSimpleName();
 	
 	ViewPager pager;
@@ -57,9 +56,9 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
         super.onCreate(savedInstanceState);
         
        	requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-       	getSupportActionBar().setDisplayShowHomeEnabled(false);
         
         setContentView(R.layout.gallery_activity);
+        getActionBar().setDisplayShowHomeEnabled(false);
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
@@ -97,7 +96,6 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
         
         
         pager.setOnPageChangeListener(this);
-        pager.setAdapter(adapter);
   
         db = new FrupicDB(this);
         db.open();
@@ -109,6 +107,8 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
         }
 
         cursorChanged();
+        pager.setAdapter(adapter);
+
 
 		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size", "16777216")));
         
@@ -123,7 +123,7 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
         pager.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				if (getSupportActionBar().isShowing())
+				if (getActionBar().isShowing())
 					toggleControls();
 			}
 		}, 2000);
@@ -137,11 +137,11 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
      * toggles visibility of the controls
      */
     void toggleControls() {
-    	if (getSupportActionBar().isShowing()) {
-    		getSupportActionBar().hide();
+    	if (getActionBar().isShowing()) {
+    		getActionBar().hide();
     		controls.startAnimation(fadeAnimation);
     	} else {
-    		getSupportActionBar().show();
+    		getActionBar().show();
     		controls.clearAnimation();
 			findViewById(R.id.url).setVisibility(View.VISIBLE);
     	}
@@ -179,7 +179,7 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
 		t = (TextView)findViewById(R.id.username);
 		t.setText(getString(R.string.gallery_posted_by, frupic.getUsername()));
 		
-		getSupportActionBar().setTitle(String.format("#%d", frupic.getId()));
+		getActionBar().setTitle(String.format("#%d", frupic.getId()));
 		
 		if (menu != null) {
 			MenuItem item = menu.findItem(R.id.star);
@@ -199,7 +199,7 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
     
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getSupportMenuInflater();
+		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
 		this.menu = menu;
 		
@@ -351,12 +351,12 @@ public class FruPicGallery extends SherlockActivity implements ViewPager.OnPageC
 			db.setFlags(frupic);
 		}
 
-		if (!getSupportActionBar().isShowing()) {
+		if (!getActionBar().isShowing()) {
 			toggleControls();
 	        pager.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					if (getSupportActionBar().isShowing())
+					if (getActionBar().isShowing())
 						toggleControls();
 				}
 			}, 2000);
