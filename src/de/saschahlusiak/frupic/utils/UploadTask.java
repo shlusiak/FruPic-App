@@ -3,7 +3,6 @@ package de.saschahlusiak.frupic.utils;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,13 +12,16 @@ import java.net.URL;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 import de.saschahlusiak.frupic.R;
 
-public class UploadTask extends AsyncTask<Void, Integer, Void> {
+public class UploadTask extends AsyncTask<Void, Integer, String> {
 	private final String FruPicApi = "http://api.freamware.net/2.0/upload.picture";
 	private final String tag = UploadTask.class.getSimpleName();
 
+	public interface ProgressTaskActivityInterface {
+		void updateProgressDialog(int progress, int max);
+	}
+	
 	ProgressTaskActivityInterface activity;
 	Context context;
 	byte imageData[];
@@ -28,8 +30,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 	String error;
 	String tags;
 
-	public UploadTask(byte imageData[], String username, String tags)
-			throws FileNotFoundException {
+	public UploadTask(byte imageData[], String username, String tags) {
 		this.username = username;
 		this.frupicURL = null;
 		this.error = null;
@@ -37,8 +38,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 		this.imageData = imageData;
 	}
 
-	public void setActivity(Context context,
-			ProgressTaskActivityInterface activity) {
+	public void setActivity(Context context, ProgressTaskActivityInterface activity) {
 		this.context = context;
 		this.activity = activity;
 	}
@@ -53,10 +53,11 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 	}
 
 	@Override
-	protected Void doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		HttpURLConnection conn = null;
 		DataOutputStream dos = null;
-		publishProgress(0, 5);
+		DataInputStream dis;
+		publishProgress(0, 1);
 
 		String lineEnd = "\r\n";
 		String twoHyphens = "--";
@@ -70,8 +71,6 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 
 			conn.setUseCaches(false);
 		//	conn.setChunkedStreamingMode(0);
-
-			publishProgress(1, 5);
 
 			// begin the header
 			// Log.d(TAG, "beginning with header");
@@ -103,14 +102,10 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 			
 
 			OutputStream os = conn.getOutputStream();
+			
 			dos = new DataOutputStream(os);
-			publishProgress(2, 5);
 
 			dos.writeBytes(header);
-
-			publishProgress(3, 5);
-
-			publishProgress(4, 5);
 
 			InputStream is = new ByteArrayInputStream(imageData);
 			int size = imageData.length;
@@ -145,14 +140,12 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 		} catch (IOException ioe) {
 			conn.disconnect();
 			ioe.printStackTrace();
-			cancel(false);
 			error = context.getString(R.string.cannot_connect);
-			return null;
+			return error;
 		}
 
 		// listening to the Server Response
 		// Log.d(TAG, "listening to the server");
-		DataInputStream dis;
 		try {
 			dis = new DataInputStream(conn.getInputStream());
 
@@ -170,9 +163,8 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 			dis.close();
 		} catch (IOException ioex) {
 			ioex.printStackTrace();
-			cancel(false);
 			error = context.getString(R.string.error_reading_response);
-			return null;
+			return error;
 			// Log.e(TAG, "Exception" , ioex);
 		}
 		Log.i(tag, "Upload successful: " + frupicURL);
@@ -181,22 +173,4 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> {
 		return null;
 	}
 
-	protected void onCancelled() {
-		if (activity != null)
-			activity.dismiss();
-
-		if (context != null) {
-			if (error != null)
-				Toast.makeText(context, error, Toast.LENGTH_LONG).show();
-			else
-				Toast.makeText(context, "Generic error", Toast.LENGTH_LONG).show();
-		}
-	}
-
-	protected void onPostExecute(Void result) {
-		if (activity != null) {
-			activity.success();
-			activity.dismiss();
-		}
-	}
 }

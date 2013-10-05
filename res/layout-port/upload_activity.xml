@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:padding="8dp"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -81,45 +82,25 @@
         </TableRow>
 
     </TableLayout>
-            <CheckBox
-                android:id="@+id/image_resize_checkbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/image_resize_label" />
+    
+    <CheckBox
+        android:id="@+id/image_resize_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/image_resize_label" />
         
-   
-            
-            <LinearLayout
-                android:id="@+id/linearLayout5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal" >
-
-                <TextView
-                    android:id="@+id/imagesize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="right"
-                    android:text="imagesize"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/filesize"
-                    android:paddingLeft="16dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="right"
-                    android:text="filesize"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-            </LinearLayout>
-
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="16dp" >
+        <Button
+            android:id="@android:id/closeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@android:string/cancel" />
 
         <Button
             android:id="@+id/upload"
@@ -127,13 +108,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
             android:text="@android:string/ok" />
-
-        <Button
-            android:id="@android:id/closeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:text="@android:string/cancel" />
     </LinearLayout>
 
 </LinearLayout>
