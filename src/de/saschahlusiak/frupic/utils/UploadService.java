@@ -12,6 +12,7 @@ import java.net.URL;
 
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.grid.FruPicGrid;
+import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -314,6 +315,7 @@ public class UploadService extends IntentService {
 		current++;
 	}
 	
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	synchronized void updateNotification(boolean ongoing, float progress) {
 		builder.setSmallIcon(R.drawable.frupic);
 		builder.setContentTitle(getString(R.string.upload_notification_title));

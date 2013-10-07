@@ -13,7 +13,6 @@
 
     <string name="menu_show_starred_frupics">Show Favourites</string>
     
-    <string name="details_title">Details</string>
     <string name="details_posted_by">Posted by:</string>
     <string name="details_tags">Tags:</string>
     <string name="details_date">Date:</string>
@@ -26,15 +25,10 @@
     
     <string name="star_frupic">Star</string>
     
-    <string name="fetch_and_cache">Cache now</string>
     <string name="please_wait">Please wait</string>
     <string name="fetching_image_message">Fetching %1$s</string>
-    <string name="frupic_cached_toast">Cached FruPic #%1$d</string>
     <string name="download">Download</string>
-    <string name="frupic_downloaded_toast">File %1$s saved to storage</string>
-    <string name="error_fetching">Could not fetch image file</string>
     <string name="error_no_storage">External storage not available</string>
-    <string name="error_saving">Error saving file to storage</string>
        
     <string name="waiting_to_start">scheduled...</string>
 
@@ -58,8 +52,6 @@
     <string name="upload_notification_failed">%1$d images successful, %2$d failed</string>
     
     <string name="image_resize_label">Reduce image size</string>
-    <string name="scale_size_calculating">Calculating...</string>
-    <string name="scale_size_unknown">Unknown</string>
     
     <string name="share_link">Share Link</string>
     <string name="share_picture">Share Image</string>

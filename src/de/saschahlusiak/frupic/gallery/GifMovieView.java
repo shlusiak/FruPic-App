@@ -27,12 +27,10 @@ public class GifMovieView extends View {
     public GifMovieView(Context context, AttributeSet attr) {
     	super(context, attr);
 
-		if (Build.VERSION.SDK_INT >= 11) {
-			/* FIXME:
-			 *   figure out, why. hardware accelerated shows a black screen on SGS2 with Android 4.0.4
-			 */
-			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-		}
+		/* FIXME:
+		 *   figure out, why. hardware accelerated shows a black screen on SGS2 with Android 4.0.4
+		 */
+		setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }
     
     public void setStream(InputStream stream) {

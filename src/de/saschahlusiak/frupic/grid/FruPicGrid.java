@@ -149,10 +149,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
-		
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		}
 
 		setContentView(R.layout.grid_activity);
 
@@ -396,10 +392,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		menu.setHeaderTitle("#" + frupic.getId());
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
-		if (Build.VERSION.SDK_INT < 9) {
-			/* hide Download, which is not supported on API 8 and lower */
-			menu.findItem(R.id.cache_now).setVisible(false);
-		}
 	}
 
 	@Override
@@ -442,11 +434,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
 			req.setVisibleInDownloadsUi(true);
 			
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				req.allowScanningByMediaScanner();
-				req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-			} else
-				req.setShowRunningNotification(true);
+			req.allowScanningByMediaScanner();
+			req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			
 			req.setTitle(frupic.getFileName(false));
 			req.setDescription("Frupic " + frupic.getId());
@@ -481,10 +470,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	}
 	
 	void setProgressActionView(boolean refreshing) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			setProgressBarIndeterminateVisibility(refreshing);			
-			return;
-		}
 		if (optionsMenu == null)
 			return;
         final MenuItem refreshItem = optionsMenu.findItem(R.id.refresh);
