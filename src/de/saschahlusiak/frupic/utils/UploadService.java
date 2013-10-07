@@ -301,6 +301,7 @@ public class UploadService extends IntentService {
 			return;
 		}
 		
+		/* TODO: watch network state to pause/restart upload */
 		String error = uploadImage(imageData, userName, tags);
 		
 		if (error != null) {
@@ -327,6 +328,7 @@ public class UploadService extends IntentService {
 			}
 			builder.setAutoCancel(false);
 			builder.setOngoing(ongoing);
+			/* TODO: provide intent to see progress dialog and support for cancel */
 		} else {
 			if (failed == 0)
 				builder.setContentText(getString(R.string.upload_notification_success, max));
