@@ -52,9 +52,11 @@
     <string name="upload_file_name">Bild \"%1$s\" nach FruPic hochladen?</string>
     <string name="upload_file_names">%1$d Bilder nach FruPic hochladen?</string>
     
-    <string name="uploading_message">Lade \"%1$s\" hoch...</string>
-    <string name="uploading_successful_toast">Erfolgreich hochgeladen</string>
-            
+    <string name="upload_notification_title">Upload zu FruPic</string>
+    <string name="upload_notification_progress">%1$d von %2$d Bilder hochgeladen</string>
+    <string name="upload_notification_success">%1$d Bilder erfolgreich hochgeladen</string>
+    <string name="upload_notification_failed">%1$d Bilder erfolgreich, %2$d fehlgeschlagen</string>
+    
     <string name="image_resize_label">Bild verkleinern</string>
     <string name="scale_size_calculating">Berechne...</string>
     <string name="scale_size_unknown">Unbekannt</string>

@@ -316,9 +316,9 @@ public class UploadService extends IntentService {
 	
 	synchronized void updateNotification(boolean ongoing, float progress) {
 		builder.setSmallIcon(R.drawable.frupic);
-		builder.setContentTitle("Uploading to FruPic");
+		builder.setContentTitle(getString(R.string.upload_notification_title));
 		if (ongoing) {
-			builder.setContentText("Uploading " + (current + 1) + " of " + max);
+			builder.setContentText(getString(R.string.upload_notification_progress, current + 1, max));
 			if (Build.VERSION.SDK_INT >= 14 && max > 0) {
 				float perc = (((float)current + progress) / (float)max);
 				builder.setProgress(100, (int)(perc * 100.0f), false);
@@ -327,9 +327,9 @@ public class UploadService extends IntentService {
 			builder.setOngoing(ongoing);
 		} else {
 			if (failed == 0)
-				builder.setContentText("" + max + " images uploaded");
+				builder.setContentText(getString(R.string.upload_notification_success, max));
 			else
-				builder.setContentText("" + (max - failed) + " images successful, " + failed + " failed");
+				builder.setContentText(getString(R.string.upload_notification_failed, max - failed, failed));
 				
 			if (Build.VERSION.SDK_INT >= 14)
 				builder.setProgress(0, 0, false);
