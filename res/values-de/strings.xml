@@ -50,6 +50,7 @@
     <string name="upload_tags_label">Tags:</string>
     <string name="upload_tags_hint">tag1,tag2,tag3</string>
     <string name="upload_file_name">Bild \"%1$s\" nach FruPic hochladen?</string>
+    <string name="upload_file_names">%1$d Bilder nach FruPic hochladen?</string>
     
     <string name="uploading_message">Lade \"%1$s\" hoch...</string>
     <string name="uploading_successful_toast">Erfolgreich hochgeladen</string>

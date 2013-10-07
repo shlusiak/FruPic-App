@@ -1,5 +1,7 @@
 package de.saschahlusiak.frupic.utils;
 
+import java.util.ArrayList;
+
 import de.saschahlusiak.frupic.R;
 import android.app.Activity;
 import android.content.Intent;
@@ -20,50 +22,37 @@ import android.widget.TextView;
 public class UploadActivity extends Activity implements OnClickListener {
 	private static final String tag = UploadActivity.class.getSimpleName();
 
-	Uri imageUri;
-	String fileName;
+	ArrayList<Uri> imageUri;
 	CheckBox image_scale;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		fileName = "";
 
 		if (getIntent() == null) {
 			finish();
 			return;
 		}
-		/* TODO: support ACTION_SEND_MULTIPLE */
-		/* TODO: possibly use a service instead of AsyncTask */
-		if (!Intent.ACTION_SEND.equals(getIntent().getAction())) {
+		
+		if (Intent.ACTION_SEND.equals(getIntent().getAction())) {
+			imageUri = new ArrayList<Uri>();
+			imageUri.add((Uri) getIntent().getExtras().get(Intent.EXTRA_STREAM));
+		} else if (Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction())) {
+			Object o = getIntent().getExtras().get(Intent.EXTRA_STREAM);
+			imageUri = (ArrayList<Uri>)o;
+		} else {
 			finish();
 			return;
 		}
-		
 		setContentView(R.layout.upload_activity);
 
-		imageUri = (Uri) getIntent().getExtras().get(Intent.EXTRA_STREAM);
-
-		String scheme = imageUri.getScheme();
-		if (scheme.equals("file")) {
-			fileName = imageUri.getLastPathSegment();
-		} else if (scheme.equals("content")) {
-			String[] proj = { MediaStore.Images.Media.DISPLAY_NAME };
-			Cursor cursor = getContentResolver().query(imageUri, proj, null,
-					null, null);
-			if (cursor != null && cursor.getCount() != 0) {
-				int columnIndex = cursor
-						.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
-				cursor.moveToFirst();
-				fileName = cursor.getString(columnIndex);
-			}
-			if (cursor != null)
-				cursor.close();
+		if (imageUri.size() == 1) {
+			((TextView) findViewById(R.id.url)).setText(getString(
+					R.string.upload_file_name, getFileName(imageUri.get(0))));
+		} else {
+			((TextView) findViewById(R.id.url)).setText(getString(
+					R.string.upload_file_names, imageUri.size()));			
 		}
-		if (fileName == null)
-			fileName = "[Unknown]";
-		((TextView) findViewById(R.id.url)).setText(getString(
-				R.string.upload_file_name, fileName));
 
 		findViewById(android.R.id.closeButton).setOnClickListener(
 				new OnClickListener() {
@@ -84,10 +73,32 @@ public class UploadActivity extends Activity implements OnClickListener {
 			((EditText) findViewById(R.id.username)).setText(prefs.getString(
 					"username", null));
 	}
+	
+	String getFileName(Uri uri) {
+		String fileName = null;
+		String scheme = imageUri.get(0).getScheme();
+		if (scheme.equals("file")) {
+			fileName = imageUri.get(0).getLastPathSegment();
+		} else if (scheme.equals("content")) {
+			String[] proj = { MediaStore.Images.Media.DISPLAY_NAME };
+			Cursor cursor = getContentResolver().query(imageUri.get(0), proj, null,
+					null, null);
+			if (cursor != null && cursor.getCount() != 0) {
+				int columnIndex = cursor
+						.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
+				cursor.moveToFirst();
+				fileName = cursor.getString(columnIndex);
+			}
+			if (cursor != null)
+				cursor.close();
+		}
+		if (fileName == null)
+			fileName = "[Unknown]";
+		return fileName;
+	}
 
 	@Override
 	public void onClick(View v) {
-
 		/* store set username to prefs */
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getBaseContext());
@@ -101,14 +112,16 @@ public class UploadActivity extends Activity implements OnClickListener {
 		String tags = ((EditText) findViewById(R.id.tags)).getText().toString();
 		if (tags.length() <= 0)
 			tags = "via:android";
-			
-		Intent intent = new Intent(this, UploadService.class);
-		intent.putExtra("scale", ((CheckBox)findViewById(R.id.image_resize_checkbox)).isChecked());
-		intent.putExtra("username", username);
-		intent.putExtra("tags", tags);
-		intent.putExtra("filename", fileName);
-		intent.putExtra("uri", imageUri);
-		startService(intent);
+
+		for (Uri uri: imageUri) {
+			Intent intent = new Intent(this, UploadService.class);
+			intent.putExtra("scale", ((CheckBox)findViewById(R.id.image_resize_checkbox)).isChecked());
+			intent.putExtra("username", username);
+			intent.putExtra("tags", tags);
+			intent.putExtra("filename", uri);
+			intent.putExtra("uri", uri);
+			startService(intent);
+		}
 		finish();
 	}
 }
