@@ -1,12 +1,17 @@
 package de.saschahlusiak.frupic.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.grid.FruPicGrid;
-import de.saschahlusiak.frupic.utils.UploadTask.ProgressTaskActivityInterface;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -24,9 +29,11 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 
-public class UploadService extends IntentService implements ProgressTaskActivityInterface {
+public class UploadService extends IntentService {
 	private static final String tag = UploadService.class.getSimpleName();
 	private static int nId = 1;
+	
+	private final String FruPicApi = "http://api.freamware.net/2.0/upload.picture";
 	
 	/* when scaling down, make largest side as small but bigger than these bounds */
 	private final static int destWidth = 1024;
@@ -164,7 +171,114 @@ public class UploadService extends IntentService implements ProgressTaskActivity
 	}
 
 
-	
+	String uploadImage(byte[] imageData, String username, String tags) {
+		HttpURLConnection conn = null;
+		DataOutputStream dos = null;
+		DataInputStream dis;
+
+		String lineEnd = "\r\n";
+		String twoHyphens = "--";
+		String boundary = "ForeverFrubarIWantToBe";
+
+		try {
+			URL url = new URL(FruPicApi);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setDoInput(true);
+			conn.setDoOutput(true);
+
+			conn.setUseCaches(false);
+			conn.setRequestMethod("POST");
+
+			conn.setRequestProperty("Connection", "Keep-Alive");
+			conn.setRequestProperty("Content-Type",
+					"multipart/form-data;boundary=" + boundary);
+			
+			
+			// Tags
+			String header = lineEnd + twoHyphens + boundary + lineEnd +
+							"Content-Disposition: form-data;name='tags';" +
+							lineEnd + lineEnd + tags + ";" + lineEnd +
+							lineEnd + twoHyphens + boundary + lineEnd;
+			if (!username.equals("")) {
+				header += lineEnd + twoHyphens + boundary + lineEnd;
+				header += "Content-Disposition: form-data;name='username';";
+				header += lineEnd + lineEnd + username + ";" + lineEnd +
+						  lineEnd + twoHyphens + boundary + lineEnd;
+			}
+			header += "Content-Disposition: form-data;" + "name='file';" +
+					  "filename='frup0rn.png'" + lineEnd + lineEnd;
+			
+			String footer = lineEnd + twoHyphens + boundary + twoHyphens + lineEnd;
+			
+			conn.setFixedLengthStreamingMode(header.length() + footer.length() + imageData.length);
+			
+
+			OutputStream os = conn.getOutputStream();
+			
+			dos = new DataOutputStream(os);
+
+			dos.writeBytes(header);
+
+			InputStream is = new ByteArrayInputStream(imageData);
+			int size = imageData.length;
+			int nRead;
+			byte data[] = new byte[16384];
+
+			int written = 0;
+			while ((nRead = is.read(data, 0, data.length)) != -1) {
+				dos.write(data, 0, nRead);
+				written += nRead;
+				dos.flush();
+				os.flush();
+				
+				/* TODO: support cancel */
+				/* if (isCancelled()) {
+					dos.close();
+					conn.disconnect();
+					return null;
+				} */
+				updateNotification(true, (float)written / (float)size);
+			}
+
+			// Log.d(TAG, "FINISHED sending the image");
+
+			// send multipart form data necesssary after file data...
+			dos.writeBytes(footer);
+
+			dos.flush();
+			dos.close();
+		} catch (IOException ioe) {
+			conn.disconnect();
+			ioe.printStackTrace();
+			return getString(R.string.cannot_connect);
+		}
+
+		// listening to the Server Response
+		// Log.d(TAG, "listening to the server");
+		try {
+			dis = new DataInputStream(conn.getInputStream());
+
+			String str = "";
+			String output = "";
+
+			while ((str = dis.readLine()) != null) {
+				output = output + str;
+				// Log.d(TAG, output);
+
+				// save the url to the image
+				// frupicURL = output;
+				// Log.d(TAG, "the image url is: "+FruPic.imageURL);
+			}
+			dis.close();
+		} catch (IOException ioex) {
+			ioex.printStackTrace();
+			return getString(R.string.error_reading_response);
+			// Log.e(TAG, "Exception" , ioex);
+		}
+//		Log.i(tag, "Upload successful: " + frupicURL);
+
+		return null;
+	}
 	
 	
 	
@@ -186,22 +300,14 @@ public class UploadService extends IntentService implements ProgressTaskActivity
 			return;
 		}
 		
-		UploadTask task = new UploadTask(imageData, userName, tags);
-		task.setActivity(this, this);
-		task.execute();
+		String error = uploadImage(imageData, userName, tags);
 		
-		String error = null;
-		try {
-			error = task.get();
-			if (error != null) {
-				Log.e(tag, "error: " + error);
-				failed++;
-				/* TODO: handle error gracefully */
-			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		if (error != null) {
+			Log.e(tag, "error: " + error);
 			failed++;
 			/* TODO: handle error gracefully */
+		} else {
+			Log.i(tag, "Upload successful: " + filename);
 		}
 		
 		updateNotification(true, 1.0f);
@@ -239,18 +345,11 @@ public class UploadService extends IntentService implements ProgressTaskActivity
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		String filename = intent.getStringExtra("filename");
-		
 		Log.d(tag, "onStartCommand");
 		max++;
 
 		updateNotification(true, 0.0f);
 		
 		return super.onStartCommand(intent, flags, startId);
-	}
-
-	@Override
-	public void updateProgressDialog(int progress, int max) {
-		updateNotification(true, (float)progress / (float)max);
 	}
 }
