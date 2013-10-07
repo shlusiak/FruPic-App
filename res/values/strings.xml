@@ -57,7 +57,7 @@
     <string name="share_picture">Share Image</string>
         
         
-    <string name="preferences">Preferences</string>
+    <string name="preferences">Settings</string>
     <string name="preferences_cache">Cache</string>
     <string name="preferences_cache_size">Cache size limit</string>
     <string name="preferences_external_cache">Use external cache</string>
