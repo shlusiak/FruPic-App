@@ -318,9 +318,9 @@ public class UploadService extends IntentService {
 	
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	synchronized void updateNotification(boolean ongoing, float progress) {
-		builder.setSmallIcon(R.drawable.frupic);
 		builder.setContentTitle(getString(R.string.upload_notification_title));
 		if (ongoing) {
+			builder.setSmallIcon(R.drawable.frupic);
 			builder.setContentText(getString(R.string.upload_notification_progress, current + 1, max));
 			if (Build.VERSION.SDK_INT >= 14 && max > 0) {
 				float perc = (((float)current + progress) / (float)max);
@@ -330,16 +330,21 @@ public class UploadService extends IntentService {
 			builder.setOngoing(ongoing);
 			/* TODO: provide intent to see progress dialog and support for cancel */
 		} else {
-			if (failed == 0)
+			if (failed == 0) {
+				/* TODO: set icon for successful uploads */
+				builder.setSmallIcon(R.drawable.frupic);
 				builder.setContentText(getString(R.string.upload_notification_success, max));
-			else
+			} else {
+				/* TODO: set icon for failed uploads */
+				builder.setSmallIcon(R.drawable.frupic);
 				builder.setContentText(getString(R.string.upload_notification_failed, max - failed, failed));
-				
+			}
 			if (Build.VERSION.SDK_INT >= 14)
 				builder.setProgress(0, 0, false);
 			builder.setAutoCancel(true);
 			builder.setOngoing(false);
 		}
+		/* TODO: set progress dialog intent when ongoing */
 		Intent intent = new Intent(this, FruPicGrid.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(pendingIntent);
