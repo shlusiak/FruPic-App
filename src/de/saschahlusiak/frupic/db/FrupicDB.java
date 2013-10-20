@@ -146,22 +146,13 @@ public class FrupicDB {
 		}
 		
 		return c;
-	}	
-
-	private boolean getFrupicFlags(Frupic frupic) {
-		String where = ID_ID + "=" + frupic.getId();
-		String cols[] = { FLAGS_ID };
-		
-		Cursor c = db.query(TABLE, cols, where, null, null, null, ID_ID + " DESC", null);
-		if (c.getCount() <= 0) {
-			c.close();
-			return false;
-		}
-		c.moveToFirst();
-		frupic.setFlags(c.getInt(FLAGS_INDEX));
-		
-		c.close();
-		return true;
 	}
 	
+	public Frupic getFrupic(int id) {
+		Cursor c = db.query(TABLE, null, ID_ID + "=" + id, null, null, null, null, null);
+		c.moveToFirst();
+		Frupic frupic = new Frupic(c);
+		c.close();
+		return frupic;
+	}
 }

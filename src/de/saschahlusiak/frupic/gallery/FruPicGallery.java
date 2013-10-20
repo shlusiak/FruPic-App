@@ -113,6 +113,10 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size", "16777216")));
         
         if (savedInstanceState != null) {
+        	/* FIXME: before rotate the old cursor may have unstarred items, but now the cursor
+        	 * was requeried and the index of the current item changed. maybe keep the db/cursor between
+        	 * rotates?
+        	 */
         	pager.setCurrentItem(savedInstanceState.getInt("position"));
         } else {
         	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
@@ -132,10 +136,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 					toggleControls();
 			}
 		}, 2000);
-
-        
-        /* TODO: changing the star currently changes the DB and the Cursor and thus disturbs the ViewPager.
-         * we have to disable the star menu item, wen showFavs is true */
     }
     
     /**
@@ -209,9 +209,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
 		this.menu = menu;
-		
-		if (navIndex == 2) /* FIXME */
-			menu.findItem(R.id.star).setVisible(false);
 		
 		updateLabels(getCurrentFrupic());
 		
@@ -290,7 +287,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		case R.id.star:
 			frupic.setFlags(frupic.getFlags() ^ Frupic.FLAG_FAV);
 			db.updateFlags(frupic, Frupic.FLAG_FAV, (frupic.getFlags() & Frupic.FLAG_FAV) == Frupic.FLAG_FAV);
-			cursorChanged();
 			updateLabels(frupic);
 			return true;
 
@@ -315,14 +311,11 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		Frupic frupic = getCurrentFrupic();
 		menu.setHeaderTitle("#" + frupic.getId());
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
-		if (navIndex == 2) /* FIXME, we would like to be able to star/unstar all the time */
-			menu.findItem(R.id.star).setVisible(false);
 	}
 	
 	Frupic getCurrentFrupic() {
 		cursor.moveToPosition(pager.getCurrentItem());
-		Frupic frupic = new Frupic(cursor);
-		return frupic;
+		return db.getFrupic(cursor.getInt(FrupicDB.ID_INDEX));
 	}
 
 	@Override
