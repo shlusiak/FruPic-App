@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
@@ -84,6 +85,9 @@ public class FrupicPreferences extends PreferenceActivity implements OnSharedPre
 		if (key.equals("cache_size")) {
 			ListPreference pref = (ListPreference)findPreference(key);
 			pref.setSummary(pref.getEntry());
+			updateCachePreference();
+		}
+		if (key.equals("always_keep_starred")) {
 			updateCachePreference();
 		}
 	}

@@ -19,8 +19,12 @@ import org.apache.http.util.ByteArrayBuffer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import de.saschahlusiak.frupic.db.FrupicDB;
+import de.saschahlusiak.frupic.db.FrupicDBOpenHandler;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
@@ -45,6 +49,7 @@ public class FrupicFactory {
 	int cachesize;
 	File internal_cachedir, external_cachedir;
 	boolean prefer_external_cache;
+	boolean always_keep_starred;
 	DefaultHttpClient client;
 
 	public FrupicFactory(Context context, int cachesize) {
@@ -64,6 +69,7 @@ public class FrupicFactory {
 	public void updateCacheDirs() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		prefer_external_cache = prefs.getBoolean("external_cache", true);
+		always_keep_starred = prefs.getBoolean("always_keep_starred", true);
 
 		this.internal_cachedir = context.getCacheDir();
 		this.external_cachedir = context.getExternalCacheDir();
@@ -217,6 +223,29 @@ public class FrupicFactory {
 		if (files.length == 0)
 			return new CacheInfo(0, 0);
 
+		if (always_keep_starred) {
+			FrupicDB db = new FrupicDB(context);
+			db.open();
+			Cursor cursor = db.getFrupics(null, Frupic.FLAG_FAV);
+			if (cursor != null) {
+				cursor.moveToFirst();
+				do {
+					Frupic frupic = new Frupic(cursor);
+					for (int i = 0; i < files.length; i++) {
+						String cfn = getCacheFileName(frupic, false);
+						if (files[i] != null && files[i].getAbsolutePath().equals(cfn))	{
+							files[i] = null;
+						}
+						cfn = getCacheFileName(frupic, true);
+						if (files[i] != null && files[i].getAbsolutePath().equals(cfn))	{
+							files[i] = null;
+						}
+					}
+				} while (cursor.moveToNext());
+				cursor.close();
+			}
+			db.close();
+		}
 
 		do {
 			int oldest = -1;
