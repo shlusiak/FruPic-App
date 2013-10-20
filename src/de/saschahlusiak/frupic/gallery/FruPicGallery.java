@@ -283,8 +283,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			return true;
 
 		case R.id.star:
-			frupic.setFlags((frupic.getFlags() ^ Frupic.FLAG_FAV) & ~Frupic.FLAG_NEW);
-			db.setFlags(frupic);
+			frupic.setFlags(frupic.getFlags() ^ Frupic.FLAG_FAV);
+			db.updateFlags(frupic, Frupic.FLAG_FAV, (frupic.getFlags() & Frupic.FLAG_FAV) == Frupic.FLAG_FAV);
 			cursorChanged();
 			updateLabels(frupic);
 			return true;
@@ -336,8 +336,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	    Frupic frupic;
 		frupic = getCurrentFrupic();
 		if (frupic.hasFlag(Frupic.FLAG_NEW)) {
-			frupic.setFlags(frupic.getFlags() & ~Frupic.FLAG_NEW);
-			db.setFlags(frupic);
+			db.updateFlags(frupic, Frupic.FLAG_NEW, false);
 		}
 
 		if (!getActionBar().isShowing()) {

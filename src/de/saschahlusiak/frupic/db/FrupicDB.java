@@ -71,6 +71,7 @@ public class FrupicDB {
 	public boolean addFrupic(Frupic frupic) {
 		final String fields[] = { ID_ID };
 		Cursor c = db.query(TABLE, fields, ID_ID + "=" + frupic.getId(), null, null, null, null);
+		/* don't add frupic with the same id */
 		if (c.getCount() <= 0) {
 			c.close();
 			ContentValues values = new ContentValues();
@@ -115,20 +116,16 @@ public class FrupicDB {
 			return false;
 		}
 	}
-	
-	public boolean setFlags(Frupic frupic) {
-		ContentValues values = new ContentValues();
-		values.put(FLAGS_ID, frupic.getFlags());
-		db.update(TABLE, values, ID_ID + "=" + frupic.getId(), null);
-		return true;
-	}
-	
-	public boolean markAllSeen() {
-		ContentValues values = new ContentValues();
 
-		values.put(FLAGS_ID, 0);
-
-		db.update(TABLE, values, FLAGS_ID + "=" + Frupic.FLAG_NEW, null);
+	public boolean updateFlags(Frupic frupic, int flag, boolean value) {
+		int clearMask = ~flag;
+		int set = (value ? flag : 0);
+		if (clearMask < 0)
+			clearMask += 65536;
+		String sql = "UPDATE " + TABLE + " SET flags = (flags & " + clearMask + ") | " + set;
+		if (frupic != null)
+			sql += " WHERE " + ID_ID + "=" + frupic.getId();
+		db.execSQL(sql);
 		return true;
 	}
 
@@ -151,7 +148,7 @@ public class FrupicDB {
 		return c;
 	}	
 
-	public boolean getFrupicFlags(Frupic frupic) {
+	private boolean getFrupicFlags(Frupic frupic) {
 		String where = ID_ID + "=" + frupic.getId();
 		String cols[] = { FLAGS_ID };
 		

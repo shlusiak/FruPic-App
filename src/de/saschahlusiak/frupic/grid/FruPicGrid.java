@@ -206,7 +206,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		if (cursor != null)
 			cursor.close();
 		cursor = null;
-		db.markAllSeen();
+		db.updateFlags(null, Frupic.FLAG_NEW, false);
 		db.close();
 		db = null;
         mWindowManager.removeView(mDialogText);
@@ -353,7 +353,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		case R.id.refresh:
 			refreshTask = new RefreshIndexTask(0, FRUPICS_STEP); /* this might skip valuable frupics */
 			refreshTask.execute();
-			db.markAllSeen();
+			db.updateFlags(null, Frupic.FLAG_NEW, false);
 			return true;
 
 		case R.id.upload:
@@ -400,8 +400,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		switch (item.getItemId()) {
 		case R.id.star:
-			frupic.setFlags((frupic.getFlags() ^ Frupic.FLAG_FAV) & ~Frupic.FLAG_NEW);
-			db.setFlags(frupic);
+			db.updateFlags(frupic, Frupic.FLAG_FAV, !((frupic.getFlags() & Frupic.FLAG_FAV) == Frupic.FLAG_FAV));
 			cursorChanged();
 			return true;
 
