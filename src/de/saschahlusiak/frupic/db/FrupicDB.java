@@ -118,7 +118,6 @@ public class FrupicDB {
 	
 	public boolean setFlags(Frupic frupic) {
 		ContentValues values = new ContentValues();
-		
 		values.put(FLAGS_ID, frupic.getFlags());
 		db.update(TABLE, values, ID_ID + "=" + frupic.getId(), null);
 		return true;
@@ -133,22 +132,15 @@ public class FrupicDB {
 		return true;
 	}
 
-	public Cursor getFrupics(String username, boolean starred, boolean unseen) {
+	public Cursor getFrupics(String username, int flagmask) {
 		String where = "";
 		
 		if (username != null)
 			where += USERNAME_ID + "=" + username;
 		
-		if (starred) {
-			if (!where.equals(""))
-				where += " AND ";
-			where += FLAGS_ID + "=" + Frupic.FLAG_FAV;
-		}
-		if (unseen) {
-			if (!where.equals(""))
-				where += " AND ";
-			where += FLAGS_ID + "=" + Frupic.FLAG_NEW;
-		}
+		if (!where.equals(""))
+			where += " AND ";
+		where += "(" + FLAGS_ID + "&" + flagmask + ") = " + flagmask;
 		
 		Cursor c = db.query(TABLE, null, where, null, null, null, ID_ID + " DESC", null);
 		if (c.getCount() <= 0) {

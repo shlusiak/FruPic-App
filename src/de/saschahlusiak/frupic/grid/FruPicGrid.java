@@ -404,6 +404,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			db.setFlags(frupic);
 			cursorChanged();
 			return true;
+
 		case R.id.openinbrowser:
 			intent = new Intent("android.intent.action.VIEW", Uri.parse(frupic.getUrl()));
 			startActivity(intent);
@@ -488,8 +489,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	void cursorChanged() {
 		int ind = getActionBar().getSelectedNavigationIndex();
+		int mask = 0;
 		
-		cursor = db.getFrupics(null, ind == 2, ind == 1);
+		if (ind == 2)
+			mask |= Frupic.FLAG_FAV;
+		if (ind == 1)
+			mask |= Frupic.FLAG_NEW;
+		cursor = db.getFrupics(null, mask);
 		
 		adapter.changeCursor(cursor);
 	}

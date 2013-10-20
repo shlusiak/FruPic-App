@@ -161,7 +161,12 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     }
 	
 	void cursorChanged() {
-		cursor = db.getFrupics(null, navIndex == 2, navIndex == 1);
+		int mask = 0;
+		if (navIndex == 2)
+			mask |= Frupic.FLAG_FAV;
+		if (navIndex == 1)
+			mask |= Frupic.FLAG_NEW;
+		cursor = db.getFrupics(null, mask);
 		
 		startManagingCursor(cursor);
 		adapter.setCursor(cursor);

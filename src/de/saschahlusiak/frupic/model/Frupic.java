@@ -6,7 +6,6 @@ import java.io.Serializable;
 import de.saschahlusiak.frupic.db.FrupicDB;
 
 import android.database.Cursor;
-import android.util.Log;
 
 public class Frupic implements Serializable {
 
