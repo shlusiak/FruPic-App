@@ -9,6 +9,8 @@ import de.saschahlusiak.frupic.gallery.FruPicGallery;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.utils.UploadActivity;
+import android.app.ActionBar;
+import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
@@ -20,7 +22,6 @@ import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -31,19 +32,20 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener {
+public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, OnNavigationListener {
 	static private final String tag = FruPicGrid.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
@@ -55,8 +57,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	View mRefreshIndeterminateProgressView;
 	FrupicDB db;
 	Cursor cursor;
-	
-	boolean showFavs = false;
 
 	public final int FRUPICS_STEP = 100;
 
@@ -145,12 +145,18 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     private boolean mShowing;
     private boolean mReady;
 
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
+		
+		SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.grid_dropdown_list,
+				android.R.layout.simple_spinner_dropdown_item);
+		getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		getActionBar().setListNavigationCallbacks(mSpinnerAdapter, this);
+		getActionBar().setDisplayShowTitleEnabled(false);
 
 		setContentView(R.layout.grid_activity);
+		
 
 		factory = new FrupicFactory(this, 300);
 
@@ -166,7 +172,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		registerForContextMenu(grid);
 		
 		if (savedInstanceState != null) {
-			showFavs = savedInstanceState.getBoolean("showFavs", false);
+			getActionBar().setSelectedNavigationItem(savedInstanceState.getInt("navItem", 0));
 		}
 		
         mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
@@ -210,7 +216,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean("showFavs", showFavs);
+		outState.putInt("navItem", getActionBar().getSelectedNavigationIndex());
 	};
 	
 	@Override
@@ -256,7 +262,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		Intent intent = new Intent(this, FruPicGallery.class);
 		intent.putExtra("position", position);
 		intent.putExtra("id", id);
-		intent.putExtra("showFavs", showFavs);
+		intent.putExtra("navIndex", getActionBar().getSelectedNavigationIndex());
 		startActivity(intent);
 	}
 
@@ -274,7 +280,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
-		if (!showFavs && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
+		if (getActionBar().getSelectedNavigationIndex() == 0 && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
 			if (refreshTask == null) {
 				refreshTask = new RefreshIndexTask(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 				refreshTask.execute();
@@ -306,7 +312,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onScrollStateChanged(AbsListView view, int state) {
 		lastScrollState = state;
-		if (state == SCROLL_STATE_IDLE && (!showFavs)) {
+		if (state == SCROLL_STATE_IDLE && (getActionBar().getSelectedNavigationIndex() == 0)) {
 			int firstVisibleItem = grid.getFirstVisiblePosition();
 			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
 			if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
@@ -335,8 +341,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		/* in case the tasks gets started before the options menu is created */
 		if (refreshTask != null)
 			setProgressActionView(true);
-		
-		menu.findItem(R.id.showStars).setIcon(showFavs ? R.drawable.star_label : R.drawable.star_empty);
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -359,13 +363,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 					getString(R.string.upload)), REQUEST_PICK_PICTURE);
 			return true;
 			
-		case R.id.showStars:
-			showFavs = !showFavs;
-			cursorChanged();
-			item.setChecked(showFavs);
-			item.setIcon(showFavs ? R.drawable.star_label : R.drawable.star_empty);
-			return true;
-
 		case R.id.preferences:
 			intent = new Intent(this, FrupicPreferences.class);
 			startActivity(intent);
@@ -490,10 +487,16 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	}
 	
 	void cursorChanged() {
-		if (showFavs)
-			cursor = db.getFavFrupics();
-		else
-			cursor = db.getFrupics(null);
+		int ind = getActionBar().getSelectedNavigationIndex();
+		
+		cursor = db.getFrupics(null, ind == 2, ind == 1);
+		
 		adapter.changeCursor(cursor);
+	}
+
+	@Override
+	public boolean onNavigationItemSelected(int position, long id) {
+		cursorChanged();
+		return true;
 	}
 }

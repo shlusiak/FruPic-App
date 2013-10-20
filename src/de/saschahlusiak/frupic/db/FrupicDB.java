@@ -133,13 +133,22 @@ public class FrupicDB {
 		return true;
 	}
 
-	public Cursor getFrupics(String username) {
-		String where;
+	public Cursor getFrupics(String username, boolean starred, boolean unseen) {
+		String where = "";
 		
 		if (username != null)
-			where = USERNAME_ID + "=" + username;
-		else
-			where = null;
+			where += USERNAME_ID + "=" + username;
+		
+		if (starred) {
+			if (!where.equals(""))
+				where += " AND ";
+			where += FLAGS_ID + "=" + Frupic.FLAG_FAV;
+		}
+		if (unseen) {
+			if (!where.equals(""))
+				where += " AND ";
+			where += FLAGS_ID + "=" + Frupic.FLAG_NEW;
+		}
 		
 		Cursor c = db.query(TABLE, null, where, null, null, null, ID_ID + " DESC", null);
 		if (c.getCount() <= 0) {
@@ -148,22 +157,7 @@ public class FrupicDB {
 		}
 		
 		return c;
-	}
-	
-	public Cursor getFavFrupics() {
-		String where;
-		
-		where = FLAGS_ID + "=" + Frupic.FLAG_FAV;
-		
-		Cursor c = db.query(TABLE, null, where, null, null, null, ID_ID + " DESC", null);
-		if (c.getCount() <= 0) {
-			c.close();
-			return null;
-		}
-		
-		return c;
-	}
-	
+	}	
 
 	public boolean getFrupicFlags(Frupic frupic) {
 		String where = ID_ID + "=" + frupic.getId();

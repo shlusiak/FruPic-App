@@ -46,7 +46,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	ProgressDialog progressDialog;
 	Cursor cursor;
 	FrupicDB db;
-	boolean showFavs;
+	int navIndex;
 	View controls;
 	Animation fadeAnimation;
 	Menu menu;
@@ -101,9 +101,9 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         db.open();
         
         if (savedInstanceState != null) {
-        	showFavs = savedInstanceState.getBoolean("showFavs", false);
+        	navIndex = savedInstanceState.getInt("navIndex", 0);
         } else {
-        	showFavs = getIntent().getBooleanExtra("showFavs", false);
+        	navIndex = getIntent().getIntExtra("navIndex", 0);
         }
 
         cursorChanged();
@@ -151,7 +151,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     protected void onSaveInstanceState(Bundle outState) {
     	super.onSaveInstanceState(outState);
     	outState.putInt("position", cursor.getPosition());
-        outState.putBoolean("showFavs", showFavs);
+        outState.putInt("navIndex", navIndex);
     }
     
     @Override
@@ -161,10 +161,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     }
 	
 	void cursorChanged() {
-		if (showFavs)
-			cursor = db.getFavFrupics();
-		else
-			cursor = db.getFrupics(null);
+		cursor = db.getFrupics(null, navIndex == 2, navIndex == 1);
 		
 		startManagingCursor(cursor);
 		adapter.setCursor(cursor);
@@ -203,7 +200,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
 		this.menu = menu;
 		
-		if (showFavs)
+		if (navIndex == 2) /* FIXME */
 			menu.findItem(R.id.star).setVisible(false);
 		
 		updateLabels(getCurrentFrupic());
@@ -308,7 +305,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		Frupic frupic = getCurrentFrupic();
 		menu.setHeaderTitle("#" + frupic.getId());
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
-		if (showFavs)
+		if (navIndex == 2) /* FIXME, we would like to be able to star/unstar all the time */
 			menu.findItem(R.id.star).setVisible(false);
 	}
 	

@@ -10,9 +10,7 @@
     <string name="openinbrowser">In Browser öffnen</string>
     <string name="frupic_in_the_market">FruPic App in Google Play...</string>
     <string name="frupic_in_the_market_long">FruPic App in Google Play zeigen</string>    
-    
-    <string name="menu_show_starred_frupics">Favoriten zeigen</string>
-    
+        
     <string name="details_posted_by">Geposted von:</string>
     <string name="details_tags">Tags:</string>
     <string name="details_date">Datum:</string>
@@ -26,6 +24,12 @@
     <string name="waiting_to_start">In Warteschlange...</string>
     
     <string name="star_frupic">Favorit</string>
+    
+    <string-array name="grid_dropdown_list">
+        <item>Alle</item>
+        <item>Neue</item>
+        <item>Favoriten</item>
+    </string-array>
     
     <string name="please_wait">Bitte warten</string>
     <string name="fetching_image_message">Lade %1$s</string>

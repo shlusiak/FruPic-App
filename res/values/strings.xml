@@ -10,8 +10,6 @@
     <string name="openinbrowser">Open in Browser</string>
     <string name="frupic_in_the_market">FruPic App in Google Play...</string>
     <string name="frupic_in_the_market_long">Show FruPic App in Google Play</string>
-
-    <string name="menu_show_starred_frupics">Show Favourites</string>
     
     <string name="details_posted_by">Posted by:</string>
     <string name="details_tags">Tags:</string>
@@ -24,6 +22,12 @@
     <string name="gallery_posted_by">%1$s</string>
     
     <string name="star_frupic">Star</string>
+    
+    <string-array name="grid_dropdown_list">
+        <item>All</item>
+        <item>New</item>
+        <item>Starred</item>
+    </string-array>
     
     <string name="please_wait">Please wait</string>
     <string name="fetching_image_message">Fetching %1$s</string>
