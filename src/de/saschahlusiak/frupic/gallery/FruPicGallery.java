@@ -116,7 +116,12 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         	pager.setCurrentItem(savedInstanceState.getInt("position"));
         } else {
         	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
-        }
+        	Frupic frupic;
+    		frupic = getCurrentFrupic();
+    		if (frupic.hasFlag(Frupic.FLAG_NEW)) {
+    			db.updateFlags(frupic, Frupic.FLAG_NEW, false);
+    		}
+    	}
         updateLabels(getCurrentFrupic());
         
         
