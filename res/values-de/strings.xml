@@ -60,7 +60,8 @@
     <string name="share_link">Link senden via</string>
     <string name="share_picture">Bild senden via</string>
         
-        
+    <string name="calculating">berechne...</string>
+    
     <string name="preferences">Einstellungen</string>
     <string name="preferences_cache">Cache</string>
     <string name="preferences_cache_size">Größe Zwischenspeicher</string>

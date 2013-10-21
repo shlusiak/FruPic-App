@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.preferences;
 
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.cache.FileCache;
+import de.saschahlusiak.frupic.cache.FileCache.CacheInfo;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
@@ -43,10 +44,38 @@ public class FrupicPreferences extends PreferenceActivity implements OnSharedPre
 		@Override
 		protected void onPostExecute(Void result) {
 			progress.dismiss();
-			updateCachePreference();
+			new UpdateCacheInfoTask().execute();
 			super.onPostExecute(result);
 		}
+	}
+	
+	class UpdateCacheInfoTask extends AsyncTask<Void,Void,Void> {
+		CacheInfo cacheInfo;
+		int cacheSize;
 		
+		@Override
+		protected void onPreExecute() {
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+			cacheSize = Integer.parseInt(prefs.getString("cache_size", "16777216"));
+			clear_cache.setSummary(R.string.calculating);
+			super.onPreExecute();
+		}
+		
+		@Override
+		protected Void doInBackground(Void... params) {
+			cacheInfo = new FileCache(FrupicPreferences.this).getCacheInfo();
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			clear_cache.setSummary(getString(R.string.preferences_cache_clear_summary, 
+					cacheInfo.getCount(), 
+					(float)cacheInfo.getSize() / 1024.0f / 1024.0f, 
+					100.0f * (float)cacheInfo.getSize() / (float)cacheSize));
+			clear_cache.setEnabled(cacheInfo.getCount() > 0);
+			super.onPostExecute(result);
+		}
 	}
 	
 	@Override
@@ -63,7 +92,7 @@ public class FrupicPreferences extends PreferenceActivity implements OnSharedPre
 				return true;
 			}
 		});
-		updateCachePreference();
+		new UpdateCacheInfoTask().execute();
 	}
 	
 	@Override
@@ -78,24 +107,13 @@ public class FrupicPreferences extends PreferenceActivity implements OnSharedPre
 	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
 		if (key.equals("cache_size")) {
 			ListPreference pref = (ListPreference)findPreference(key);
 			pref.setSummary(pref.getEntry());
-			updateCachePreference();
+			new UpdateCacheInfoTask().execute();
 		}
 		if (key.equals("always_keep_starred")) {
-			updateCachePreference();
+			new UpdateCacheInfoTask().execute();
 		}
-	}
-	
-	void updateCachePreference() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-		FileCache.CacheInfo info = new FileCache(this).getCacheInfo();
-		clear_cache.setSummary(getString(R.string.preferences_cache_clear_summary, 
-				info.getCount(), 
-				(float)info.getSize() / 1024.0f / 1024.0f, 
-				100.0f * (float)info.getSize() / (float)Integer.parseInt(prefs.getString("cache_size", "16777216"))));
-		clear_cache.setEnabled(info.getCount() > 0);
-	}
+	}	
 }

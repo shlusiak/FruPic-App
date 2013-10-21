@@ -60,7 +60,7 @@
     <string name="share_link">Share Link</string>
     <string name="share_picture">Share Image</string>
         
-        
+    <string name="calculating">calculating...</string>
     <string name="preferences">Settings</string>
     <string name="preferences_cache">Cache</string>
     <string name="preferences_cache_size">Cache size limit</string>

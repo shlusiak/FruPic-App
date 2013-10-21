@@ -21,7 +21,8 @@
 
         <PreferenceScreen
             android:key="clear_cache"
-            android:summary="@string/preferences_cache_clear_summary"
+            android:summary="@string/calculating"
+            android:enabled="false"
             android:title="@string/preferences_cache_clear" />
 
         <CheckBoxPreference
