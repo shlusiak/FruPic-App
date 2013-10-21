@@ -83,10 +83,6 @@ public class Frupic implements Serializable {
 		return thumb_url;
 	}
 	
-	public File getCachedFile(FrupicFactory factory, boolean thumb) {
-		return new File(FrupicFactory.getCacheFileName(factory, this, thumb));
-	}
-	
 	public String getFileName(boolean thumb) {
 		if (!thumb)
 			return new File(full_url).getName();

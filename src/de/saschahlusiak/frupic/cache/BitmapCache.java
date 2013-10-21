@@ -1,13 +1,9 @@
-package de.saschahlusiak.frupic.model;
+package de.saschahlusiak.frupic.cache;
 
 import java.util.ArrayList;
-
 import android.graphics.Bitmap;
-import android.util.Log;
 
-class FrupicCache {
-	static private final String tag = FrupicCache.class.getSimpleName();
-	
+public class BitmapCache {
 	class CacheItem {
 		String url;
 		Bitmap bitmap;
@@ -16,16 +12,16 @@ class FrupicCache {
 	
 	ArrayList<CacheItem> cache;
 	
-	FrupicCache(int memcount) {
+	public BitmapCache(int memcount) {
 		this.memcount = memcount;
 		cache = new ArrayList<CacheItem>(memcount);
 	}
 	
-	synchronized void clear() {
+	synchronized public void clear() {
 		cache.clear();
 	}
 	
-	synchronized Bitmap get(String url) {
+	synchronized public Bitmap get(String url) {
 		for (CacheItem c: cache)
 			if (c.url.equals(url)) {
 				/* we should push the requested file back to the top so it is purged last */
@@ -36,7 +32,7 @@ class FrupicCache {
 		return null;
 	}
 	
-	synchronized Bitmap add(String url, Bitmap bitmap) {
+	synchronized public Bitmap add(String url, Bitmap bitmap) {
 		if (cache.size() >= memcount) {
 			cache.remove(0);
 		}
@@ -44,7 +40,6 @@ class FrupicCache {
 		c.url = url;
 		c.bitmap = bitmap;
 		cache.add(c);
-//		Log.i(tag, "Memory cache size: " + cache.size());
 		return bitmap;
 	}
 

@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -109,8 +108,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         cursorChanged();
         pager.setAdapter(adapter);
 
-
-		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size", "16777216")));
         
         if (savedInstanceState != null) {
         	/* FIXME: before rotate the old cursor may have unstarred items, but now the cursor
@@ -251,7 +248,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			return true;
 
 		case R.id.details:
-			DetailDialog.create(this, frupic, factory).show();
+			DetailDialog.create(this, frupic).show();
 			return true;
 			
 		case R.id.cache_now:
@@ -276,7 +273,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 
 			/* TODO: If file is not in cache yet, download it first or show message */
 			out = new File(out, frupic.getFileName(false));
-			if (FrupicFactory.copyImageFile(frupic.getCachedFile(factory, false), out)) {
+			if (FrupicFactory.copyImageFile(factory.getFileCache().getFile(frupic, false), out)) {
 				intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("image/?");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));

@@ -3,7 +3,6 @@ package de.saschahlusiak.frupic.model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,22 +19,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.saschahlusiak.frupic.db.FrupicDB;
-import de.saschahlusiak.frupic.db.FrupicDBOpenHandler;
+import de.saschahlusiak.frupic.cache.BitmapCache;
+import de.saschahlusiak.frupic.cache.FileCache;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class FrupicFactory {
 	static final private String tag = FrupicFactory.class.getSimpleName();
-	static final public int DEFAULT_CACHE_SIZE = 1024 * 1024 * 16; /* 10 MB */
 	static final String INDEX_URL = "http://api.freamware.net/2.0/get.picture";
 	
 	public static final int NOT_AVAILABLE = 0;
@@ -44,44 +39,35 @@ public class FrupicFactory {
 	public static final int FROM_WEB = 3;
 
 	Context context;
-	FrupicCache cache;
+	BitmapCache cache;
+	FileCache fileCache;
 	int targetWidth, targetHeight;
-	int cachesize;
-	File internal_cachedir, external_cachedir;
-	boolean prefer_external_cache;
-	boolean always_keep_starred;
 	DefaultHttpClient client;
 
 	public FrupicFactory(Context context, int cachesize) {
 		this.context = context;
-		this.cache = new FrupicCache(cachesize);
+		this.cache = new BitmapCache(cachesize);
 		targetWidth = 800;
 		targetHeight = 800;
-		this.cachesize = DEFAULT_CACHE_SIZE;
 		client = new DefaultHttpClient();
-		updateCacheDirs();
+		createFileCache();
 	}
 	
 	public FrupicFactory(Context context) {
 		this(context, 1);
-	}
-	
-	public void updateCacheDirs() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		prefer_external_cache = prefs.getBoolean("external_cache", true);
-		always_keep_starred = prefs.getBoolean("always_keep_starred", true);
-
-		this.internal_cachedir = context.getCacheDir();
-		this.external_cachedir = context.getExternalCacheDir();
 	}
 
 	public void setTargetSize(int width, int height) {
 		this.targetWidth = width;
 		this.targetHeight = height;
 	}
-
-	public void setCacheSize(int cachesize) {
-		this.cachesize = cachesize;
+	
+	public void createFileCache() {
+		fileCache = new FileCache(context);
+	}
+	
+	public FileCache getFileCache() {
+		return fileCache;
 	}
 
 	private String fetchURL(String url) {
@@ -176,116 +162,6 @@ public class FrupicFactory {
 		
 		return getFrupicIndexFromString(queryResult);
 	}
-	
-	public static class CacheInfo {
-		int bytes;
-		int files;
-		CacheInfo(int bytes, int files) {
-			this.bytes = bytes;
-			this.files = files;
-		}
-		public int getCount() {
-			return files;
-		}
-		public int getSize() {
-			return bytes;
-		}
-	}
-
-	public CacheInfo pruneCache() {
-		return pruneCache(this, cachesize);
-	}
-	
-	public static String getCacheFileName(FrupicFactory factory, Frupic frupic, boolean thumb) {
-		if (factory.external_cachedir != null && factory.prefer_external_cache)
-			return factory.external_cachedir + File.separator + frupic.getFileName(thumb);
-		else
-			return factory.internal_cachedir + File.separator + frupic.getFileName(thumb);			
-	}
-
-	public CacheInfo pruneCache(FrupicFactory factory, int limit) {
-		int total;
-		int number = 0;
-		File files1[];
-		File files2[] = null;
-		synchronized(client) {
-			files1 = factory.internal_cachedir.listFiles((FilenameFilter) null);
-		
-			if (factory.external_cachedir != null)
-				files2 = factory.external_cachedir.listFiles((FilenameFilter) null);
-		}
-		
-		File files[] = new File[files1.length + ((files2 == null) ? 0 : files2.length)];
-		System.arraycopy(files1, 0, files, 0, files1.length);
-		if (files2 != null)
-			System.arraycopy(files2, 0, files, files1.length, files2.length);		
-		
-		if (files.length == 0)
-			return new CacheInfo(0, 0);
-
-		if (always_keep_starred) {
-			FrupicDB db = new FrupicDB(context);
-			db.open();
-			Cursor cursor = db.getFrupics(null, Frupic.FLAG_FAV);
-			if (cursor != null) {
-				cursor.moveToFirst();
-				do {
-					Frupic frupic = new Frupic(cursor);
-					for (int i = 0; i < files.length; i++) {
-						String cfn = getCacheFileName(frupic, false);
-						if (files[i] != null && files[i].getAbsolutePath().equals(cfn))	{
-							files[i] = null;
-						}
-						cfn = getCacheFileName(frupic, true);
-						if (files[i] != null && files[i].getAbsolutePath().equals(cfn))	{
-							files[i] = null;
-						}
-					}
-				} while (cursor.moveToNext());
-				cursor.close();
-			}
-			db.close();
-		}
-
-		do {
-			int oldest = -1;
-			total = 0;
-			number = 0;
-
-			for (int i = 0; i < files.length; i++) {
-				if (files[i] == null)
-					continue;
-
-				number++;
-				if ((oldest < 0)
-						|| (files[i].lastModified() < files[oldest]
-								.lastModified()))
-					oldest = i;
-				total += files[i].length();
-			}
-
-			if (limit < 0)
-				break;
-			
-			if (total > limit) {
-				Log.d(tag, "purged " + files[oldest].getName()
-						+ " from filesystem");
-				synchronized (client) {
-					if (files[oldest].delete())
-						total -= files[oldest].length();
-				}
-				number--;
-				files[oldest] = null;
-			}
-		} while (total > limit);
-		
-		Log.i(tag, "left file cache populated with " + total + " bytes, " + number + " files");
-		return new CacheInfo(total, number);
-	}
-
-	public String getCacheFileName(Frupic frupic, boolean thumb) {
-		return getCacheFileName(this, frupic, thumb);
-	}
 
 	private Bitmap decodeImageFile(String filename, int width, int height) {
 		Bitmap b;
@@ -362,7 +238,7 @@ public class FrupicFactory {
 	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
 		OutputStream myOutput = null;
 		HttpResponse resp;
-		File tmpFile = new File(getCacheFileName(frupic, fetch_thumb) + ".tmp");
+		File tmpFile = new File(fileCache.getFileName(frupic, fetch_thumb) + ".tmp");
 		try {
 			synchronized (client) {
 				if (Thread.interrupted())
@@ -416,7 +292,9 @@ public class FrupicFactory {
 					}
 					return false;
 				}
-				tmpFile.renameTo(frupic.getCachedFile(this, fetch_thumb));
+				synchronized(fileCache) {
+					tmpFile.renameTo(fileCache.getFile(frupic, fetch_thumb));
+				}
 			}
 			return true;
 		} catch (Exception e) {
@@ -476,7 +354,7 @@ public class FrupicFactory {
 	 * @return Did some fetching occur? Do visuals need to be updated?
 	 */
 	public int fetch(Frupic frupic, boolean thumb, int width, int height, OnFetchProgress onProgress) {
-		String filename = getCacheFileName(frupic, thumb);
+		String filename = fileCache.getFileName(frupic, thumb);
 		int ret;
 
 		/* If file already in memory cache, return */
@@ -485,7 +363,7 @@ public class FrupicFactory {
 		 * XXX: if file is always kept in memory and it's lastModified time is
 		 * never updated, it may be pruned from file system while still in memory.
 		 */
-		if (cache.get(getCacheFileName(frupic, thumb)) != null)
+		if (cache.get(fileCache.getFileName(frupic, thumb)) != null)
 			return FROM_CACHE;	/* the picture was available before; don't notify again */
 
 		File f = new File(filename);
@@ -511,7 +389,7 @@ public class FrupicFactory {
 			return NOT_AVAILABLE;
 		}
 		Log.d(tag, "Loaded file to memory: " + frupic.id);
-		cache.add(getCacheFileName(frupic, thumb), b);
+		cache.add(fileCache.getFileName(frupic, thumb), b);
 
 		return ret;
 	}
@@ -525,15 +403,10 @@ public class FrupicFactory {
 	}
 
 	public Bitmap getThumbBitmap(Frupic frupic) {
-		return cache.get(getCacheFileName(frupic, true));
+		return cache.get(fileCache.getFileName(frupic, true));
 	}
 
 	public Bitmap getFullBitmap(Frupic frupic) {
-		return cache.get(getCacheFileName(frupic, false));
+		return cache.get(fileCache.getFileName(frupic, false));
 	}
-	
-	public void clearCache() {
-		cache.clear();
-	}
-
 }

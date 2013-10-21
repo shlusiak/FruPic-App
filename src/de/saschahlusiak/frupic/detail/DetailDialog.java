@@ -3,8 +3,8 @@ package de.saschahlusiak.frupic.detail;
 import java.io.File;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.cache.FileCache;
 import de.saschahlusiak.frupic.model.Frupic;
-import de.saschahlusiak.frupic.model.FrupicFactory;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,7 +29,9 @@ public class DetailDialog extends ArrayAdapter<DetailItem> {
 		this.frupic = frupic;
 	}
 
-	public static AlertDialog create(Context context, Frupic frupic, FrupicFactory factory) {
+	public static AlertDialog create(Context context, Frupic frupic) {
+		FileCache fileCache = new FileCache(context);
+		
 		DetailDialog d;
 		ContextThemeWrapper ctw = new ContextThemeWrapper( context, R.style.Theme_FruPic_Light_Dialog);		
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
@@ -48,12 +50,11 @@ public class DetailDialog extends ArrayAdapter<DetailItem> {
 		items[2].setValue(frupic.getDate());
 		items[4].setValue(frupic.getFullUrl());
 
-		File f = frupic.getCachedFile(factory, false);
+		File f = fileCache.getFile(frupic, false);
 		if (f.exists()) {
 			Options options = new Options();
 			options.inJustDecodeBounds = true;
-			BitmapFactory.decodeFile(FrupicFactory.getCacheFileName(factory,
-					frupic, false), options);
+			BitmapFactory.decodeFile(fileCache.getFileName(frupic, false), options);
 
 			items[3].setValue(String.format(
 					"%d x %d (%d kb)", options.outWidth, options.outHeight, f.length() / 1024));

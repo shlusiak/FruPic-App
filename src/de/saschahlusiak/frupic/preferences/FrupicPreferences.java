@@ -1,9 +1,8 @@
 package de.saschahlusiak.frupic.preferences;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.cache.FileCache;
 import de.saschahlusiak.frupic.db.FrupicDB;
-import de.saschahlusiak.frupic.model.FrupicFactory;
-import de.saschahlusiak.frupic.model.FrupicFactory.CacheInfo;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -11,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
@@ -32,11 +30,10 @@ public class FrupicPreferences extends PreferenceActivity implements OnSharedPre
 			super.onPreExecute();
 		}
 		
-		
 		@Override
 		protected Void doInBackground(Void... params) {
-			FrupicFactory factory = new FrupicFactory(FrupicPreferences.this);
-			factory.pruneCache(factory, 0);
+			FileCache fileCache = new FileCache(FrupicPreferences.this);
+			fileCache.pruneCache(0);
 			FrupicDB db = new FrupicDB(FrupicPreferences.this);
 			db.open();
 			db.clearAll(false);
@@ -94,8 +91,7 @@ public class FrupicPreferences extends PreferenceActivity implements OnSharedPre
 	
 	void updateCachePreference() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-		FrupicFactory factory = new FrupicFactory(FrupicPreferences.this);
-		CacheInfo info = factory.pruneCache(new FrupicFactory(this), -1);
+		FileCache.CacheInfo info = new FileCache(this).getCacheInfo();
 		clear_cache.setSummary(getString(R.string.preferences_cache_clear_summary, 
 				info.getCount(), 
 				(float)info.getSize() / 1024.0f / 1024.0f, 

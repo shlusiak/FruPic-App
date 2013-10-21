@@ -1,12 +1,12 @@
 package de.saschahlusiak.frupic.gallery;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.cache.FileCache;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
@@ -28,6 +28,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 	private final static String tag = GalleryPagerAdapter.class.getSimpleName();
 
 	FrupicFactory factory;
+	FileCache fileCache;
 	FruPicGallery context;
 	Cursor cursor;
 	boolean showAnimations;
@@ -90,9 +91,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 				return;
 			}
 
-			final int ret;
-
-			ret = factory.fetchFull(frupic, this);
+			factory.fetchFull(frupic, this);
 			if (isCancelled())
 				return;
 
@@ -132,6 +131,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 	public GalleryPagerAdapter(FruPicGallery context, FrupicFactory factory, boolean showAnimations) {
 		this.context = context;
 		this.factory = factory;
+		this.fileCache = factory.getFileCache();
 		this.showAnimations = showAnimations;
 	}
 
@@ -147,7 +147,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		if (showAnimations && frupic.isAnimated()) {
 			v.setVisibility(View.VISIBLE);
 			i.setVisibility(View.GONE);
-			String filename = factory.getCacheFileName(frupic, false);
+			String filename = fileCache.getFileName(frupic, false);
             InputStream stream = null;
 			try {
 				/* Movie calls reset() which the InputStream must support.

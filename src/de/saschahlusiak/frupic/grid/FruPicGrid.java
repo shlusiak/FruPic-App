@@ -17,7 +17,6 @@ import android.app.DownloadManager.Request;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.net.Uri;
@@ -25,7 +24,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -221,12 +219,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	@Override
 	protected void onStart() {
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(getBaseContext());
-
-		factory.setCacheSize(Integer.parseInt(prefs.getString("cache_size",
-				"16777216")));
-		factory.updateCacheDirs();
+		/* recreate the factory fileCache object to reread changed 
+		 * preferences
+		 */
+		factory.createFileCache();
 		
 		refreshTask = new RefreshIndexTask(0, FRUPICS_STEP); /* TODO: this might skip valuable frupics */
 		refreshTask.execute();
@@ -308,7 +304,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
         }
 	}
 
-
 	@Override
 	public void onScrollStateChanged(AbsListView view, int state) {
 		lastScrollState = state;
@@ -324,8 +319,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			}
 			
 			Thread t = new Thread() {
-				public void run() {					
-					factory.pruneCache();
+				public void run() {	
+					factory.getFileCache().pruneCache();
 				};
 			};
 			t.start();
@@ -410,7 +405,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			return true;
 
 		case R.id.details:
-			DetailDialog.create(this, frupic, factory).show();
+			DetailDialog.create(this, frupic).show();
 			
 			return true;
 
