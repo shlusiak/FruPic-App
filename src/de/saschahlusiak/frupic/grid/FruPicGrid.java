@@ -320,9 +320,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			
 			Thread t = new Thread() {
 				public void run() {	
+					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 					factory.getFileCache().pruneCache();
 				};
 			};
+			
 			t.start();
 		}
 	}
