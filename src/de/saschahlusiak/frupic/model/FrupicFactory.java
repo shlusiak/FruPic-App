@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.Date;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -37,19 +38,23 @@ public class FrupicFactory {
 	public static final int FROM_CACHE = 1;
 	public static final int FROM_FILE = 2;
 	public static final int FROM_WEB = 3;
+	
+	private static final int NUM_CLIENTS = 4;
 
 	Context context;
 	BitmapCache cache;
 	FileCache fileCache;
 	int targetWidth, targetHeight;
-	DefaultHttpClient client;
+	ArrayBlockingQueue<DefaultHttpClient> clients;
 
 	public FrupicFactory(Context context, int bitmapCacheSize) {
 		this.context = context;
 		this.cache = new BitmapCache(bitmapCacheSize);
 		targetWidth = 800;
 		targetHeight = 800;
-		client = new DefaultHttpClient();
+		clients = new ArrayBlockingQueue<DefaultHttpClient>(NUM_CLIENTS);
+		for (int i = 0; i < NUM_CLIENTS; i++)
+			clients.add(new DefaultHttpClient());
 		createFileCache();
 	}
 	
@@ -73,36 +78,45 @@ public class FrupicFactory {
 	private String fetchURL(String url) {
 		InputStream in = null;
 		HttpResponse resp;
+		DefaultHttpClient client;
+		String result = null;
 
-		synchronized (client) {
-			try {
-				resp = client.execute(new HttpGet(url));
+		try {
+			client = clients.take();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		try {
+			resp = client.execute(new HttpGet(url));
 
-				final StatusLine status = resp.getStatusLine();
-				if (status.getStatusCode() != 200) {
-					Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
-					return null;
-				}
-
-				in = resp.getEntity().getContent();
-			
-				ByteArrayBuffer baf = new ByteArrayBuffer(50);
-				int read = 0;
-				int bufSize = 1024;
-				byte[] buffer = new byte[bufSize];
-				while ((read = in.read(buffer)) > 0) {
-					baf.append(buffer, 0, read);
-				}
-				in.close();
-				return new String(baf.toByteArray());
-			} catch (MalformedURLException e1) {
-				e1.printStackTrace();
-				return null;
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			final StatusLine status = resp.getStatusLine();
+			if (status.getStatusCode() != 200) {
+				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
+				clients.add(client);
 				return null;
 			}
+
+			in = resp.getEntity().getContent();
+		
+			ByteArrayBuffer baf = new ByteArrayBuffer(50);
+			int read = 0;
+			int bufSize = 1024;
+			byte[] buffer = new byte[bufSize];
+			while ((read = in.read(buffer)) > 0) {
+				baf.append(buffer, 0, read);
+			}
+			in.close();
+			result = new String(baf.toByteArray());
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
+		clients.add(client);
+		return result;
+		
 	}
 	
 	private Frupic[] getFrupicIndexFromString(String string) {
@@ -239,79 +253,87 @@ public class FrupicFactory {
 		OutputStream myOutput = null;
 		HttpResponse resp;
 		File tmpFile = new File(fileCache.getFileName(frupic, fetch_thumb) + ".tmp");
+		DefaultHttpClient client;
+		if (Thread.interrupted())
+			return false;
 		try {
-			synchronized (client) {
-				if (Thread.interrupted())
-					return false;
-				HttpUriRequest req;
-				
-				req = new HttpGet(fetch_thumb ? frupic.thumb_url : frupic.full_url);
-				resp = client.execute(req);
-	
-				final StatusLine status = resp.getStatusLine();
-				if (status.getStatusCode() != 200) {
-					Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
-					resp.getEntity().consumeContent();
-					return false;
-				}
-	
-				int copied;
-	
-				long maxlength = resp.getEntity().getContentLength();
-				InputStream myInput = resp.getEntity().getContent();
-				
-				myOutput = new FileOutputStream(tmpFile);
-				byte[] buffer = new byte[4096];
-				int length;
-				copied = 0;
-				while ((length = myInput.read(buffer)) > 0) {
-					myOutput.write(buffer, 0, length);
-					if (Thread.interrupted()) {
-						resp.getEntity().consumeContent();
-						myOutput.flush();
-						myInput.close();
-						myOutput.close();
-						if (!tmpFile.delete()) {
-							Log.e(tag, "error removing partly downloaded file "
-								+ tmpFile.getName());
-						}
-						return false;
-					}
-				
-					if (progress != null)
-						progress.OnProgress(copied, (int)maxlength);
-					copied += length;
-				}
-				myOutput.flush();
-				myInput.close();
-				myOutput.close();
+			client = clients.take();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+			return false;
+		}
+		try {
+			HttpUriRequest req;
+			
+			req = new HttpGet(fetch_thumb ? frupic.thumb_url : frupic.full_url);
+			resp = client.execute(req);
+
+			final StatusLine status = resp.getStatusLine();
+			if (status.getStatusCode() != 200) {
+				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
+				resp.getEntity().consumeContent();
+				clients.add(client);
+				return false;
+			}
+
+			int copied;
+
+			long maxlength = resp.getEntity().getContentLength();
+			InputStream myInput = resp.getEntity().getContent();
+			
+			myOutput = new FileOutputStream(tmpFile);
+			byte[] buffer = new byte[4096];
+			int length;
+			copied = 0;
+			while ((length = myInput.read(buffer)) > 0) {
+				myOutput.write(buffer, 0, length);
 				if (Thread.interrupted()) {
+					resp.getEntity().consumeContent();
+					clients.add(client);
+					myOutput.flush();
+					myInput.close();
+					myOutput.close();
 					if (!tmpFile.delete()) {
 						Log.e(tag, "error removing partly downloaded file "
 							+ tmpFile.getName());
 					}
 					return false;
 				}
-				synchronized(fileCache) {
-					tmpFile.renameTo(fileCache.getFile(frupic, fetch_thumb));
-				}
+			
+				if (progress != null)
+					progress.OnProgress(copied, (int)maxlength);
+				copied += length;
 			}
+			myOutput.flush();
+			myInput.close();
+			myOutput.close();
+			if (Thread.interrupted()) {
+				clients.add(client);
+				if (!tmpFile.delete()) {
+					Log.e(tag, "error removing partly downloaded file "
+						+ tmpFile.getName());
+				}
+				return false;
+			}
+			synchronized(fileCache) {
+				tmpFile.renameTo(fileCache.getFile(frupic, fetch_thumb));
+			}
+			clients.add(client);
 			return true;
 		} catch (Exception e) {
-			synchronized (client) {
-				if (myOutput != null) {
-					try {
-						myOutput.flush();
-						myOutput.close();
-					} catch (Exception e2) {
-						e2.printStackTrace();
-					}
-					myOutput = null;
+			if (myOutput != null) {
+				try {
+					myOutput.flush();
+					myOutput.close();
+				} catch (Exception e2) {
+					e2.printStackTrace();
 				}
-				
-				if (!tmpFile.delete()) {
-					Log.e(tag, "error removing partly downloaded file " + tmpFile.getName());
-				}
+				myOutput = null;
+			}
+			clients.add(client);
+			
+			if (!tmpFile.delete()) {
+				Log.e(tag, "error removing partly downloaded file " + tmpFile.getName());
 			}
 			if (!tmpFile.delete()) {
 				Log.e(tag, "error removing partly downloaded file "	+ tmpFile.getName());
