@@ -1,4 +1,4 @@
-package de.saschahlusiak.frupic.utils;
+package de.saschahlusiak.frupic.upload;
 
 import java.util.ArrayList;
 

@@ -9,7 +9,7 @@ import de.saschahlusiak.frupic.grid.RefreshService.OnRefreshListener;
 import de.saschahlusiak.frupic.grid.RefreshService.RefreshServiceBinder;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
-import de.saschahlusiak.frupic.utils.UploadActivity;
+import de.saschahlusiak.frupic.upload.UploadActivity;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;

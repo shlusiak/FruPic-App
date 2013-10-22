@@ -41,7 +41,7 @@
         </activity>
         <activity
             android:label="@string/upload_to_frupic"
-            android:name=".utils.UploadActivity"
+            android:name="de.saschahlusiak.frupic.upload.UploadActivity"
             android:theme="@style/Theme.FruPic.Dialog" >
             <intent-filter >
                 <action android:name="android.intent.action.SEND" />
@@ -61,7 +61,7 @@
             </intent-filter>
         </activity>
         
-        <service android:name=".utils.UploadService" />
+        <service android:name=".upload.UploadService" />
         <service android:name=".grid.RefreshService" />
         
     </application>

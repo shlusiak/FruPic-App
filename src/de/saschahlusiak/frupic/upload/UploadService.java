@@ -1,4 +1,4 @@
-package de.saschahlusiak.frupic.utils;
+package de.saschahlusiak.frupic.upload;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -331,10 +331,11 @@ public class UploadService extends IntentService {
 			/* TODO: provide intent to see progress dialog and support for cancel */
 		} else {
 			if (failed == 0) {
-				/* TODO: set icon for successful uploads */
-				builder.setSmallIcon(R.drawable.frupic);
+				builder.setContentTitle(getString(R.string.upload_notification_title_finished));
+				builder.setSmallIcon(R.drawable.frupic_success);
 				builder.setContentText(getString(R.string.upload_notification_success, max));
 			} else {
+				builder.setContentTitle(getString(R.string.upload_notification_title_finished));
 				/* TODO: set icon for failed uploads */
 				builder.setSmallIcon(R.drawable.frupic);
 				builder.setContentText(getString(R.string.upload_notification_failed, max - failed, failed));
