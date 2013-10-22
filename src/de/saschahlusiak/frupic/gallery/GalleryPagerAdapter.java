@@ -3,6 +3,7 @@ package de.saschahlusiak.frupic.gallery;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import de.saschahlusiak.frupic.R;
@@ -180,6 +181,8 @@ public class GalleryPagerAdapter extends PagerAdapter {
 				System.gc();
 				Log.e("OutOfMemoryError", "trying to load gif animation as Bitmap instead");
 				/* fall-through to load Bitmap instead*/
+			} catch (FileNotFoundException e1) {
+				return false;
 			} catch (Exception e1) {
 				e1.printStackTrace();
 				return false;

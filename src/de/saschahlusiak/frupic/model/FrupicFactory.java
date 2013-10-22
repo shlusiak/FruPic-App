@@ -395,7 +395,7 @@ public class FrupicFactory {
 				return NOT_AVAILABLE;
 			}
 			ret = FROM_WEB;
-			Log.d(tag, "Downloaded file " + frupic.id);
+//			Log.d(tag, "Downloaded file " + frupic.id);
 		} else
 			ret = FROM_FILE;
 		
@@ -410,7 +410,7 @@ public class FrupicFactory {
 			Log.d(tag, "Error loading to memory: " + frupic.id);
 			return NOT_AVAILABLE;
 		}
-		Log.d(tag, "Loaded file to memory: " + frupic.id);
+//		Log.d(tag, "Loaded file to memory: " + frupic.id);
 		cache.add(fileCache.getFileName(frupic, thumb), b);
 
 		return ret;
