@@ -1,11 +1,12 @@
 package de.saschahlusiak.frupic.grid;
 
-import java.net.UnknownHostException;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.about.AboutActivity;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
+import de.saschahlusiak.frupic.grid.RefreshService.OnRefreshListener;
+import de.saschahlusiak.frupic.grid.RefreshService.RefreshServiceBinder;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.utils.UploadActivity;
@@ -14,16 +15,17 @@ import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
-import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,97 +40,25 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, OnNavigationListener {
+public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, OnNavigationListener, ServiceConnection, OnRefreshListener {
 	static private final String tag = FruPicGrid.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
 	GridView grid;
 	FruPicGridAdapter adapter;
 	FrupicFactory factory;
-	ProgressDialog progressDialog;
 	Menu optionsMenu;
 	View mRefreshIndeterminateProgressView;
 	FrupicDB db;
 	Cursor cursor;
+	RefreshService refreshService;
 
 	public final int FRUPICS_STEP = 100;
-
-	RefreshIndexTask refreshTask = null; 
 	
-	class RefreshIndexTask extends AsyncTask<Void, Void, Frupic[]> {
-		String error;
-		int base, count;
-		
-		public RefreshIndexTask(int base, int count) {
-			if (base < 0)
-				base = 0;
-			this.base = base;
-			this.count = count;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			Log.d(tag, "RefreshIndexTask.onPreExecute");
-			error = null;
-			setProgressActionView(true);
-			super.onPreExecute();
-		}
-
-		@Override
-		protected Frupic[] doInBackground(Void... arg0) {
-			Frupic pics[];
-			try {
-				pics = factory.fetchFrupicIndex(null, base, count);
-			} catch (UnknownHostException u) {
-				pics = null;
-				error = "Unknown host";
-				cancel(false);
-			} catch (Exception e) {
-				pics = null;
-				error = "Connection error";
-				e.printStackTrace();
-				cancel(false);
-			}
-			if (pics == null) {
-				/* increasing the frupic index failed, so to prevent the gridview to fire up another
-				 * RefreshIndexTask right away, we just add a delay until we can detect network connectivity
-				 */
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-
-			return pics;
-		}
-
-		@Override
-		protected void onCancelled() {
-			if (error != null)
-				Toast.makeText(FruPicGrid.this, error, Toast.LENGTH_LONG).show();
-			setProgressActionView(false);
-			super.onCancelled();
-			refreshTask = null;
-		}
-
-		@Override
-		protected void onPostExecute(Frupic result[]) {
-			if (result != null && db != null) {
-				db.addFrupics(result);
-				cursorChanged();
-			}
-			setProgressActionView(false);
-
-			super.onPostExecute(result);
-			refreshTask = null;
-		}
-	}
 
 	private final class RemoveWindow implements Runnable {
         public void run() {
@@ -155,7 +85,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		setContentView(R.layout.grid_activity);
 		
-
 		factory = new FrupicFactory(this, 300);
 
 		db = new FrupicDB(this);
@@ -224,18 +153,19 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		 */
 		factory.createFileCache();
 		
-		refreshTask = new RefreshIndexTask(0, FRUPICS_STEP); /* TODO: this might skip valuable frupics */
-		refreshTask.execute();
+		Intent intent = new Intent(this, RefreshService.class);
+		bindService(intent, this, Context.BIND_AUTO_CREATE);
 
 		super.onStart();
 	}
 	
 	@Override
 	protected void onStop() {
-		if (refreshTask != null && !refreshTask.isCancelled())
-			refreshTask.cancel(true);
-		refreshTask = null;
-		
+		if (refreshService != null) {
+			refreshService.unregisterRefreshListener(this);
+			refreshService = null;
+		}
+		unbindService(this);
 		super.onStop();
 	}
 	
@@ -277,10 +207,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
 		if (getActionBar().getSelectedNavigationIndex() == 0 && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
-			if (refreshTask == null) {
-				refreshTask = new RefreshIndexTask(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
-				refreshTask.execute();
-			}
+			if (refreshService != null && !refreshService.isRefreshing())
+				refreshService.requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 		}
         if (mReady) {
         	Cursor first = (Cursor)adapter.getItem(firstVisibleItem);
@@ -312,10 +240,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
 			if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
 
-				if (refreshTask != null)
-					refreshTask.cancel(true);
-				refreshTask = new RefreshIndexTask(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
-				refreshTask.execute();
+				if (refreshService != null)
+					refreshService.requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 			}
 			
 			Thread t = new Thread() {
@@ -336,7 +262,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		this.optionsMenu = menu;
 		
 		/* in case the tasks gets started before the options menu is created */
-		if (refreshTask != null)
+		if (refreshService != null && refreshService.isRefreshing())
 			setProgressActionView(true);
 
 		return super.onCreateOptionsMenu(menu);
@@ -348,9 +274,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		switch (item.getItemId()) {
 		case R.id.refresh:
-			refreshTask = new RefreshIndexTask(0, FRUPICS_STEP); /* this might skip valuable frupics */
-			refreshTask.execute();
 			db.updateFlags(null, Frupic.FLAG_NEW, false);
+			if (refreshService != null)
+				refreshService.requestRefresh(0, FRUPICS_STEP);
 			return true;
 
 		case R.id.upload:
@@ -482,7 +408,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
             }
         }
 	}
-	
+
 	void cursorChanged() {
 		int ind = getActionBar().getSelectedNavigationIndex();
 		int mask = 0;
@@ -500,5 +426,31 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public boolean onNavigationItemSelected(int position, long id) {
 		cursorChanged();
 		return true;
+	}
+
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+		refreshService = ((RefreshServiceBinder)service).getService();
+		refreshService.registerRefreshListener(this);
+		if (refreshService.isRefreshing())
+			OnRefreshStarted();
+		else
+			refreshService.requestRefresh(0, FRUPICS_STEP);
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+		refreshService = null;
+	}
+
+	@Override
+	public void OnRefreshStarted() {
+		setProgressActionView(true);
+	}
+
+	@Override
+	public void OnRefreshFinished() {
+		setProgressActionView(false);
+		cursorChanged();
 	}
 }

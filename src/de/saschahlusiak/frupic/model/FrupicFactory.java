@@ -44,9 +44,9 @@ public class FrupicFactory {
 	int targetWidth, targetHeight;
 	DefaultHttpClient client;
 
-	public FrupicFactory(Context context, int cachesize) {
+	public FrupicFactory(Context context, int bitmapCacheSize) {
 		this.context = context;
-		this.cache = new BitmapCache(cachesize);
+		this.cache = new BitmapCache(bitmapCacheSize);
 		targetWidth = 800;
 		targetHeight = 800;
 		client = new DefaultHttpClient();

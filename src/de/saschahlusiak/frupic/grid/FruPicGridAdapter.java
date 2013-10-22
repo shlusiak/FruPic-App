@@ -15,7 +15,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
-import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 
