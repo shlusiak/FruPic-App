@@ -5,7 +5,6 @@
 		android:icon="@android:drawable/ic_popup_sync" />
 	
 	<item android:id="@+id/upload" android:title="@string/upload"
-	    android:showAsAction="ifRoom"
 	    android:icon="@android:drawable/ic_menu_upload" />
 	
 	<item android:id="@+id/preferences" android:title="@string/preferences"
