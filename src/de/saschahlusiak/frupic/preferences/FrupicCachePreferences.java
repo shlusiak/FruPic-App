@@ -69,6 +69,8 @@ public class FrupicCachePreferences extends PreferenceFragment implements OnShar
 		
 		@Override
 		protected void onPostExecute(Void result) {
+			if (!isVisible())
+				return;
 			clear_cache.setSummary(getString(R.string.preferences_cache_clear_summary, 
 					cacheInfo.getCount(), 
 					(float)cacheInfo.getSize() / 1024.0f / 1024.0f, 
