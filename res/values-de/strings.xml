@@ -27,7 +27,7 @@
     <string name="mark_as_seen">Alle gesehen</string>
     
     <string-array name="grid_dropdown_list">
-        <item>Alle Frupics</item>
+        <item>Alle FruPics</item>
         <item>Ungesehen</item>
         <item>Favoriten</item>
         <item></item>

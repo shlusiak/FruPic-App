@@ -25,7 +25,7 @@
     <string name="mark_as_seen">Mark all seen</string>
     
     <string-array name="grid_dropdown_list">
-        <item>All Frupics</item>
+        <item>All FruPics</item>
         <item>Unseen</item>
         <item>Starred</item>
         <item></item>
@@ -77,7 +77,7 @@
     <string name="preferences_external_cache_summary">Prefer cache on external SD card instead of internal flash</string>
     <string name="preferences_cache_clear">Clear cache</string>
     <string name="preferences_cache_clear_summary">%1$d images , %2$.1f MB (%3$.1f %%)</string>
-    <string name="preferences_always_keep_starred_summary">Always keep starred Frupics in cache</string>
+    <string name="preferences_always_keep_starred_summary">Always keep starred FruPics in cache</string>
     <string name="preferences_always_keep_starred">Always keep starred</string>
     
     <string name="preferences_display">Display</string>
