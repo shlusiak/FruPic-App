@@ -10,8 +10,6 @@ import de.saschahlusiak.frupic.grid.RefreshService.RefreshServiceBinder;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.upload.UploadActivity;
-import android.app.ActionBar;
-import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
@@ -19,6 +17,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.net.Uri;
@@ -26,6 +25,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,13 +40,13 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.SpinnerAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, OnNavigationListener, ServiceConnection, OnRefreshListener {
+public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, ServiceConnection, OnRefreshListener {
 	static private final String tag = FruPicGrid.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
@@ -56,6 +58,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	FrupicDB db;
 	Cursor cursor;
 	RefreshService refreshService;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
 
 	public final int FRUPICS_STEP = 100;
 	
@@ -77,19 +82,45 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
 		
-		SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.grid_dropdown_list,
-				android.R.layout.simple_spinner_dropdown_item);
-		getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		getActionBar().setListNavigationCallbacks(mSpinnerAdapter, this);
-		getActionBar().setDisplayShowTitleEnabled(false);
-
 		setContentView(R.layout.grid_activity);
-		
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        mDrawerList.setAdapter(ArrayAdapter.createFromResource(this, R.array.grid_dropdown_list, R.layout.drawer_list_item));
+        mDrawerList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+				navigationItemSelected(position, id);
+			}
+		});
+
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
+        
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+                ) {
+            public void onDrawerClosed(View view) {
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
 		factory = new FrupicFactory(this, 300);
 
 		db = new FrupicDB(this);
 		db.open();
-//		db.clearAll();
 		
 		adapter = new FruPicGridAdapter(this, factory);
 		grid = (GridView) findViewById(R.id.gridView);
@@ -99,7 +130,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		registerForContextMenu(grid);
 		
 		if (savedInstanceState != null) {
-			getActionBar().setSelectedNavigationItem(savedInstanceState.getInt("navItem", 0));
+			navigationItemSelected(savedInstanceState.getInt("navItem", 0), 0);
+		} else {
+			navigationItemSelected(0, 0);
 		}
 		
         mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
@@ -143,7 +176,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt("navItem", getActionBar().getSelectedNavigationIndex());
+		outState.putInt("navItem", mDrawerList.getCheckedItemPosition());
 	};
 	
 	@Override
@@ -182,13 +215,25 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		removeWindow();
 		mReady = false;
 	}
+	
+	@Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
 
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
 		Intent intent = new Intent(this, FruPicGallery.class);
 		intent.putExtra("position", position);
 		intent.putExtra("id", id);
-		intent.putExtra("navIndex", getActionBar().getSelectedNavigationIndex());
+		intent.putExtra("navIndex", mDrawerList.getCheckedItemPosition());
 		startActivity(intent);
 	}
 
@@ -206,7 +251,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
-		if (getActionBar().getSelectedNavigationIndex() == 0 && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
+		if (mDrawerList.getCheckedItemPosition() == 0 && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
 			if (refreshService != null && !refreshService.isRefreshing())
 				refreshService.requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 		}
@@ -235,7 +280,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onScrollStateChanged(AbsListView view, int state) {
 		lastScrollState = state;
-		if (state == SCROLL_STATE_IDLE && (getActionBar().getSelectedNavigationIndex() == 0)) {
+		if (state == SCROLL_STATE_IDLE && (mDrawerList.getCheckedItemPosition() == 0)) {
 			int firstVisibleItem = grid.getFirstVisiblePosition();
 			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
 			if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
@@ -271,6 +316,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent intent;
+		
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
 
 		switch (item.getItemId()) {
 		case R.id.refresh:
@@ -410,7 +459,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	}
 
 	void cursorChanged() {
-		int ind = getActionBar().getSelectedNavigationIndex();
+		int ind = mDrawerList.getCheckedItemPosition();
 		int mask = 0;
 		
 		if (ind == 2)
@@ -422,8 +471,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		adapter.changeCursor(cursor);
 	}
 
-	@Override
-	public boolean onNavigationItemSelected(int position, long id) {
+	public boolean navigationItemSelected(int position, long id) {
+		mDrawerList.setItemChecked(position, true);
+        mDrawerLayout.closeDrawer(mDrawerList);
+        
+        getActionBar().setTitle(getResources().getStringArray(R.array.grid_dropdown_list)[position]);
 		cursorChanged();
 		return true;
 	}

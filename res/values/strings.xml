@@ -24,7 +24,7 @@
     <string name="star_frupic">Star</string>
     
     <string-array name="grid_dropdown_list">
-        <item>All</item>
+        <item>All Frupics</item>
         <item>New</item>
         <item>Starred</item>
     </string-array>
@@ -41,6 +41,9 @@
     <string name="cannot_connect">Cannot establish connection</string>
     <string name="error_reading_response">Error reading response</string>
         
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    
         
     <string name="upload_to_frupic">FruPic</string>
     <string name="upload_posted_by_label">Username:</string>

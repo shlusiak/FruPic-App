@@ -26,7 +26,7 @@
     <string name="star_frupic">Favorit</string>
     
     <string-array name="grid_dropdown_list">
-        <item>Alle</item>
+        <item>Alle Frupics</item>
         <item>Neue</item>
         <item>Favoriten</item>
     </string-array>
