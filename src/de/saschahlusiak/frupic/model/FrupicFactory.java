@@ -142,7 +142,7 @@ public class FrupicFactory {
 					pics[i].full_url = data.getString("url");
 					pics[i].date = data.getString("date");
 					pics[i].username = data.getString("username");
-					pics[i].flags |= Frupic.FLAG_NEW;
+					pics[i].flags |= Frupic.FLAG_NEW | Frupic.FLAG_UNSEEN;
 					
 					JSONArray tags = data.getJSONArray("tags");
 					if ((tags != null) && (tags.length() > 0)) {
@@ -259,7 +259,6 @@ public class FrupicFactory {
 		try {
 			client = clients.take();
 		} catch (InterruptedException e1) {
-			e1.printStackTrace();
 			return false;
 		}
 		try {

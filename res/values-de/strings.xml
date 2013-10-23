@@ -24,6 +24,7 @@
     <string name="waiting_to_start">In Warteschlange...</string>
     
     <string name="star_frupic">Favorit</string>
+    <string name="mark_as_seen">Alle gesehen</string>
     
     <string-array name="grid_dropdown_list">
         <item>Alle Frupics</item>

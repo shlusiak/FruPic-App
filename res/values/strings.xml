@@ -22,6 +22,7 @@
     <string name="gallery_posted_by">%1$s</string>
     
     <string name="star_frupic">Star</string>
+    <string name="mark_as_seen">Mark all seen</string>
     
     <string-array name="grid_dropdown_list">
         <item>All Frupics</item>

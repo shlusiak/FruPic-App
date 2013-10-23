@@ -112,15 +112,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
                 R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
                 R.string.drawer_open,  /* "open drawer" description for accessibility */
                 R.string.drawer_close  /* "close drawer" description for accessibility */
-                ) {
-            public void onDrawerClosed(View view) {
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
+        		);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 		factory = new FrupicFactory(this, 300);
@@ -319,6 +311,14 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		return super.onCreateOptionsMenu(menu);
 	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.id.mark_seen).setVisible(currentCategory == 1);
+		menu.findItem(R.id.mark_seen).setEnabled(cursor == null || cursor.getCount() >= 1);
+			
+		return super.onPrepareOptionsMenu(menu);
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -329,6 +329,12 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
         }
 
 		switch (item.getItemId()) {
+		case R.id.mark_seen:
+			db.updateFlags(null, Frupic.FLAG_UNSEEN, false);
+			cursorChanged();
+			invalidateOptionsMenu();
+			return true;
+			
 		case R.id.refresh:
 			db.updateFlags(null, Frupic.FLAG_NEW, false);
 			if (refreshService != null)
@@ -472,7 +478,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		if (ind == 2)
 			mask |= Frupic.FLAG_FAV;
 		if (ind == 1)
-			mask |= Frupic.FLAG_NEW;
+			mask |= Frupic.FLAG_UNSEEN;
 		cursor = db.getFrupics(null, mask);
 		
 		adapter.changeCursor(cursor);
@@ -487,6 +493,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	        getActionBar().setTitle(navigationAdapter.getItem(position));
 	        getActionBar().setIcon(navigationAdapter.getIcon(position));
 			cursorChanged();
+			invalidateOptionsMenu();
 		} else {
 			Intent intent;
 			mDrawerList.setItemChecked(currentCategory, true);

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/mark_seen" android:title="@string/mark_as_seen"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_read" />
+    
 	<item android:id="@+id/refresh" android:title="@string/refresh"
 	    android:showAsAction="ifRoom|withText"
 		android:icon="@android:drawable/ic_popup_sync" />

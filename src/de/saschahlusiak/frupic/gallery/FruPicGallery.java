@@ -119,8 +119,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         	pager.setCurrentItem(getIntent().getIntExtra("position", 0));
         	Frupic frupic;
     		frupic = getCurrentFrupic();
-    		if (frupic.hasFlag(Frupic.FLAG_NEW)) {
-    			db.updateFlags(frupic, Frupic.FLAG_NEW, false);
+    		if (frupic.hasFlag(Frupic.FLAG_NEW) || frupic.hasFlag(Frupic.FLAG_UNSEEN)) {
+    			db.updateFlags(frupic, Frupic.FLAG_NEW | Frupic.FLAG_UNSEEN, false);
     		}
     	}
         updateLabels(getCurrentFrupic());
@@ -167,7 +167,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		if (navIndex == 2)
 			mask |= Frupic.FLAG_FAV;
 		if (navIndex == 1)
-			mask |= Frupic.FLAG_NEW;
+			mask |= Frupic.FLAG_UNSEEN;
 		cursor = db.getFrupics(null, mask);
 		
 		startManagingCursor(cursor);
@@ -330,8 +330,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     	Log.i(tag, "onPageSelected(" + position + ")");
 	    Frupic frupic;
 		frupic = getCurrentFrupic();
-		if (frupic.hasFlag(Frupic.FLAG_NEW)) {
-			db.updateFlags(frupic, Frupic.FLAG_NEW, false);
+		if (frupic.hasFlag(Frupic.FLAG_NEW) || frupic.hasFlag(Frupic.FLAG_UNSEEN)) {
+			db.updateFlags(frupic, Frupic.FLAG_NEW | Frupic.FLAG_UNSEEN, false);
 		}
 
 		if (!getActionBar().isShowing()) {

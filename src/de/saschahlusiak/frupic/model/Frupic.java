@@ -13,6 +13,7 @@ public class Frupic implements Serializable {
 	
 	public static final int FLAG_NEW = 0x01;
 	public static final int FLAG_FAV = 0x02;
+	public static final int FLAG_UNSEEN = 0x04;
 
 	int id;
 	int flags;
