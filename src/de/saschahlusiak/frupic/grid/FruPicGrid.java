@@ -498,6 +498,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 						getString(R.string.upload)), REQUEST_PICK_PICTURE);
 				break;
 			case 5:
+				intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse("http://frupic.frubar.net"));
+				startActivity(intent);
+				break;
+			case 6:
 				intent = new Intent(this, FrupicPreferences.class);
 				startActivity(intent);
 				break;

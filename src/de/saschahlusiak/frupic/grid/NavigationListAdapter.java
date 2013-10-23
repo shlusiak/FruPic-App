@@ -36,7 +36,8 @@ public class NavigationListAdapter extends ArrayAdapter<String> {
 		case 2: return R.drawable.ic_action_important;
 		
 		case 4: return R.drawable.ic_action_upload;
-		case 5: return R.drawable.ic_action_settings;
+		case 5: return R.drawable.ic_action_web_site;
+		case 6: return R.drawable.ic_action_settings;
 		default:
 			return 0;
 		}
