@@ -10,6 +10,7 @@ import de.saschahlusiak.frupic.grid.RefreshService.RefreshServiceBinder;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.upload.UploadActivity;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
@@ -21,6 +22,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -104,7 +106,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		});
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
         
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
@@ -484,6 +485,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		adapter.changeCursor(cursor);
 	}
 
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	public boolean navigationItemSelected(int position, long id) {
 		mDrawerLayout.closeDrawer(mDrawer);
 		if (position <= 2) {
@@ -491,7 +493,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			mDrawerList.setItemChecked(currentCategory, true);
 	        
 	        getActionBar().setTitle(navigationAdapter.getItem(position));
-	        getActionBar().setIcon(navigationAdapter.getIcon(position));
+	        if (Build.VERSION.SDK_INT >= 14) {
+	        	getActionBar().setIcon(navigationAdapter.getIcon(position));
+	        }
 			cursorChanged();
 			invalidateOptionsMenu();
 		} else {

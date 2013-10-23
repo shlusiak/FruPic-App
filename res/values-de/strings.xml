@@ -45,7 +45,9 @@
     <string name="cancelled">Abgebrochen</string>
     <string name="cannot_connect">Verbindung kann nicht hergestellt werden</string>
     <string name="error_reading_response">Fehler beim Lesen der Serverantwort</string>
-        
+    
+    <string name="drawer_open">Navigationsleiste öffnen</string>
+    <string name="drawer_close">Navigationsleiste schließen</string>
         
     <string name="upload_to_frupic">FruPic</string>
     <string name="upload_posted_by_label">Benutzername:</string>

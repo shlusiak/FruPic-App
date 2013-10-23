@@ -58,6 +58,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         
         setContentView(R.layout.gallery_activity);
         getActionBar().setDisplayShowHomeEnabled(false);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
@@ -241,6 +242,10 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		frupic = getCurrentFrupic();
 		
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
+			
 		case R.id.openinbrowser:
 			intent = new Intent("android.intent.action.VIEW", Uri.parse(frupic
 					.getUrl()));
