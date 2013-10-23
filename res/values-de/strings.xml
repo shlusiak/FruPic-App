@@ -27,8 +27,11 @@
     
     <string-array name="grid_dropdown_list">
         <item>Alle Frupics</item>
-        <item>Neue</item>
+        <item>Ungesehen</item>
         <item>Favoriten</item>
+        <item></item>
+        <item>Upload</item>
+        <item>Settings</item>
     </string-array>
     
     <string name="please_wait">Bitte warten</string>

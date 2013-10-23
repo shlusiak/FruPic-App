@@ -20,14 +20,19 @@
 
     </GridView>
     
-    <ListView
+    <LinearLayout
         android:id="@+id/left_drawer"
         android:layout_width="240dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#111"/>
-
+	    android:layout_height="match_parent"
+	    android:layout_gravity="start"
+	    android:clickable="true"
+	    android:orientation="vertical"
+	    android:background="#ef3f3f3f" >
+        
+        
+	    <ListView
+	        android:id="@+id/navigation_list"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" />
+	</LinearLayout>
 </android.support.v4.widget.DrawerLayout>

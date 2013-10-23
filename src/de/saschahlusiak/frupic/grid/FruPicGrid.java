@@ -38,7 +38,6 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -58,9 +57,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	FrupicDB db;
 	Cursor cursor;
 	RefreshService refreshService;
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
-    private ActionBarDrawerToggle mDrawerToggle;
+	
+    DrawerLayout mDrawerLayout;
+    ListView mDrawerList;
+    NavigationListAdapter navigationAdapter;
+    View mDrawer;
+    ActionBarDrawerToggle mDrawerToggle;
+    int currentCategory;
 
 	public final int FRUPICS_STEP = 100;
 	
@@ -85,10 +88,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		setContentView(R.layout.grid_activity);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList = (ListView) findViewById(R.id.navigation_list);
+        mDrawer = findViewById(R.id.left_drawer);
 
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        mDrawerList.setAdapter(ArrayAdapter.createFromResource(this, R.array.grid_dropdown_list, R.layout.drawer_list_item));
+        navigationAdapter = new NavigationListAdapter(this);
+        mDrawerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        mDrawerList.setAdapter(navigationAdapter);
         mDrawerList.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -130,10 +136,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		registerForContextMenu(grid);
 		
 		if (savedInstanceState != null) {
-			navigationItemSelected(savedInstanceState.getInt("navItem", 0), 0);
+			currentCategory = savedInstanceState.getInt("navItem", 0);
 		} else {
-			navigationItemSelected(0, 0);
+			currentCategory = 0;
 		}
+		navigationItemSelected(currentCategory, 0);
 		
         mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
         
@@ -176,7 +183,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt("navItem", mDrawerList.getCheckedItemPosition());
+		outState.putInt("navItem", currentCategory);
 	};
 	
 	@Override
@@ -233,7 +240,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		Intent intent = new Intent(this, FruPicGallery.class);
 		intent.putExtra("position", position);
 		intent.putExtra("id", id);
-		intent.putExtra("navIndex", mDrawerList.getCheckedItemPosition());
+		intent.putExtra("navIndex", currentCategory);
 		startActivity(intent);
 	}
 
@@ -251,7 +258,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
-		if (mDrawerList.getCheckedItemPosition() == 0 && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
+		if (currentCategory == 0 && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
 			if (refreshService != null && !refreshService.isRefreshing())
 				refreshService.requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 		}
@@ -280,7 +287,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void onScrollStateChanged(AbsListView view, int state) {
 		lastScrollState = state;
-		if (state == SCROLL_STATE_IDLE && (mDrawerList.getCheckedItemPosition() == 0)) {
+		if (state == SCROLL_STATE_IDLE && (currentCategory == 0)) {
 			int firstVisibleItem = grid.getFirstVisiblePosition();
 			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
 			if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
@@ -459,7 +466,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	}
 
 	void cursorChanged() {
-		int ind = mDrawerList.getCheckedItemPosition();
+		int ind = currentCategory;
 		int mask = 0;
 		
 		if (ind == 2)
@@ -472,11 +479,30 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	}
 
 	public boolean navigationItemSelected(int position, long id) {
-		mDrawerList.setItemChecked(position, true);
-        mDrawerLayout.closeDrawer(mDrawerList);
-        
-        getActionBar().setTitle(getResources().getStringArray(R.array.grid_dropdown_list)[position]);
-		cursorChanged();
+		mDrawerLayout.closeDrawer(mDrawer);
+		if (position <= 2) {
+			currentCategory = position;
+			mDrawerList.setItemChecked(currentCategory, true);
+	        
+	        getActionBar().setTitle(navigationAdapter.getItem(position));
+	        getActionBar().setIcon(navigationAdapter.getIcon(position));
+			cursorChanged();
+		} else {
+			Intent intent;
+			mDrawerList.setItemChecked(currentCategory, true);
+			switch (position) {
+			case 4:
+				intent = new Intent(Intent.ACTION_PICK);
+				intent.setType("image/*");
+				startActivityForResult(Intent.createChooser(intent,
+						getString(R.string.upload)), REQUEST_PICK_PICTURE);
+				break;
+			case 5:
+				intent = new Intent(this, FrupicPreferences.class);
+				startActivity(intent);
+				break;
+			}
+		}
 		return true;
 	}
 
