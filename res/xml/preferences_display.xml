@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="first_preferencescreen" >
+
+    <CheckBoxPreference
+        android:defaultValue="1"
+        android:key="animatedgifs"
+        android:persistent="true"
+        android:summary="@string/preferences_show_animated_gifs_summary"
+        android:title="@string/preferences_show_animated_gifs" />
+
+</PreferenceScreen>
