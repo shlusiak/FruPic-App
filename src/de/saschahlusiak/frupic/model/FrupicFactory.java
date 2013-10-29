@@ -75,7 +75,7 @@ public class FrupicFactory {
 		return fileCache;
 	}
 
-	private String fetchURL(String url) {
+	private String fetchURL(String url) throws IOException {
 		InputStream in = null;
 		HttpResponse resp;
 		DefaultHttpClient client;
@@ -109,12 +109,9 @@ public class FrupicFactory {
 			}
 			in.close();
 			result = new String(baf.toByteArray());
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} finally {			
+			clients.add(client);
 		}
-		clients.add(client);
 		return result;
 		
 	}
