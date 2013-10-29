@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -15,10 +14,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.ByteArrayBuffer;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import de.saschahlusiak.frupic.cache.BitmapCache;
 import de.saschahlusiak.frupic.cache.FileCache;
@@ -32,7 +27,6 @@ import android.util.Log;
 
 public class FrupicFactory {
 	static final private String tag = FrupicFactory.class.getSimpleName();
-	static final String INDEX_URL = "http://api.freamware.net/2.0/get.picture";
 	
 	public static final int NOT_AVAILABLE = 0;
 	public static final int FROM_CACHE = 1;
@@ -75,105 +69,8 @@ public class FrupicFactory {
 		return fileCache;
 	}
 
-	private String fetchURL(String url) throws IOException {
-		InputStream in = null;
-		HttpResponse resp;
-		DefaultHttpClient client;
-		String result = null;
 
-		try {
-			client = clients.take();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-		try {
-			resp = client.execute(new HttpGet(url));
-
-			final StatusLine status = resp.getStatusLine();
-			if (status.getStatusCode() != 200) {
-				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
-				clients.add(client);
-				return null;
-			}
-
-			in = resp.getEntity().getContent();
-		
-			ByteArrayBuffer baf = new ByteArrayBuffer(50);
-			int read = 0;
-			int bufSize = 1024;
-			byte[] buffer = new byte[bufSize];
-			while ((read = in.read(buffer)) > 0) {
-				baf.append(buffer, 0, read);
-			}
-			in.close();
-			result = new String(baf.toByteArray());
-		} finally {			
-			clients.add(client);
-		}
-		return result;
-		
-	}
 	
-	private Frupic[] getFrupicIndexFromString(String string) {
-		JSONArray array;
-		try {
-			array = new JSONArray(string);
-		} catch (JSONException e) {
-			e.printStackTrace();
-			return null;
-		}
-		if (array.length() < 1)
-			return null;
-
-		try {
-			Frupic pics[] = new Frupic[array.length()];
-			for (int i = 0; i < array.length(); i++) {
-				JSONObject data = array.optJSONObject(i);
-				if (data != null) {
-					pics[i] = new Frupic();
-
-					pics[i].thumb_url = data.getString("thumb_url");
-					pics[i].id = data.getInt("id");
-					pics[i].full_url = data.getString("url");
-					pics[i].date = data.getString("date");
-					pics[i].username = data.getString("username");
-					pics[i].flags |= Frupic.FLAG_NEW | Frupic.FLAG_UNSEEN;
-					
-					JSONArray tags = data.getJSONArray("tags");
-					if ((tags != null) && (tags.length() > 0)) {
-						pics[i].tags = new String[tags.length()];
-						for (int j = 0; j < tags.length(); j++)
-							pics[i].tags[j] = tags.getString(j);
-					}
-				}
-			}
-			return pics;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}	
-	}
-
-	public Frupic[] fetchFrupicIndex(String username, int offset, int limit)
-			throws IOException {
-
-		String s = INDEX_URL + "?";
-		if (username != null)
-			s += "username=" + username + "&";
-		s = s + "offset=" + offset + "&limit=" + limit;
-		
-		String queryResult = fetchURL(s);
-		if (queryResult == null || "".equals(queryResult))
-			return null;
-		
-		if (Thread.interrupted())
-			return null;
-		
-		return getFrupicIndexFromString(queryResult);
-	}
-
 	private Bitmap decodeImageFile(String filename, int width, int height) {
 		Bitmap b;
 		Options options = new Options();

@@ -1,11 +1,21 @@
 package de.saschahlusiak.frupic.grid;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.ByteArrayBuffer;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.model.Frupic;
-import de.saschahlusiak.frupic.model.FrupicFactory;
 import android.app.Service;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -13,17 +23,22 @@ import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 public class RefreshService extends Service {
     private final IBinder mBinder = new RefreshServiceBinder();
     
-    FrupicFactory factory;
+	static final String INDEX_URL = "http://api.freamware.net/2.0/get.picture";
+	static final String tag = RefreshService.class.getSimpleName();
+
     Handler handler;
     ArrayList<OnRefreshListener> refreshListener;
     FrupicDB db;
     boolean isRefreshing = false;
-    
+    DefaultHttpClient client = new DefaultHttpClient();
+    ConnectivityManager cm;
+
 	class RefreshThread extends Thread {
 		String error;
 		int base, count;
@@ -36,6 +51,93 @@ public class RefreshService extends Service {
 			this.count = count;
 			this.error = null;
 		}
+		
+		private String fetchURL(String url) throws IOException {
+			InputStream in = null;
+			HttpResponse resp;
+			String result = null;
+			
+			resp = client.execute(new HttpGet(url));
+
+			final StatusLine status = resp.getStatusLine();
+			if (status.getStatusCode() != 200) {
+				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
+				return null;
+			}
+
+			in = resp.getEntity().getContent();
+		
+			ByteArrayBuffer baf = new ByteArrayBuffer(50);
+			int read = 0;
+			int bufSize = 1024;
+			byte[] buffer = new byte[bufSize];
+			while ((read = in.read(buffer)) > 0) {
+				baf.append(buffer, 0, read);
+			}
+			in.close();
+			result = new String(baf.toByteArray());
+			return result;
+			
+		}
+		
+		private Frupic[] getFrupicIndexFromString(String string) {
+			JSONArray array;
+			try {
+				array = new JSONArray(string);
+			} catch (JSONException e) {
+				e.printStackTrace();
+				return null;
+			}
+			if (array.length() < 1)
+				return null;
+
+			try {
+				Frupic pics[] = new Frupic[array.length()];
+				for (int i = 0; i < array.length(); i++) {
+					JSONObject data = array.optJSONObject(i);
+					if (data != null) {
+						pics[i] = new Frupic();
+
+						pics[i].thumb_url = data.getString("thumb_url");
+						pics[i].id = data.getInt("id");
+						pics[i].full_url = data.getString("url");
+						pics[i].date = data.getString("date");
+						pics[i].username = data.getString("username");
+						pics[i].flags |= Frupic.FLAG_NEW | Frupic.FLAG_UNSEEN;
+						
+						JSONArray tags = data.getJSONArray("tags");
+						if ((tags != null) && (tags.length() > 0)) {
+							pics[i].tags = new String[tags.length()];
+							for (int j = 0; j < tags.length(); j++)
+								pics[i].tags[j] = tags.getString(j);
+						}
+					}
+				}
+				return pics;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}	
+		}
+
+		public Frupic[] fetchFrupicIndex(String username, int offset, int limit)
+				throws IOException {
+
+			String s = INDEX_URL + "?";
+			if (username != null)
+				s += "username=" + username + "&";
+			s = s + "offset=" + offset + "&limit=" + limit;
+			
+			String queryResult = fetchURL(s);
+			if (queryResult == null || "".equals(queryResult))
+				return null;
+			
+			if (Thread.interrupted())
+				return null;
+			
+			return getFrupicIndexFromString(queryResult);
+		}
+
 
 		@Override
 		public void run() {
@@ -43,7 +145,7 @@ public class RefreshService extends Service {
 			db = new FrupicDB(RefreshService.this);
 			db.open();
 			try {
-				pics = factory.fetchFrupicIndex(null, base, count);
+				pics = fetchFrupicIndex(null, base, count);
 				if (pics != null)
 					db.addFrupics(pics);
 			} catch (UnknownHostException u) {
@@ -104,12 +206,9 @@ public class RefreshService extends Service {
         return mBinder;
     }
     
-    ConnectivityManager cm;
-
     @Override
     public void onCreate() {
     	super.onCreate();
-    	factory = new FrupicFactory(this);
     	handler = new Handler();
     	refreshListener = new ArrayList<OnRefreshListener>();
     	

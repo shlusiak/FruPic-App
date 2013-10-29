@@ -15,13 +15,13 @@ public class Frupic implements Serializable {
 	public static final int FLAG_FAV = 0x02;
 	public static final int FLAG_UNSEEN = 0x04;
 
-	int id;
-	int flags;
-	String full_url, thumb_url;
-	String date;
-	String username;
-	String tags[];
-	Object tag;
+	public int id;
+	public int flags;
+	public String full_url, thumb_url;
+	public String date;
+	public String username;
+	public String tags[];
+	public Object tag;
 	
 	public Frupic() {
 		this.tags = null;
