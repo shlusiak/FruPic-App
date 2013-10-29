@@ -38,12 +38,12 @@ public class RefreshService extends Service {
 		@Override
 		public void run() {
 			Frupic pics[];
+			db = new FrupicDB(RefreshService.this);
+			db.open();
 			try {
-				db = new FrupicDB(RefreshService.this);
-				db.open();
 				pics = factory.fetchFrupicIndex(null, base, count);
-				db.addFrupics(pics);
-				db.close();
+				if (pics != null)
+					db.addFrupics(pics);
 			} catch (UnknownHostException u) {
 				pics = null;
 				error = "Unknown host";
@@ -52,6 +52,7 @@ public class RefreshService extends Service {
 				error = "Connection error";
 				e.printStackTrace();
 			}
+			db.close();
 			if (pics == null) {
 				if (error != null) handler.post(new Runnable() {
 					@Override
