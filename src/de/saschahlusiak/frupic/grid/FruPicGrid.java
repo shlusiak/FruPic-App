@@ -252,7 +252,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
 		if (currentCategory == 0 && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
-			if (refreshService != null && !refreshService.isRefreshing())
+			if (refreshService != null)
 				refreshService.requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 		}
         if (mReady) {

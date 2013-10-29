@@ -8,6 +8,8 @@ import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import android.app.Service;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -101,6 +103,8 @@ public class RefreshService extends Service {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+    
+    ConnectivityManager cm;
 
     @Override
     public void onCreate() {
@@ -111,6 +115,8 @@ public class RefreshService extends Service {
     	
 		db = new FrupicDB(this);
 		db.open();
+		
+	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE); 
     }
     
     @Override
@@ -130,6 +136,13 @@ public class RefreshService extends Service {
     public void requestRefresh(int base, int count) {
     	if (isRefreshing)
     		return;
+    	
+    	NetworkInfo ni = cm.getActiveNetworkInfo();
+    	if (ni == null)
+    		return;
+    	if (!ni.isConnected())
+    		return;
+    	
 		for (OnRefreshListener listener: refreshListener) {
 			listener.OnRefreshStarted();
 		}
