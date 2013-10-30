@@ -101,7 +101,7 @@ public class FileCache {
 					for (int i = 0; i < files.length; i++) if (files[i] != null) {
 						if (files[i].getAbsolutePath().equals(getFileName(frupic, false)) ||
 							files[i].getAbsolutePath().equals(getFileName(frupic, true)) ||
-							files[i].getName().endsWith(".tmp"))
+							files[i].getName().contains(".tmp."))
 						{
 							files[i] = null;
 						}

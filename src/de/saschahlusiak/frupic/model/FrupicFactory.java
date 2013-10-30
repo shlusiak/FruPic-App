@@ -146,7 +146,8 @@ public class FrupicFactory {
 	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
 		OutputStream myOutput = null;
 		HttpResponse resp;
-		File tmpFile = new File(fileCache.getFileName(frupic, fetch_thumb) + ".tmp");
+		File tmpFile = null;
+		
 		DefaultHttpClient client;
 		if (Thread.interrupted())
 			return false;
@@ -155,6 +156,7 @@ public class FrupicFactory {
 		} catch (InterruptedException e1) {
 			return false;
 		}
+		
 		try {
 			HttpUriRequest req;
 			
@@ -174,6 +176,21 @@ public class FrupicFactory {
 			long maxlength = resp.getEntity().getContentLength();
 			InputStream myInput = resp.getEntity().getContent();
 			
+			int i = 0;
+			synchronized (fileCache) {
+				/* TODO: what to do when tmp file exists?
+				 * wait till tmp file does not exist anymore? wait till
+				 * frupic file exists and return successful?
+				 * this just choses another tmp file and starts download
+				 * resulting in two files being downloaded and then
+				 * renamed to the frupic image file
+				 */
+				do {
+					tmpFile = new File(fileCache.getFileName(frupic, fetch_thumb) + ".tmp." + i);
+					i++;
+				} while (tmpFile.exists());
+			}
+
 			myOutput = new FileOutputStream(tmpFile);
 			byte[] buffer = new byte[4096];
 			int length;
@@ -225,11 +242,12 @@ public class FrupicFactory {
 			}
 			clients.add(client);
 			
-			if (!tmpFile.delete()) {
-				Log.e(tag, "error removing partly downloaded file " + tmpFile.getName());
-			}
-			if (!tmpFile.delete()) {
-				Log.e(tag, "error removing partly downloaded file "	+ tmpFile.getName());
+			if (tmpFile != null) {
+				synchronized (fileCache) {
+					if (!tmpFile.delete()) {
+						Log.e(tag, "error removing partly downloaded file " + tmpFile.getName());
+					}
+				}
 			}
 			e.printStackTrace();
 			return false;
