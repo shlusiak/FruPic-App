@@ -33,7 +33,7 @@ public class FrupicFactory {
 	public static final int FROM_FILE = 2;
 	public static final int FROM_WEB = 3;
 	
-	private static final int NUM_CLIENTS = 4;
+	private static final int NUM_CLIENTS = 5;
 
 	Context context;
 	BitmapCache cache;
