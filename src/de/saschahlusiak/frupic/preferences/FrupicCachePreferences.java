@@ -52,24 +52,33 @@ public class FrupicCachePreferences extends PreferenceFragment implements OnShar
 	private class UpdateCacheInfoTask extends AsyncTask<Void,Void,Void> {
 		CacheInfo cacheInfo;
 		int cacheSize;
+		FileCache fc = null;
 		
 		@Override
 		protected void onPreExecute() {
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-			cacheSize = Integer.parseInt(prefs.getString("cache_size", "16777216"));
-			clear_cache.setSummary(R.string.calculating);
+			if (getActivity() != null) {
+				fc = new FileCache(getActivity());
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+				cacheSize = Integer.parseInt(prefs.getString("cache_size", "16777216"));
+				clear_cache.setSummary(R.string.calculating);
+			}
 			super.onPreExecute();
 		}
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			cacheInfo = new FileCache(getActivity()).getCacheInfo();
+			if (fc == null)
+				return null;
+			
+			cacheInfo = fc.getCacheInfo();
 			return null;
 		}
 		
 		@Override
 		protected void onPostExecute(Void result) {
 			if (!isVisible())
+				return;
+			if (cacheInfo == null)
 				return;
 			clear_cache.setSummary(getString(R.string.preferences_cache_clear_summary, 
 					cacheInfo.getCount(), 
