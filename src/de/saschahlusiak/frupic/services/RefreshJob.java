@@ -7,7 +7,6 @@ import java.net.UnknownHostException;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.ByteArrayBuffer;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +21,6 @@ public class RefreshJob extends Job {
 	int base, count;
 	
     FrupicDB db;
-    DefaultHttpClient client = new DefaultHttpClient();
     String error;
 
     public RefreshJob(Context context) {
@@ -45,7 +43,7 @@ public class RefreshJob extends Job {
 		HttpResponse resp;
 		String result = null;
 		
-		resp = client.execute(new HttpGet(url));
+		resp = httpClient.execute(new HttpGet(url));
 
 		final StatusLine status = resp.getStatusLine();
 		if (status.getStatusCode() != 200) {
