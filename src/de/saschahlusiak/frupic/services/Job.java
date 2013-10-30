@@ -17,6 +17,11 @@ public abstract class Job {
 		JOB_CANCELLED
 	};
 	
+	public enum Priority {
+		PRIORITY_LOW,
+		PRIORITY_HIGH
+	};
+	
 	ArrayList<OnJobListener> jobListener = new ArrayList<OnJobListener>();
 	Object tag;
 	JobState state;

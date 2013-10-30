@@ -9,6 +9,7 @@ import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.services.Job;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
+import de.saschahlusiak.frupic.services.Job.Priority;
 import de.saschahlusiak.frupic.services.JobManager;
 import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
 import de.saschahlusiak.frupic.services.RefreshJob;
@@ -566,7 +567,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     		return;
 
 		refreshJob.setRange(base, count);
-		jobManager.post(refreshJob);
+		jobManager.post(refreshJob, Priority.PRIORITY_HIGH);
 	}
 	
 	@Override

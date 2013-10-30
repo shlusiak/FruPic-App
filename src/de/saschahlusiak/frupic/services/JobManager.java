@@ -1,6 +1,7 @@
 package de.saschahlusiak.frupic.services;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import de.saschahlusiak.frupic.services.Job.JobState;
 import android.app.Service;
@@ -20,8 +21,8 @@ public class JobManager extends Service {
 
     Handler handler;
     JobWorker worker[] = new JobWorker[WORKER_THREADS];
-    LinkedBlockingQueue<Job> jobsWaiting = new LinkedBlockingQueue<Job>();
-    LinkedBlockingQueue<Job> jobsRunning = new LinkedBlockingQueue<Job>(worker.length);
+    LinkedBlockingDeque<Job> jobsWaiting = new LinkedBlockingDeque<Job>();
+    ArrayBlockingQueue<Job> jobsRunning = new ArrayBlockingQueue<Job>(worker.length);
 
 	class JobWorker extends Thread {				
 		@Override
@@ -96,10 +97,14 @@ public class JobManager extends Service {
     	return super.onStartCommand(intent, flags, startId);
     }
     
-    public void post(Job job) {
+    public void post(Job job, Job.Priority priority) {
     	if (job.isRunning())
     		return;
 
-   		jobsWaiting.add(job);
+    	if (priority == Job.Priority.PRIORITY_HIGH)
+    		jobsWaiting.addFirst(job);
+    	else
+    		jobsWaiting.addLast(job);
+    	
     }
 }
