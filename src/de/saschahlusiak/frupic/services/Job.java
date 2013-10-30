@@ -6,7 +6,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 public abstract class Job {
 	public interface OnJobListener {
+		/** this is called in the main thread */
 		public void OnJobStarted(Job job);
+		
+		/** this is called in the worker thread context */
+		public void OnJobProgress(Job job, int progress, int max);
+		
+		/** this is called in the main thread */
 		public void OnJobDone(Job job);
 	}
 	

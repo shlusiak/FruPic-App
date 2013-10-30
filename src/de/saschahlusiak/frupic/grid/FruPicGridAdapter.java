@@ -84,7 +84,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 				return;
 			}
 
-			job = new FetchJob(frupic, factory);
+			job = new FetchJob(frupic, true, factory);
 			job.addJobDoneListener(this);
 			activity.jobManager.post(job, Priority.PRIORITY_HIGH);
 		}
@@ -173,6 +173,11 @@ public class FruPicGridAdapter extends CursorAdapter {
 				break;
 			}
 			job = null;
+		}
+
+		@Override
+		public void OnJobProgress(Job job, int progress, int max) {
+			/* ignore, because preview FetchJob does not have progress */
 		}
 	}
 	

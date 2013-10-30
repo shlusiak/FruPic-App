@@ -598,4 +598,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		} else
 			cursorChanged();
 	}
+
+	@Override
+	public void OnJobProgress(Job job, int progress, int max) {
+		/* ignore, because RefreshJob does not have progress */
+	}
 }
