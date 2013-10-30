@@ -3,6 +3,8 @@ package de.saschahlusiak.frupic.services;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import de.saschahlusiak.frupic.services.Job.JobState;
 import android.app.Service;
 import android.content.Intent;
@@ -17,14 +19,20 @@ public class JobManager extends Service {
 	static final String INDEX_URL = "http://api.freamware.net/2.0/get.picture";
 	static final String tag = JobManager.class.getSimpleName();
 	
-	static final int WORKER_THREADS = 1;
+	static final int WORKER_THREADS = 5;
 
     Handler handler;
     JobWorker worker[] = new JobWorker[WORKER_THREADS];
     LinkedBlockingDeque<Job> jobsWaiting = new LinkedBlockingDeque<Job>();
     ArrayBlockingQueue<Job> jobsRunning = new ArrayBlockingQueue<Job>(worker.length);
 
-	class JobWorker extends Thread {				
+	class JobWorker extends Thread {
+		DefaultHttpClient client;
+		
+		public JobWorker() {
+			client = new DefaultHttpClient();
+		}
+		
 		@Override
 		public void run() {
 			while (!isInterrupted()) {
@@ -47,6 +55,7 @@ public class JobManager extends Service {
 						job.onJobStarted();
 					}
 				});
+				job.httpClient = client;
 				JobState res = job.run();
 				job.setState(res);
 				jobsRunning.remove(job);
@@ -98,8 +107,12 @@ public class JobManager extends Service {
     }
     
     public void post(Job job, Job.Priority priority) {
+    	if (job.isScheduled())
+    		return;
     	if (job.isRunning())
     		return;
+    	
+    	job.setState(JobState.JOB_SCHEDULED);
 
     	if (priority == Job.Priority.PRIORITY_HIGH)
     		jobsWaiting.addFirst(job);

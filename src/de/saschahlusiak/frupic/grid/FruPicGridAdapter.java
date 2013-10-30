@@ -3,6 +3,10 @@ package de.saschahlusiak.frupic.grid;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
+import de.saschahlusiak.frupic.services.FetchJob;
+import de.saschahlusiak.frupic.services.Job;
+import de.saschahlusiak.frupic.services.Job.OnJobListener;
+import de.saschahlusiak.frupic.services.Job.Priority;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -21,19 +25,19 @@ import android.widget.ImageView;
 
 public class FruPicGridAdapter extends CursorAdapter {
 	private static final String tag = FruPicGridAdapter.class.getSimpleName();
-	Context context;
+	FruPicGrid activity;
 	FrupicFactory factory;
 	
-	public class ViewHolder {
+	public class ViewHolder implements OnJobListener {
 		Frupic frupic;
 		ImageView image1, image2, imageLabel;
-		PreviewFetchTask task;
+		FetchJob job;
 		
 		ViewHolder(View convertView) {
 			image1 = (ImageView)convertView.findViewById(R.id.imageView1);
 			image2 = (ImageView)convertView.findViewById(R.id.imageView2);
 			imageLabel = (ImageView)convertView.findViewById(R.id.imageLabel);
-			task = null;
+			job = null;
 		}
 		
 		void setFrupic(Frupic frupic) {
@@ -46,14 +50,12 @@ public class FruPicGridAdapter extends CursorAdapter {
 			} else
 				imageLabel.setVisibility(View.INVISIBLE);
 			
-			
-			
 			if ((this.frupic != null) && (this.frupic.getId() == frupic.getId()))
 				return;
 			this.frupic = frupic;
-			if (task != null)
-				task.cancel();
-			task = null;
+			if (job != null)
+				job.cancel();
+			job = null;
 			
 			Bitmap b = factory.getThumbBitmap(frupic);
 			if (b != null) {
@@ -77,45 +79,18 @@ public class FruPicGridAdapter extends CursorAdapter {
 			image1.setVisibility(View.VISIBLE);
 			image2.setVisibility(View.INVISIBLE);
 
-			Animation a = new AlphaAnimation(1.0f, 0.6f);
-			a.setDuration(250);
-			a.setRepeatMode(Animation.REVERSE);
-			a.setRepeatCount(Animation.INFINITE);
-			a.setInterpolator(new AccelerateDecelerateInterpolator());
-			image1.startAnimation(a);
-			
-			task = new PreviewFetchTask(this, factory, frupic);
+			if (activity.jobManager == null) {
+				this.frupic = null;
+				return;
+			}
+
+			job = new FetchJob(frupic, factory);
+			job.addJobDoneListener(this);
+			activity.jobManager.post(job, Priority.PRIORITY_HIGH);
 		}
 		
 		void setImage(Bitmap b) {
 			image2.setImageBitmap(b);
-		}
-		
-		void fetchComplete(Frupic frupic, int ret) {
-			if (frupic != this.frupic)
-				return; 
-			Bitmap b = factory.getThumbBitmap(frupic);
-
-			switch (ret) {
-			case FrupicFactory.NOT_AVAILABLE:
-				image1.clearAnimation();
-				image1.setImageResource(R.drawable.broken_frupic);
-				Log.e(tag, "fetchThumb returned NOT_AVAILABLE");
-				break;
-			case FrupicFactory.FROM_CACHE:
-				setImage(b);
-				startFadeAnimation();
-				break;
-			case FrupicFactory.FROM_FILE:
-				setImage(b);
-				startFadeAnimation();
-				break;
-			case FrupicFactory.FROM_WEB:
-				setImage(b);
-				startRotateAnimation();
-				break;
-			}
-			task = null;
 		}
 		
 		void startFadeAnimation() {
@@ -159,11 +134,51 @@ public class FruPicGridAdapter extends CursorAdapter {
 			image2.startAnimation(a2);
 			image2.setVisibility(View.VISIBLE);
 		}
+
+		@Override
+		public void OnJobStarted(Job job) {
+			Animation a = new AlphaAnimation(1.0f, 0.6f);
+			a.setDuration(250);
+			a.setRepeatMode(Animation.REVERSE);
+			a.setRepeatCount(Animation.INFINITE);
+			a.setInterpolator(new AccelerateDecelerateInterpolator());
+			image1.startAnimation(a);
+		}
+
+		@Override
+		public void OnJobDone(Job job) {
+			FetchJob fj = (FetchJob)job;
+			Frupic frupic = fj.getFrupic();
+			if (frupic != this.frupic)
+				return; 
+			Bitmap b = factory.getThumbBitmap(frupic);
+
+			switch (((FetchJob)job).getResult()) {
+			case FrupicFactory.NOT_AVAILABLE:
+				image1.clearAnimation();
+				image1.setImageResource(R.drawable.broken_frupic);
+				Log.e(tag, "fetchThumb returned NOT_AVAILABLE");
+				break;
+			case FrupicFactory.FROM_CACHE:
+				setImage(b);
+				startFadeAnimation();
+				break;
+			case FrupicFactory.FROM_FILE:
+				setImage(b);
+				startFadeAnimation();
+				break;
+			case FrupicFactory.FROM_WEB:
+				setImage(b);
+				startRotateAnimation();
+				break;
+			}
+			job = null;
+		}
 	}
 	
-	FruPicGridAdapter(Context context, FrupicFactory factory) {
-		super(context, null, false);
-		this.context = context;
+	FruPicGridAdapter(FruPicGrid activity, FrupicFactory factory) {
+		super(activity.getBaseContext(), null, false);
+		this.activity = activity;
 		this.factory = factory;
 	}
 

@@ -577,6 +577,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			OnJobStarted(refreshJob);
 		else
 			requestRefresh(0, FRUPICS_STEP);
+		adapter.notifyDataSetChanged();
 	}
 
 	@Override

@@ -143,19 +143,13 @@ public class FrupicFactory {
 		void OnProgress(int read, int length);
 	}
 
-	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
+	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress, DefaultHttpClient client) {
 		OutputStream myOutput = null;
 		HttpResponse resp;
 		File tmpFile = null;
 		
-		DefaultHttpClient client;
 		if (Thread.interrupted())
 			return false;
-		try {
-			client = clients.take();
-		} catch (InterruptedException e1) {
-			return false;
-		}
 		
 		try {
 			HttpUriRequest req;
@@ -167,7 +161,6 @@ public class FrupicFactory {
 			if (status.getStatusCode() != 200) {
 				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
 				resp.getEntity().consumeContent();
-				clients.add(client);
 				return false;
 			}
 
@@ -199,7 +192,6 @@ public class FrupicFactory {
 				myOutput.write(buffer, 0, length);
 				if (Thread.interrupted()) {
 					resp.getEntity().consumeContent();
-					clients.add(client);
 					myOutput.flush();
 					myInput.close();
 					myOutput.close();
@@ -218,7 +210,6 @@ public class FrupicFactory {
 			myInput.close();
 			myOutput.close();
 			if (Thread.interrupted()) {
-				clients.add(client);
 				if (!tmpFile.delete()) {
 					Log.e(tag, "error removing partly downloaded file "
 						+ tmpFile.getName());
@@ -228,7 +219,6 @@ public class FrupicFactory {
 			synchronized(fileCache) {
 				tmpFile.renameTo(fileCache.getFile(frupic, fetch_thumb));
 			}
-			clients.add(client);
 			return true;
 		} catch (Exception e) {
 			if (myOutput != null) {
@@ -240,7 +230,6 @@ public class FrupicFactory {
 				}
 				myOutput = null;
 			}
-			clients.add(client);
 			
 			if (tmpFile != null) {
 				synchronized (fileCache) {
@@ -286,7 +275,7 @@ public class FrupicFactory {
 	 * @param onProgress
 	 * @return Did some fetching occur? Do visuals need to be updated?
 	 */
-	public int fetch(Frupic frupic, boolean thumb, OnFetchProgress onProgress) {
+	public int fetch(Frupic frupic, boolean thumb, OnFetchProgress onProgress, DefaultHttpClient client) {
 		String filename = fileCache.getFileName(frupic, thumb);
 		int ret;
 
@@ -302,7 +291,7 @@ public class FrupicFactory {
 		File f = new File(filename);
 		/* Fetch file from the Interweb, unless cached locally */
 		if (!f.exists()) {
-			if (! fetchFrupicImage(frupic, thumb, onProgress)) {
+			if (! fetchFrupicImage(frupic, thumb, onProgress, client)) {
 				return NOT_AVAILABLE;
 			}
 			ret = FROM_WEB;
@@ -327,12 +316,18 @@ public class FrupicFactory {
 		return ret;
 	}
 
-	public int fetchThumb(Frupic frupic) {
-		return fetch(frupic, true, null);
-	}
-
 	public int fetchFull(Frupic frupic, OnFetchProgress onProgress) {
-		return fetch(frupic, false, onProgress);
+		int ret;
+		DefaultHttpClient client;
+		try {
+			client = clients.take();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return NOT_AVAILABLE;
+		}
+		ret = fetch(frupic, false, onProgress, client);
+		clients.add(client);
+		return ret;
 	}
 
 	public Bitmap getThumbBitmap(Frupic frupic) {
