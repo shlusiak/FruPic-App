@@ -63,7 +63,8 @@
         </activity>
         
         <service android:name=".upload.UploadService" />
-        <service android:name=".grid.RefreshService" />
+        <service android:name=".services.RefreshService" />
+        <service android:name=".services.JobManager" />
         
     </application>
 

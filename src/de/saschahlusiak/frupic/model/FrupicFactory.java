@@ -268,7 +268,7 @@ public class FrupicFactory {
 	 * @param onProgress
 	 * @return Did some fetching occur? Do visuals need to be updated?
 	 */
-	public int fetch(Frupic frupic, boolean thumb, int width, int height, OnFetchProgress onProgress) {
+	public int fetch(Frupic frupic, boolean thumb, OnFetchProgress onProgress) {
 		String filename = fileCache.getFileName(frupic, thumb);
 		int ret;
 
@@ -298,7 +298,7 @@ public class FrupicFactory {
 		f.setLastModified(new Date().getTime());
 
 		/* Load downloaded file and add bitmap to memory cache */
-		Bitmap b = decodeImageFile(filename, width, height);
+		Bitmap b = decodeImageFile(filename, targetWidth, targetHeight);
 		if ((b == null) || (Thread.interrupted())) {
 			Log.d(tag, "Error loading to memory: " + frupic.id);
 			return NOT_AVAILABLE;
@@ -310,11 +310,11 @@ public class FrupicFactory {
 	}
 
 	public int fetchThumb(Frupic frupic) {
-		return fetch(frupic, true, targetWidth, targetHeight, null);
+		return fetch(frupic, true, null);
 	}
 
 	public int fetchFull(Frupic frupic, OnFetchProgress onProgress) {
-		return fetch(frupic, false, targetWidth, targetHeight, onProgress);
+		return fetch(frupic, false, onProgress);
 	}
 
 	public Bitmap getThumbBitmap(Frupic frupic) {
