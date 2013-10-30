@@ -1,5 +1,7 @@
 package de.saschahlusiak.frupic.services;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 import de.saschahlusiak.frupic.services.Job.JobState;
 import android.app.Service;
 import android.content.Intent;
@@ -13,33 +15,45 @@ public class JobManager extends Service {
     
 	static final String INDEX_URL = "http://api.freamware.net/2.0/get.picture";
 	static final String tag = JobManager.class.getSimpleName();
+	
+	static final int WORKER_THREADS = 1;
 
     Handler handler;
+    JobWorker worker[] = new JobWorker[WORKER_THREADS];
+    LinkedBlockingQueue<Job> jobsWaiting = new LinkedBlockingQueue<Job>();
+    LinkedBlockingQueue<Job> jobsRunning = new LinkedBlockingQueue<Job>(worker.length);
 
-	class JobThread extends Thread {
-		Job job;
-		
-		JobThread(Job job) {
-			this.job = job;
-		}
-		
+	class JobWorker extends Thread {				
 		@Override
 		public void run() {
-			job.setState(JobState.JOB_RUNNING);
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					job.onJobStarted();
+			while (!isInterrupted()) {
+				final Job job;
+
+				try {
+					job = jobsWaiting.take();
+					jobsRunning.add(job);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					return;
 				}
-			});
-			JobState res = job.run();
-			job.setState(res);
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					job.onJobDone();
-				}
-			});
+				
+				job.setState(JobState.JOB_RUNNING);
+				handler.post(new Runnable() {
+					@Override
+					public void run() {
+						job.onJobStarted();
+					}
+				});
+				JobState res = job.run();
+				job.setState(res);
+				jobsRunning.remove(job);
+				handler.post(new Runnable() {
+					@Override
+					public void run() {
+						job.onJobDone();
+					}
+				});
+			}
 		}
 	}
 
@@ -59,11 +73,18 @@ public class JobManager extends Service {
     	super.onCreate();
     	handler = new Handler();
     	Log.d(tag, "onCreate");
+    	for (int i = 0; i < worker.length; i++) {
+    		worker[i] = new JobWorker();
+    		worker[i].start();
+    	}
     }
     
     @Override
     public void onDestroy() {
     	Log.d(tag, "onDestroy");
+    	for (int i = 0; i < worker.length; i++) {
+    		worker[i].interrupt();
+    	}
     	super.onDestroy();
     }
     
@@ -76,7 +97,7 @@ public class JobManager extends Service {
     public void post(Job job) {
     	if (job.isRunning())
     		return;
-    	
-    	new JobThread(job).start();
+
+   		jobsWaiting.add(job);
     }
 }
