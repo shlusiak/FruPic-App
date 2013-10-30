@@ -31,6 +31,8 @@ public class JobManager extends Service {
 
 				try {
 					job = jobsWaiting.take();
+					if (job.getState() == JobState.JOB_CANCELLED)
+						continue;
 					jobsRunning.add(job);
 				} catch (InterruptedException e) {
 					e.printStackTrace();

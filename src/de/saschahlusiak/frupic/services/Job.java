@@ -63,6 +63,10 @@ public abstract class Job {
 		}
 	}
 	
+	public void cancel() {
+		setState(JobState.JOB_CANCELLED);
+	}
+	
 	synchronized void setState(JobState state) {
 		this.state = state;
 	}
