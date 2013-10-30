@@ -185,7 +185,7 @@ public class FrupicFactory {
 			}
 
 			myOutput = new FileOutputStream(tmpFile);
-			byte[] buffer = new byte[4096];
+			byte[] buffer = new byte[16384];
 			int length;
 			copied = 0;
 			while ((length = myInput.read(buffer)) > 0) {
