@@ -137,8 +137,8 @@ public class FruPicGridAdapter extends CursorAdapter {
 
 		@Override
 		public void OnJobStarted(Job job) {
-			Animation a = new AlphaAnimation(1.0f, 0.6f);
-			a.setDuration(250);
+			Animation a = new AlphaAnimation(1.0f, 0.4f);
+			a.setDuration(200);
 			a.setRepeatMode(Animation.REVERSE);
 			a.setRepeatCount(Animation.INFINITE);
 			a.setInterpolator(new AccelerateDecelerateInterpolator());
