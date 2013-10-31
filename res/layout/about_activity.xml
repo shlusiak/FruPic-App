@@ -52,7 +52,17 @@
                 android:linksClickable="true"
                 android:text="https://github.com/shlusiak/FruPic-App"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-            <Button
+           	<TextView
+                android:id="@+id/textView32"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:autoLink="web"
+                android:gravity="center"
+                android:linksClickable="true"
+                android:text="https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+           	<Button
                 android:id="@+id/ok"
                 android:layout_marginTop="16dp"
                 android:layout_width="124dp"
