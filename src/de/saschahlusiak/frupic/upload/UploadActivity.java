@@ -18,6 +18,7 @@ import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class UploadActivity extends Activity implements OnClickListener {
 	private static final String tag = UploadActivity.class.getSimpleName();
@@ -122,6 +123,7 @@ public class UploadActivity extends Activity implements OnClickListener {
 			intent.putExtra("uri", uri);
 			startService(intent);
 		}
+		Toast.makeText(this, R.string.uploading_toast, Toast.LENGTH_LONG).show();
 		finish();
 	}
 }
