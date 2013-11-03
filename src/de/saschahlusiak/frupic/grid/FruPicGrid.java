@@ -144,7 +144,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		if (savedInstanceState != null) {
 			currentCategory = savedInstanceState.getInt("navItem", 0);
 			RetainedConfig conf = (RetainedConfig)getLastNonConfigurationInstance();
-			this.refreshJob = conf.refreshJob;
+			if (conf != null)
+				this.refreshJob = conf.refreshJob;
+			else
+				refreshJob = new RefreshJob(this);
 		} else {
 			currentCategory = 0;
 			refreshJob = new RefreshJob(this);
