@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.cache;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.HashMap;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -75,6 +76,8 @@ public class FileCache {
 		int number = 0;
 		File files1[];
 		File files2[] = null;
+		HashMap<String, String> skipFiles = new HashMap<String, String>();
+		long time = System.currentTimeMillis();
 		synchronized(this) {
 			files1 = internal_cachedir.listFiles((FilenameFilter) null);
 		
@@ -96,36 +99,45 @@ public class FileCache {
 			Cursor cursor = db.getFrupics(null, Frupic.FLAG_FAV);
 			if (cursor != null) {
 				cursor.moveToFirst();
+				Frupic frupic = new Frupic();
 				do {
-					Frupic frupic = new Frupic(cursor);
-					for (int i = 0; i < files.length; i++) if (files[i] != null) {
-						if (files[i].getAbsolutePath().equals(getFileName(frupic, false)) ||
-							files[i].getAbsolutePath().equals(getFileName(frupic, true)) ||
-							files[i].getName().contains(".tmp."))
-						{
-							files[i] = null;
-						}
-					}
+					frupic.fromCursor(cursor);
+					String filename;
+					
+					filename = getFileName(frupic, false);
+					skipFiles.put(filename, filename);
+					
+					filename = getFileName(frupic, true);
+					skipFiles.put(filename, filename);
 				} while (cursor.moveToNext());
 				cursor.close();
 			}
 			db.close();
 		}
+		Log.d(tag, "counting files took " + (System.currentTimeMillis() - time) + " ms");
+		time = System.currentTimeMillis();
 
 		do {
 			int oldest = -1;
 			total = 0;
 			number = 0;
+			long oldestTimeStamp = 0;
 
 			for (int i = 0; i < files.length; i++) {
 				if (files[i] == null)
 					continue;
+				if (files[i].getName().contains(".tmp.")) {
+					files[i] = null;
+					continue;
+				}
+				if (skipFiles.containsKey(files[i].getAbsolutePath()))
+					continue;
 
 				number++;
-				if ((oldest < 0)
-						|| (files[i].lastModified() < files[oldest]
-								.lastModified()))
+				if ((oldest < 0) || (files[i].lastModified() < oldestTimeStamp)) {
 					oldest = i;
+					oldestTimeStamp = files[i].lastModified();
+				}
 				total += files[i].length();
 			}
 
@@ -136,13 +148,15 @@ public class FileCache {
 				Log.d(tag, "purged " + files[oldest].getName()
 						+ " from filesystem");
 				synchronized (this) {
+					long l = files[oldest].length();
 					if (files[oldest].delete())
-						total -= files[oldest].length();
+						total -= l;
 				}
 				number--;
 				files[oldest] = null;
 			}
 		} while (total > limit);
+		Log.d(tag, "purged cache in " + (System.currentTimeMillis() - time) + " ms");
 		
 		Log.i(tag, "left file cache populated with " + total + " bytes, " + number + " files");
 		/* FIXME */
