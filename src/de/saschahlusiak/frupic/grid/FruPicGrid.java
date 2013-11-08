@@ -8,6 +8,7 @@ import de.saschahlusiak.frupic.gallery.FruPicGallery;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.services.Job;
+import de.saschahlusiak.frupic.services.PurgeCacheJob;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
 import de.saschahlusiak.frupic.services.Job.Priority;
 import de.saschahlusiak.frupic.services.JobManager;
@@ -67,6 +68,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	Cursor cursor;
 	JobManager jobManager;
 	RefreshJob refreshJob;
+	PurgeCacheJob purgeCacheJob;
 	ConnectivityManager cm;
 	
     DrawerLayout mDrawerLayout;
@@ -152,6 +154,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			currentCategory = 0;
 			refreshJob = new RefreshJob(this);
 		}
+		purgeCacheJob = new PurgeCacheJob(factory);
 	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE); 
 		refreshJob.addJobDoneListener(this);
 		navigationItemSelected(currentCategory, 0);
@@ -327,14 +330,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 				requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 			}
 			
-			Thread t = new Thread() {
-				public void run() {	
-					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-					factory.getFileCache().pruneCache();
-				};
-			};
-			
-			t.start();
+			if (jobManager != null)
+				jobManager.post(purgeCacheJob, Priority.PRIORITY_LOW);
 		}
 	}
 
