@@ -7,6 +7,7 @@ import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
 import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
+import de.saschahlusiak.frupic.services.AutoRefreshManager;
 import de.saschahlusiak.frupic.services.Job;
 import de.saschahlusiak.frupic.services.PurgeCacheJob;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
@@ -23,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
@@ -34,6 +36,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -78,9 +81,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     ActionBarDrawerToggle mDrawerToggle;
     int currentCategory;
 
-	public final int FRUPICS_STEP = 100;
+	public static final int FRUPICS_STEP = 100;
 	
-
 	private final class RemoveWindow implements Runnable {
         public void run() {
             removeWindow();
@@ -93,6 +95,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     private TextView mDialogText;
     private boolean mShowing;
     private boolean mReady;
+    
+    SharedPreferences prefs;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
@@ -139,6 +143,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		grid.setOnScrollListener(this);
 		registerForContextMenu(grid);
 		
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
 		if (savedInstanceState != null) {
 			currentCategory = savedInstanceState.getInt("navItem", 0);
 		} else {
@@ -169,12 +175,22 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			}
 		});
 		
+		Intent intent = new Intent(this, AutoRefreshManager.class);
+		stopService(intent);
+		
 		cursorChanged();
 	}
 
 	@Override
 	protected void onDestroy() {
 		/* delete all temporary external cache files created from "Share Image" */
+		
+		int interval = Integer.parseInt(prefs.getString("autorefresh", "0"));
+		if (prefs.getBoolean("autorefresh_enabled", true)) {
+			Intent intent = new Intent(this, AutoRefreshManager.class);
+			intent.putExtra("interval", interval);
+			startService(intent);
+		}
 		
 		if (refreshJob != null) {
 			refreshJob.removeJobDoneListener(this);

@@ -22,6 +22,7 @@ public class RefreshJob extends Job {
 	
     FrupicDB db;
     String error;
+    int lastNewCount = 0;
 
     RefreshJob(Context context) {
     	db = new FrupicDB(context);
@@ -128,10 +129,15 @@ public class RefreshJob extends Job {
 		Frupic pics[];
 		error = null;
 		db.open();
+		lastNewCount = 0;
 		try {
 			pics = fetchFrupicIndex(null, base, count);
-			if (pics != null)
+			if (pics != null) {
 				db.addFrupics(pics);
+				for (int i = 0; i < pics.length; i++)
+					if (pics[i] != null)
+						lastNewCount++;
+			}
 		} catch (UnknownHostException u) {
 			pics = null;
 			error = "Unknown host";
@@ -147,5 +153,9 @@ public class RefreshJob extends Job {
 		}
 
 		return JobState.JOB_SUCCESS;
+	}
+	
+	public int getLastCount() {
+		return lastNewCount;
 	}
 }

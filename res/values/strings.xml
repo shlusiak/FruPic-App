@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">FruPic</string>
     <string name="about">About...</string>
     <string name="about_frupic">About FruPic App</string>
@@ -50,6 +49,8 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     
+    <string name="refresh_service_count_text">%1$d new frupics</string>
+    
         
     <string name="upload_to_frupic">FruPic</string>
     <string name="upload_posted_by_label">Username:</string>
@@ -84,6 +85,29 @@
     <string name="preferences_display">Display</string>
     <string name="preferences_show_animated_gifs_summary">Show animated gif images (experimental)</string>
     <string name="preferences_show_animated_gifs">Animate GIFs</string>
+    
+    <string name="preferences_notifications">Notifications</string>
+    <string name="preferences_notifications_enabled">Enable notifications</string>
+    <string name="preferences_notifications_enabled_summary">Check and notify on new images</string>
+    <string name="preferences_notifications_autorefresh_interval">Refresh interval</string>
+    <string name="preferences_notifications_autorefresh_interval_title">Refresh interval</string>
+   
+    <string name="preferences_notifications_only_on_wlan_summary">Only when connected to Wi-Fi</string>
+    <string name="preferences_notifications_only_on_wlan">Only on Wi-Fi</string>
+    <string-array name="autorefresh_labels">
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>4 hours</item>
+        <item>1 day</item>
+    </string-array>
+    <string-array name="autorefresh_values" translateable="false">
+        <item>1800</item>
+        <item>3600</item>
+        <item>7200</item>
+        <item>14400</item>
+        <item>86400</item>
+    </string-array>
 
     <string name="preferences_upload">Uploading</string>
     <string name="preferences_upload_username">Username</string>

@@ -101,8 +101,9 @@ public class FrupicDB {
 	
 	public boolean addFrupics(Frupic frupics[]) {
 		db.beginTransaction();
-		for (Frupic frupic: frupics) {
-			addFrupic(frupic);
+		for (int i = 0; i < frupics.length; i++) {
+			if (!addFrupic(frupics[i]))
+				frupics[i] = null;
 		}
 		db.setTransactionSuccessful();
 		db.endTransaction();

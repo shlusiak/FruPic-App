@@ -32,7 +32,7 @@ import android.util.Log;
 
 public class UploadService extends IntentService {
 	private static final String tag = UploadService.class.getSimpleName();
-	private static int nId = 1;
+	private final static int nId = 1; /* must be a unique notification id */
 	
 	private final String FruPicApi = "http://api.freamware.net/2.0/upload.picture";
 	

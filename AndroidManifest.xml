@@ -63,7 +63,7 @@
         </activity>
         
         <service android:name=".upload.UploadService" />
-        <service android:name=".services.RefreshService" />
+        <service android:name=".services.AutoRefreshManager" />
         <service android:name=".services.JobManager" />
         
     </application>
