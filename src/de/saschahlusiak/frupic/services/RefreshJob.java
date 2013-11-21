@@ -23,7 +23,7 @@ public class RefreshJob extends Job {
     FrupicDB db;
     String error;
 
-    public RefreshJob(Context context) {
+    RefreshJob(Context context) {
     	db = new FrupicDB(context);
     }
 	

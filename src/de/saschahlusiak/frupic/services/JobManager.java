@@ -20,11 +20,15 @@ public class JobManager extends Service {
 	static final String tag = JobManager.class.getSimpleName();
 	
 	static final int WORKER_THREADS = 5;
+	
+	public static final int JOB_REFRESH = 1;
 
     Handler handler;
     JobWorker worker[] = new JobWorker[WORKER_THREADS];
     LinkedBlockingDeque<Job> jobsWaiting = new LinkedBlockingDeque<Job>();
     ArrayBlockingQueue<Job> jobsRunning = new ArrayBlockingQueue<Job>(worker.length);
+    
+    RefreshJob refreshJob;
 
 	class JobWorker extends Thread {
 		DefaultHttpClient client;
@@ -44,7 +48,6 @@ public class JobManager extends Service {
 						continue;
 					jobsRunning.add(job);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
 					return;
 				}
 				
@@ -63,6 +66,8 @@ public class JobManager extends Service {
 					@Override
 					public void run() {
 						job.onJobDone();
+						if (jobsWaiting.isEmpty() && jobsRunning.isEmpty())
+							stopSelf();
 					}
 				});
 			}
@@ -84,6 +89,7 @@ public class JobManager extends Service {
     public void onCreate() {
     	super.onCreate();
     	handler = new Handler();
+    	refreshJob = new RefreshJob(getApplicationContext());
     	Log.d(tag, "onCreate");
     	for (int i = 0; i < worker.length; i++) {
     		worker[i] = new JobWorker();
@@ -98,6 +104,10 @@ public class JobManager extends Service {
     		worker[i].interrupt();
     	}
     	super.onDestroy();
+    }
+    
+    public RefreshJob getRefreshJob() {
+    	return refreshJob;
     }
     
     @Override

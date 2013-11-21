@@ -86,10 +86,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
             removeWindow();
         }
     }
-	
-	class RetainedConfig {
-		RefreshJob refreshJob;
-	}
 
     private RemoveWindow mRemoveWindow = new RemoveWindow();
     Handler mHandler = new Handler();
@@ -145,18 +141,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		
 		if (savedInstanceState != null) {
 			currentCategory = savedInstanceState.getInt("navItem", 0);
-			RetainedConfig conf = (RetainedConfig)getLastNonConfigurationInstance();
-			if (conf != null)
-				this.refreshJob = conf.refreshJob;
-			else
-				refreshJob = new RefreshJob(this);
 		} else {
 			currentCategory = 0;
-			refreshJob = new RefreshJob(this);
 		}
 		purgeCacheJob = new PurgeCacheJob(factory);
 	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE); 
-		refreshJob.addJobDoneListener(this);
 		navigationItemSelected(currentCategory, 0);
 		
         mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
@@ -180,9 +169,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			}
 		});
 		
-		Intent intent = new Intent(this, JobManager.class);
-		startService(intent);
-		
 		cursorChanged();
 	}
 
@@ -192,8 +178,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		
 		if (refreshJob != null) {
 			refreshJob.removeJobDoneListener(this);
-			Intent intent = new Intent(this, JobManager.class);
-			stopService(intent);
+			refreshJob = null;
 		}
 		if (cursor != null)
 			cursor.close();
@@ -210,17 +195,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		super.onSaveInstanceState(outState);
 		outState.putInt("navItem", currentCategory);
 	};
-	
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		RetainedConfig conf = new RetainedConfig();
-		if (refreshJob != null) {
-			refreshJob.removeJobDoneListener(this);
-		}
-		conf.refreshJob = refreshJob;
-		refreshJob = null;
-		return conf;
-	}
 	
 	@Override
 	protected void onStart() {
@@ -341,18 +315,19 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		inflater.inflate(R.menu.grid_optionsmenu, menu);
 		this.optionsMenu = menu;
 		
-		/* in case the tasks gets started before the options menu is created */
-		if (refreshJob.isRunning())
-			setProgressActionView(true);
-
 		return super.onCreateOptionsMenu(menu);
 	}
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.id.refresh).setEnabled(refreshJob != null);
 		menu.findItem(R.id.mark_seen).setVisible(currentCategory == 1);
 		menu.findItem(R.id.mark_seen).setEnabled(cursor == null || cursor.getCount() >= 1);
 			
+		/* in case the tasks gets started before the options menu is created */
+		if (refreshJob != null && refreshJob.isRunning())
+			setProgressActionView(true);
+
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -559,6 +534,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	void requestRefresh(int base, int count) {
 		if (jobManager == null)
 			return;
+		if (refreshJob == null)
+			return;
 		
     	NetworkInfo ni = cm.getActiveNetworkInfo();
     	if (ni == null)
@@ -567,21 +544,30 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     		return;
 
 		refreshJob.setRange(base, count);
+		
+		Intent intent = new Intent(this, JobManager.class);
+		startService(intent);
+		
 		jobManager.post(refreshJob, Priority.PRIORITY_HIGH);
 	}
 	
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {
 		jobManager = ((JobManagerBinder)service).getService();
+		refreshJob = jobManager.getRefreshJob();
+		refreshJob.addJobDoneListener(this);
 		if (refreshJob.isRunning())
 			OnJobStarted(refreshJob);
 		else
 			requestRefresh(0, FRUPICS_STEP);
 		adapter.notifyDataSetChanged();
+		invalidateOptionsMenu();
 	}
 
 	@Override
 	public void onServiceDisconnected(ComponentName name) {
+		refreshJob.removeJobDoneListener(this);
+		refreshJob = null;
 		jobManager = null;
 	}
 
