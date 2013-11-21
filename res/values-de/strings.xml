@@ -61,7 +61,7 @@
     <string name="upload_notification_title">Zu FruPic hochladen</string>
     <string name="upload_notification_title_finished">Hochladen abgeschlossen</string>
     <string name="upload_notification_progress">%1$d von %2$d Bilder wird hochgeladen</string>
-    <string name="upload_notification_success">%1$d Bilder erfolgreich hochgeladen</string>
+    <string name="upload_notification_success">%1$d Bilder hochgeladen</string>
     <string name="upload_notification_failed">%1$d Bilder erfolgreich, %2$d fehlgeschlagen</string>
     
     <string name="image_resize_label">Bild verkleinern</string>

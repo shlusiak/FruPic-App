@@ -61,7 +61,7 @@ public class UploadService extends IntentService {
 		current = 0;
 		failed = 0;
 		
-		updateNotification(false, 0.0f);
+		updateNotification(true, 0.0f);
 				
 		super.onCreate();
 	}
@@ -334,6 +334,7 @@ public class UploadService extends IntentService {
 				builder.setContentTitle(getString(R.string.upload_notification_title_finished));
 				builder.setSmallIcon(R.drawable.frupic_notification_success);
 				builder.setContentText(getString(R.string.upload_notification_success, max));
+				builder.setTicker(getString(R.string.upload_notification_success, max));
 			} else {
 				builder.setContentTitle(getString(R.string.upload_notification_title_finished));
 				/* TODO: set icon for failed uploads */
