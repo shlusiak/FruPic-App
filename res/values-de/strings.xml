@@ -42,7 +42,7 @@
     <string name="error_no_storage">Externer Speicher nicht verfügbar</string>
     
     <string name="upload">Hochladen</string>
-    <string name="uploading_toast">Bilder werden im Hintergrund hochgeladen...</string>
+    <string name="uploading_toast">Bilder werden hochgeladen</string>
     <string name="cancelled">Abgebrochen</string>
     <string name="cannot_connect">Verbindung kann nicht hergestellt werden</string>
     <string name="error_reading_response">Fehler beim Lesen der Serverantwort</string>

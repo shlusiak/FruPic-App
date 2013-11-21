@@ -42,7 +42,7 @@
     <string name="waiting_to_start">scheduled...</string>
 
     <string name="upload">Upload</string>
-    <string name="uploading_toast">Uploading in the background...</string>
+    <string name="uploading_toast">Upload in progess</string>
     <string name="cancelled">Cancelled</string>
     <string name="cannot_connect">Cannot establish connection</string>
     <string name="error_reading_response">Error reading response</string>
