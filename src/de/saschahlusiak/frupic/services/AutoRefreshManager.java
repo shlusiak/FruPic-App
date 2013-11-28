@@ -46,6 +46,8 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 	
 	@Override
 	public void onCreate() {
+		/* TODO: run on device boot? */
+		/* TODO: persistate the current waiting time, in case service is killed? */
 		Log.d(tag, "onCreate");
 		Intent intent = new Intent(this, JobManager.class);
 		bindService(intent, this, BIND_AUTO_CREATE);
@@ -62,10 +64,10 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 		Log.d(tag, "OnDestroy");
 		if (refreshJob != null)
 			refreshJob.removeJobDoneListener(this);
+		handler.removeCallbacks(this);
 		refreshJob = null;
 		jobManager = null;
 		unbindService(this);
-		handler.removeCallbacks(this);
 		nm.cancel(nId);
 		super.onDestroy();
 	}
@@ -100,7 +102,7 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 	
 	@Override
 	public void run() {
-		Log.d(tag, "autorefresh");
+//		Log.d(tag, "autorefresh");
 		handler.postDelayed(this, interval);
 		
 		if (refreshJob != null && !refreshJob.isRunning() && !refreshJob.isScheduled()) {
@@ -111,7 +113,7 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 	    	if (!ni.isConnected())
 	    		return;
 	    	if (only_on_wifi && ni.getType() != ConnectivityManager.TYPE_WIFI) {
-	    		Log.d(tag, "not on wifi, skip");
+//	    		Log.d(tag, "not on wifi, skip");
 	    		return;
 	    	}
 
