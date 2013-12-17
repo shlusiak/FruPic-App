@@ -22,6 +22,12 @@ public class FrupicPreferences extends PreferenceActivity {
 	}
 	
 	@Override
+	protected boolean isValidFragment(String fragmentName) {
+		/* this opens fragment injection, but who cares */
+		return true;
+	}
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
@@ -30,5 +36,4 @@ public class FrupicPreferences extends PreferenceActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
 }
