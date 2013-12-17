@@ -178,12 +178,20 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		Intent intent = new Intent(this, AutoRefreshManager.class);
 		stopService(intent);
 		
+		intent = new Intent(this, JobManager.class);
+		bindService(intent, this, Context.BIND_AUTO_CREATE);
+		
 		cursorChanged();
 	}
 
 	@Override
 	protected void onDestroy() {
 		/* delete all temporary external cache files created from "Share Image" */
+		
+		if (jobManager != null) {
+			jobManager = null;
+		}
+		unbindService(this);
 		
 		int interval = Integer.parseInt(prefs.getString("autorefresh", "0"));
 		if (prefs.getBoolean("autorefresh_enabled", true)) {
@@ -219,18 +227,12 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		 */
 		factory.createFileCache();
 		
-		Intent intent = new Intent(this, JobManager.class);
-		bindService(intent, this, Context.BIND_AUTO_CREATE);
 
 		super.onStart();
 	}
 	
 	@Override
 	protected void onStop() {
-		if (jobManager != null) {
-			jobManager = null;
-		}
-		unbindService(this);
 
 		super.onStop();
 	}
