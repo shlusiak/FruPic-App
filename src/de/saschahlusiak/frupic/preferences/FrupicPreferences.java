@@ -23,8 +23,13 @@ public class FrupicPreferences extends PreferenceActivity {
 	
 	@Override
 	protected boolean isValidFragment(String fragmentName) {
-		/* this opens fragment injection, but who cares */
-		return true;
+		if (fragmentName.equals(FrupicCachePreferences.class.getName())) return true;
+		if (fragmentName.equals(FrupicDisplayPreferences.class.getName())) return true;
+		if (fragmentName.equals(FrupicNotificationsPreferences.class.getName())) return true;
+		if (fragmentName.equals(FrupicUploadPreferences.class.getName())) return true;
+		if (fragmentName.equals(FrupicAboutPreferences.class.getName())) return true;
+
+		return false;
 	}
 	
 	@Override
