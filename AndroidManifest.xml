@@ -25,6 +25,7 @@
         <activity
             android:label="@string/app_name"
             android:launchMode="singleTask"
+            android:theme="@style/Theme.FruPic.Grid"
             android:name=".grid.FruPicGrid" >
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
@@ -34,11 +35,11 @@
         <activity
             android:label="@string/app_name"
             android:name=".gallery.FruPicGallery"
-            android:theme="@style/Theme.FruPic" >
+            android:theme="@style/Theme.FruPic.Gallery" >
         </activity>
         <activity
             android:label="@string/preferences"
-            android:theme="@style/Theme.FruPic"
+            android:theme="@style/Theme.FruPic.Preferences"
             android:name=".preferences.FrupicPreferences" >
         </activity>
         <activity
