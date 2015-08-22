@@ -38,6 +38,7 @@
         </activity>
         <activity
             android:label="@string/preferences"
+            android:theme="@style/Theme.FruPic"
             android:name=".preferences.FrupicPreferences" >
         </activity>
         <activity
