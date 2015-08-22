@@ -6,14 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import de.saschahlusiak.frupic.cache.BitmapCache;
 import de.saschahlusiak.frupic.cache.FileCache;
@@ -39,16 +35,16 @@ public class FrupicFactory {
 	BitmapCache cache;
 	FileCache fileCache;
 	int targetWidth, targetHeight;
-	ArrayBlockingQueue<DefaultHttpClient> clients;
+	ArrayBlockingQueue<Object> tokens;
 
 	public FrupicFactory(Context context, int bitmapCacheSize) {
 		this.context = context;
 		this.cache = new BitmapCache(bitmapCacheSize);
 		targetWidth = 800;
 		targetHeight = 800;
-		clients = new ArrayBlockingQueue<DefaultHttpClient>(NUM_CLIENTS);
+		tokens = new ArrayBlockingQueue<Object>(NUM_CLIENTS);
 		for (int i = 0; i < NUM_CLIENTS; i++)
-			clients.add(new DefaultHttpClient());
+			tokens.add(new Object());
 		createFileCache();
 	}
 	
@@ -143,31 +139,20 @@ public class FrupicFactory {
 		void OnProgress(int read, int length);
 	}
 
-	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress, DefaultHttpClient client) {
+	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
 		OutputStream myOutput = null;
-		HttpResponse resp;
 		File tmpFile = null;
-		
-		if (Thread.interrupted())
-			return false;
+		int copied;
 		
 		try {
-			HttpUriRequest req;
+			URL url = new URL(fetch_thumb ? frupic.thumb_url : frupic.full_url);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			
-			req = new HttpGet(fetch_thumb ? frupic.thumb_url : frupic.full_url);
-			resp = client.execute(req);
-
-			final StatusLine status = resp.getStatusLine();
-			if (status.getStatusCode() != 200) {
-				Log.d(tag, "HTTP error, invalid server status code: " + resp.getStatusLine());
-				resp.getEntity().consumeContent();
+			if (Thread.interrupted())
 				return false;
-			}
 
-			int copied;
-
-			long maxlength = resp.getEntity().getContentLength();
-			InputStream myInput = resp.getEntity().getContent();
+			long maxlength = connection.getContentLength();
+			InputStream myInput = connection.getInputStream();
 			
 			int i = 0;
 			synchronized (fileCache) {
@@ -191,10 +176,10 @@ public class FrupicFactory {
 			while ((length = myInput.read(buffer)) > 0) {
 				myOutput.write(buffer, 0, length);
 				if (Thread.interrupted()) {
-					resp.getEntity().consumeContent();
 					myOutput.flush();
 					myInput.close();
 					myOutput.close();
+					connection.disconnect();
 					if (!tmpFile.delete()) {
 						Log.e(tag, "error removing partly downloaded file "
 							+ tmpFile.getName());
@@ -209,6 +194,7 @@ public class FrupicFactory {
 			myOutput.flush();
 			myInput.close();
 			myOutput.close();
+			connection.disconnect();
 			if (Thread.interrupted()) {
 				if (!tmpFile.delete()) {
 					Log.e(tag, "error removing partly downloaded file "
@@ -275,7 +261,7 @@ public class FrupicFactory {
 	 * @param onProgress
 	 * @return Did some fetching occur? Do visuals need to be updated?
 	 */
-	public int fetch(Frupic frupic, boolean thumb, OnFetchProgress onProgress, DefaultHttpClient client) {
+	public int fetch(Frupic frupic, boolean thumb, OnFetchProgress onProgress) {
 		String filename = fileCache.getFileName(frupic, thumb);
 		int ret;
 
@@ -291,7 +277,7 @@ public class FrupicFactory {
 		File f = new File(filename);
 		/* Fetch file from the Interweb, unless cached locally */
 		if (!f.exists()) {
-			if (! fetchFrupicImage(frupic, thumb, onProgress, client)) {
+			if (! fetchFrupicImage(frupic, thumb, onProgress)) {
 				return NOT_AVAILABLE;
 			}
 			ret = FROM_WEB;
@@ -318,15 +304,15 @@ public class FrupicFactory {
 
 	public int fetchFull(Frupic frupic, OnFetchProgress onProgress) {
 		int ret;
-		DefaultHttpClient client;
+		Object token;
 		try {
-			client = clients.take();
+			token = tokens.take();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return NOT_AVAILABLE;
 		}
-		ret = fetch(frupic, false, onProgress, client);
-		clients.add(client);
+		ret = fetch(frupic, false, onProgress);
+		tokens.add(token);
 		return ret;
 	}
 

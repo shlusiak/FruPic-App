@@ -1,17 +1,18 @@
 package de.saschahlusiak.frupic.services;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.net.UnknownHostException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.ByteArrayBuffer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.content.Context;
+import android.util.Log;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.model.Frupic;
 
@@ -41,35 +42,24 @@ public class RefreshJob extends Job {
 	
 	private String fetchURL(String url) throws IOException {
 		InputStream in = null;
-		HttpResponse resp;
-		String result = null;
-		
-		resp = httpClient.execute(new HttpGet(url));
+		StringBuilder sb = new StringBuilder();
 
-		final StatusLine status = resp.getStatusLine();
-		if (status.getStatusCode() != 200) {
-			return null;
-		}
-
-		in = resp.getEntity().getContent();
+		in = new URL(url).openStream();
 	
-		ByteArrayBuffer baf = new ByteArrayBuffer(50);
-		int read = 0;
-		int bufSize = 1024;
-		byte[] buffer = new byte[bufSize];
-		while ((read = in.read(buffer)) > 0) {
-			baf.append(buffer, 0, read);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		String r;
+		while ((r = reader.readLine()) != null) {
+			sb.append(r);
 		}
 		in.close();
-		result = new String(baf.toByteArray());
-		return result;
-		
+		return sb.toString();		
 	}
 	
 	private Frupic[] getFrupicIndexFromString(String string) {
 		JSONArray array;
 		try {
 			array = new JSONArray(string);
+			Log.d(RefreshJob.class.getSimpleName(), "loaded index with " + array.length() + " frupics");
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return null;
@@ -106,9 +96,7 @@ public class RefreshJob extends Job {
 		}	
 	}
 
-	public Frupic[] fetchFrupicIndex(String username, int offset, int limit)
-			throws IOException {
-
+	public Frupic[] fetchFrupicIndex(String username, int offset, int limit) throws IOException {
 		String s = INDEX_URL + "?";
 		if (username != null)
 			s += "username=" + username + "&";
@@ -141,7 +129,7 @@ public class RefreshJob extends Job {
 		} catch (UnknownHostException u) {
 			pics = null;
 			error = "Unknown host";
-		} catch (Exception e) {
+		} catch (IOException e) {
 			pics = null;
 			error = "Connection error";
 			e.printStackTrace();

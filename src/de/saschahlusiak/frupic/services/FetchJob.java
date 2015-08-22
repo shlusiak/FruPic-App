@@ -18,7 +18,7 @@ public class FetchJob extends Job implements OnFetchProgress {
 
 	@Override
 	JobState run() {
-		result = factory.fetch(frupic, thumb, this, httpClient);
+		result = factory.fetch(frupic, thumb, this);
 		return JobState.JOB_SUCCESS;
 	}
 	

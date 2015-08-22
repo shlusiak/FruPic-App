@@ -3,8 +3,6 @@ package de.saschahlusiak.frupic.services;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import de.saschahlusiak.frupic.services.Job.JobState;
 import android.app.Service;
 import android.content.Intent;
@@ -19,7 +17,7 @@ public class JobManager extends Service {
 	static final String INDEX_URL = "http://api.freamware.net/2.0/get.picture";
 	static final String tag = JobManager.class.getSimpleName();
 	
-	static final int WORKER_THREADS = 5;
+	static final int WORKER_THREADS = 20;
 	
 	public static final int JOB_REFRESH = 1;
 
@@ -31,10 +29,9 @@ public class JobManager extends Service {
     RefreshJob refreshJob;
 
 	class JobWorker extends Thread {
-		DefaultHttpClient client;
 		
 		public JobWorker() {
-			client = new DefaultHttpClient();
+			
 		}
 		
 		@Override
@@ -58,7 +55,6 @@ public class JobManager extends Service {
 						job.onJobStarted();
 					}
 				});
-				job.httpClient = client;
 				JobState res = job.run();
 				job.setState(res);
 				jobsRunning.remove(job);

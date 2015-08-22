@@ -2,8 +2,6 @@ package de.saschahlusiak.frupic.services;
 
 import java.util.ArrayList;
 
-import org.apache.http.impl.client.DefaultHttpClient;
-
 public abstract class Job {
 	public interface OnJobListener {
 		/** this is called in the main thread */
@@ -33,7 +31,6 @@ public abstract class Job {
 	ArrayList<OnJobListener> jobListener = new ArrayList<OnJobListener>();
 	Object tag;
 	JobState state;
-	DefaultHttpClient httpClient;
 	
 	public Job() {
 		state = JobState.JOB_IDLE;
