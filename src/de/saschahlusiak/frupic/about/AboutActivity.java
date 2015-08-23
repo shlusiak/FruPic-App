@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.about;
 
 import de.saschahlusiak.frupic.R;
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,9 +16,12 @@ public class AboutActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.about_activity);
-		LayoutParams params = getWindow().getAttributes(); 
-        params.width = LayoutParams.FILL_PARENT; 
-        getWindow().setAttributes((android.view.WindowManager.LayoutParams) params); 
+		if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) != Configuration.SCREENLAYOUT_SIZE_XLARGE)
+		{
+			LayoutParams params = getWindow().getAttributes();
+			params.width = LayoutParams.MATCH_PARENT;
+			getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+		}
 		
 		((Button)findViewById(R.id.ok)).setOnClickListener(new OnClickListener() {
 			
