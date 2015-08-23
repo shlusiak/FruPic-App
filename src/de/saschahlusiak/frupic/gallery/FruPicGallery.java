@@ -65,7 +65,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         
         
-        factory = new FrupicFactory(this, 8);
+        factory = new FrupicFactory(this, 9);
         factory.setTargetSize(display.getWidth(), display.getHeight());
         
         adapter = new GalleryPagerAdapter(this, factory, prefs.getBoolean("animatedgifs", true));

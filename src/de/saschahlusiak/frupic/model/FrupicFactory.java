@@ -84,18 +84,13 @@ public class FrupicFactory {
 		options.inPurgeable = true;
 		options.inSampleSize = 1;
 
-		Boolean scaleByHeight = Math.abs(options.outHeight - height) >= Math
-				.abs(options.outWidth - width);
+		Boolean scaleByHeight = Math.abs(options.outHeight - height) >= Math.abs(options.outWidth - width);
 		if (options.outHeight * options.outWidth * 2 >= 16384) {
 			// Load, scaling to smallest power of 2 that'll get it <= desired
 			// dimensions
-			double sampleSize = scaleByHeight ? options.outHeight / height
-					: options.outWidth / width;
-			options.inSampleSize = (int) Math.pow(2d, Math.floor(Math
-					.log(sampleSize)
-					/ Math.log(2d)));
-			Log.i(tag, "img (" + options.outWidth + "x" + options.outHeight
-					+ "), sample " + options.inSampleSize);
+			double sampleSize = scaleByHeight ? options.outHeight / height : options.outWidth / width;
+			options.inSampleSize = (int) Math.pow(2.0, Math.floor(Math.log(sampleSize) / Math.log(2.0)));
+			Log.i(tag, "img (" + options.outWidth + "x" + options.outHeight	+ "), sample " + options.inSampleSize);
 		}
 
 		b = BitmapFactory.decodeFile(filename, options);
