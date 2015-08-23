@@ -15,7 +15,7 @@ import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
 import android.database.Cursor;
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,6 +39,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		Frupic frupic;
 		View view;
 		boolean cancelled = false;
+		ViewGroup progressLayout;
 		ProgressBar progress;
 		TextView progressText;
 
@@ -46,6 +47,8 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			this.view = view;
 			this.frupic = frupic;
 			final ImageButton stopButton = (ImageButton)view.findViewById(R.id.stopButton);
+			
+			progressLayout = (ViewGroup) view.findViewById(R.id.progressLayout);
 			
 			progress = (ProgressBar)view.findViewById(R.id.progressBar);
 			progress.setIndeterminate(false);
@@ -103,9 +106,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 					SubsamplingScaleImageView i = (SubsamplingScaleImageView) view.findViewById(R.id.imageView);
 					GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
 					
-					progress.setVisibility(View.GONE);
-					progressText.setVisibility(View.GONE);
-					view.findViewById(R.id.stopButton).setVisibility(View.GONE);
+					progressLayout.setVisibility(View.GONE);
 					
 					if (!showFrupic(view, frupic)) {
 						i.setVisibility(View.VISIBLE);
@@ -142,7 +143,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		notifyDataSetChanged();
 	}
 	
-	public boolean showFrupic(View view, Frupic frupic) {
+	private boolean showFrupic(View view, Frupic frupic) {
 		GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
 		SubsamplingScaleImageView i = (SubsamplingScaleImageView)view.findViewById(R.id.imageView);
 
@@ -191,16 +192,14 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		}
 		
 		/* fall-through, if loading animation failed */
-		Bitmap b = factory.getFullBitmap(frupic);
-		
-		if (b == null) {
-			return false;
-		} else {				
+		Uri uri = factory.getFullBitmapURI(frupic);
+		if (uri != null) {
 			i.setVisibility(View.VISIBLE);
 			v.setVisibility(View.GONE);
-			i.setImage(ImageSource.bitmap(b));
+			i.setImage(ImageSource.uri(uri));
 			return true;
 		}
+		return false;
 	}
 
 	@Override
@@ -214,14 +213,18 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		SubsamplingScaleImageView i = (SubsamplingScaleImageView)view.findViewById(R.id.imageView);
 		GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
 		
+		i.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
+		
 		context.registerForContextMenu(i);
 		context.registerForContextMenu(v);
+		
 		i.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				context.toggleControls();
 			}
 		});
+		
 		v.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -229,20 +232,15 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			}
 		});
 
-
 		if (!showFrupic(view, frupic)) {
-			i.setVisibility(View.VISIBLE);
+			i.setVisibility(View.GONE);
 			v.setVisibility(View.GONE);
-			
-			i.setImage(ImageSource.resource(R.drawable.frupic));
-			
+						
 			Thread t = new FetchTask(view, frupic);
 			view.setTag(t);
 			t.start();
 		} else {
-			view.findViewById(R.id.progressBar).setVisibility(View.GONE);
-			view.findViewById(R.id.stopButton).setVisibility(View.GONE);
-			view.findViewById(R.id.progress).setVisibility(View.GONE);
+			view.findViewById(R.id.progressLayout).setVisibility(View.GONE);
 		}
 		
 		container.addView(view);

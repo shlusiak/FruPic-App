@@ -304,8 +304,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	}
 	
 	@Override
-	public void onCreateContextMenu(android.view.ContextMenu menu, View v,
-			android.view.ContextMenu.ContextMenuInfo menuInfo) {
+	public void onCreateContextMenu(android.view.ContextMenu menu, View v, android.view.ContextMenu.ContextMenuInfo menuInfo) {
 		android.view.MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.gallery_optionsmenu, menu);
 

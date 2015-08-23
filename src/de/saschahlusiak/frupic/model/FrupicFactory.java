@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -19,6 +20,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.util.Log;
 
 public class FrupicFactory {
@@ -284,6 +286,9 @@ public class FrupicFactory {
 			return NOT_AVAILABLE;
 		/* touch file, so it is purged from cache last */
 		f.setLastModified(new Date().getTime());
+		
+		if (!thumb)
+			return ret;
 
 		/* Load downloaded file and add bitmap to memory cache */
 		Bitmap b = decodeImageFile(filename, targetWidth, targetHeight);
@@ -317,5 +322,11 @@ public class FrupicFactory {
 
 	public Bitmap getFullBitmap(Frupic frupic) {
 		return cache.get(fileCache.getFileName(frupic, false));
+	}
+	
+	public Uri getFullBitmapURI(Frupic frupic) {
+		File file = fileCache.getFile(frupic, false);
+		if (!file.exists()) return null;
+		return Uri.fromFile(file);
 	}
 }
