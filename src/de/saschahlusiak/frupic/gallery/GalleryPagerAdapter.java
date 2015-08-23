@@ -6,12 +6,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.cache.FileCache;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
-
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.support.v4.view.PagerAdapter;
@@ -21,7 +23,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -99,7 +100,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			view.post(new Runnable() {
 				@Override
 				public void run() {
-					ImageView i = (ImageView)view.findViewById(R.id.imageView);
+					SubsamplingScaleImageView i = (SubsamplingScaleImageView) view.findViewById(R.id.imageView);
 					GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
 					
 					progress.setVisibility(View.GONE);
@@ -109,7 +110,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 					if (!showFrupic(view, frupic)) {
 						i.setVisibility(View.VISIBLE);
 						v.setVisibility(View.GONE);
-						i.setImageResource(R.drawable.broken_frupic);
+						i.setImage(ImageSource.resource(R.drawable.broken_frupic));
 					}
 				}
 			});
@@ -143,7 +144,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 	
 	public boolean showFrupic(View view, Frupic frupic) {
 		GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
-		ImageView i = (ImageView)view.findViewById(R.id.imageView);
+		SubsamplingScaleImageView i = (SubsamplingScaleImageView)view.findViewById(R.id.imageView);
 
 		if (showAnimations && frupic.isAnimated()) {
 			v.setVisibility(View.VISIBLE);
@@ -197,7 +198,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		} else {				
 			i.setVisibility(View.VISIBLE);
 			v.setVisibility(View.GONE);
-			i.setImageBitmap(b);
+			i.setImage(ImageSource.bitmap(b));
 			return true;
 		}
 	}
@@ -210,7 +211,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		Frupic frupic = new Frupic(cursor);
 
 		View view = LayoutInflater.from(context).inflate(R.layout.gallery_item, container, false);
-		ImageView i = (ImageView)view.findViewById(R.id.imageView);
+		SubsamplingScaleImageView i = (SubsamplingScaleImageView)view.findViewById(R.id.imageView);
 		GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
 		
 		context.registerForContextMenu(i);
@@ -233,7 +234,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 			i.setVisibility(View.VISIBLE);
 			v.setVisibility(View.GONE);
 			
-			i.setImageResource(R.drawable.frupic);
+			i.setImage(ImageSource.resource(R.drawable.frupic));
 			
 			Thread t = new FetchTask(view, frupic);
 			view.setTag(t);
