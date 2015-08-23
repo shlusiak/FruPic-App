@@ -3,11 +3,9 @@ package de.saschahlusiak.frupic.model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -17,9 +15,7 @@ import de.saschahlusiak.frupic.cache.FileCache;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
+
 import android.net.Uri;
 import android.util.Log;
 
@@ -71,63 +67,17 @@ public class FrupicFactory {
 	
 	private Bitmap decodeImageFile(String filename, int width, int height) {
 		Bitmap b;
-		Options options = new Options();
 		File file;
 		
 		file = new File(filename);
 		if (!file.exists() || !file.canRead())
 			return null;
 
-		options.inJustDecodeBounds = true;
-		BitmapFactory.decodeFile(filename, options);
-		
-		options.inJustDecodeBounds = false;
-		options.inInputShareable = true;
-		options.inPurgeable = true;
-		options.inSampleSize = 1;
-
-		Boolean scaleByHeight = Math.abs(options.outHeight - height) >= Math.abs(options.outWidth - width);
-		if (options.outHeight * options.outWidth * 2 >= 16384) {
-			// Load, scaling to smallest power of 2 that'll get it <= desired
-			// dimensions
-			double sampleSize = scaleByHeight ? options.outHeight / height : options.outWidth / width;
-			options.inSampleSize = (int) Math.pow(2.0, Math.floor(Math.log(sampleSize) / Math.log(2.0)));
-			Log.i(tag, "img (" + options.outWidth + "x" + options.outHeight	+ "), sample " + options.inSampleSize);
-		}
-
-		b = BitmapFactory.decodeFile(filename, options);
+		b = BitmapFactory.decodeFile(filename);
 		
 		if (b == null) {
 			Log.e("FruPic", "Error decoding image stream: " + file);
-		} else {
-			
-			try {
-				ExifInterface exif = new ExifInterface(filename);
-				Matrix matrix = new Matrix();
-				
-				switch(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
-				case ExifInterface.ORIENTATION_ROTATE_90:
-					matrix.preRotate(90);
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_180:
-					matrix.preRotate(180);
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_270:
-					matrix.preRotate(270);
-					break;
-					
-				default: 
-					matrix = null;
-					break;
-				}
-
-				if (matrix != null)
-					b = Bitmap.createBitmap(b, 0, 0, options.outWidth, options.outHeight, matrix, true);
-			} catch (IOException e) {
-//				e.printStackTrace();
-			}		
 		}
-		
 		
 		return b;
 	}
