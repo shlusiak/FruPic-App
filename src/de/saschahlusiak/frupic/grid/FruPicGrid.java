@@ -319,7 +319,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			int firstVisibleItem = grid.getFirstVisiblePosition();
 			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
 			if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
-
 				requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 			}
 			
@@ -555,7 +554,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			return;
 		if (refreshJob == null)
 			return;
-		if (refreshJob.isScheduled())
+		if (refreshJob.isScheduled() || refreshJob.isRunning())
 			return;
 		
     	NetworkInfo ni = cm.getActiveNetworkInfo();

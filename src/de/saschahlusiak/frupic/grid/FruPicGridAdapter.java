@@ -157,7 +157,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 			if (fj.isFailed()) {
 				image1.clearAnimation();
 				image1.setImageResource(R.drawable.broken_frupic);
-				Log.e(tag, "fetchThumb returned NOT_AVAILABLE");
+				Log.e(tag, "fetchThumb failed");
 			} else {
 				Bitmap b = fj.getBitmap();
 				cache.put(frupic.id, b);

@@ -17,6 +17,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 
 public class FrupicCachePreferences extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 	Preference clear_cache;
+	FileCacheUtils fileCacheUtils;
 	
 	private class PruneCacheTask extends AsyncTask<Void,Void,Void> {
 		ProgressDialog progress;
@@ -33,8 +34,7 @@ public class FrupicCachePreferences extends PreferenceFragment implements OnShar
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			FileCacheUtils fileCache = new FileCacheUtils(getActivity());
-			fileCache.pruneCache(0);
+			fileCacheUtils.pruneCache(0);
 			FrupicDB db = new FrupicDB(getActivity());
 			db.open();
 			db.clearAll(false);
@@ -52,12 +52,10 @@ public class FrupicCachePreferences extends PreferenceFragment implements OnShar
 	private class UpdateCacheInfoTask extends AsyncTask<Void,Void,Void> {
 		CacheInfo cacheInfo;
 		int cacheSize;
-		FileCacheUtils fc = null;
 		
 		@Override
 		protected void onPreExecute() {
 			if (getActivity() != null) {
-				fc = new FileCacheUtils(getActivity());
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 				cacheSize = Integer.parseInt(prefs.getString("cache_size", "16777216"));
 				clear_cache.setSummary(R.string.calculating);
@@ -67,10 +65,10 @@ public class FrupicCachePreferences extends PreferenceFragment implements OnShar
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			if (fc == null)
+			if (fileCacheUtils == null)
 				return null;
 			
-			cacheInfo = fc.getCacheInfo();
+			cacheInfo = fileCacheUtils.getCacheInfo();
 			return null;
 		}
 		
@@ -93,6 +91,8 @@ public class FrupicCachePreferences extends PreferenceFragment implements OnShar
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences_cache);
+		
+		fileCacheUtils = new FileCacheUtils(getActivity());
 		
 		clear_cache = findPreference("clear_cache");
 		clear_cache.setOnPreferenceClickListener(new OnPreferenceClickListener() {

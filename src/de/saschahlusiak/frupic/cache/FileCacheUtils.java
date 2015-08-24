@@ -71,24 +71,38 @@ public class FileCacheUtils {
 		return pruneCache(cachesize);
 	}
 	
+	private static class CacheFileInfo {
+		public long size;
+		public long modified;
+		
+		public CacheFileInfo(long size, long modified) {
+			this.size = size;
+			this.modified = modified;
+		}
+	}
+	
 	public CacheInfo pruneCache(int limit) {
 		int total;
 		int number = 0;
-		File files1[];
-		File files2[] = null;
 		HashMap<String, String> skipFiles = new HashMap<String, String>();
 		long time = System.currentTimeMillis();
-		synchronized(this) {
-			files1 = internal_cachedir.listFiles((FilenameFilter) null);
+		File files[];
+		HashMap<File, CacheFileInfo> dateMap = new HashMap<File, CacheFileInfo>();
 		
+		synchronized(this) {
+			File files1[] = null;
+			File files2[] = null;
+			files1 = internal_cachedir.listFiles((FilenameFilter) null);
+			
 			if (external_cachedir != null)
 				files2 = external_cachedir.listFiles((FilenameFilter) null);
+			
+			// merge internal_cachedir and external_cachedir file lists
+			files = new File[files1.length + ((files2 == null) ? 0 : files2.length)];
+			System.arraycopy(files1, 0, files, 0, files1.length);
+			if (files2 != null)
+				System.arraycopy(files2, 0, files, files1.length, files2.length);		
 		}
-		
-		File files[] = new File[files1.length + ((files2 == null) ? 0 : files2.length)];
-		System.arraycopy(files1, 0, files, 0, files1.length);
-		if (files2 != null)
-			System.arraycopy(files2, 0, files, files1.length, files2.length);		
 
 		if (files.length == 0)
 			return new CacheInfo(0, 0, 0);
@@ -116,6 +130,10 @@ public class FileCacheUtils {
 		}
 		Log.d(tag, "counting files took " + (System.currentTimeMillis() - time) + " ms");
 		time = System.currentTimeMillis();
+		
+		for (int i = 0; i < files.length; i++) {
+			dateMap.put(files[i], new CacheFileInfo(files[i].length(), files[i].lastModified()));
+		}
 
 		do {
 			int oldest = -1;
@@ -134,24 +152,23 @@ public class FileCacheUtils {
 					continue;
 
 				number++;
-				if ((oldest < 0) || (files[i].lastModified() < oldestTimeStamp)) {
+				if ((oldest < 0) || (dateMap.get(files[i]).modified < oldestTimeStamp)) {
 					oldest = i;
-					oldestTimeStamp = files[i].lastModified();
+					oldestTimeStamp = dateMap.get(files[i]).modified;
 				}
-				total += files[i].length();
+				total += dateMap.get(files[i]).size;
 			}
 
 			if (limit < 0)
 				break;
-			
+
 			if (total > limit) {
-				Log.d(tag, "purged " + files[oldest].getName()
-						+ " from filesystem");
 				synchronized (this) {
-					long l = files[oldest].length();
+					long l = dateMap.get(files[oldest]).size;
 					if (files[oldest].delete())
 						total -= l;
 				}
+				Log.d(tag, "purged " + files[oldest].getName() + " from filesystem");
 				number--;
 				files[oldest] = null;
 			}
@@ -162,5 +179,4 @@ public class FileCacheUtils {
 		/* FIXME */
 		return new CacheInfo(total, number, 0);
 	}
-
 }
