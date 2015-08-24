@@ -175,7 +175,7 @@ public class FileCacheUtils {
 		} while (total > limit);
 		Log.d(tag, "purged cache in " + (System.currentTimeMillis() - time) + " ms");
 		
-		Log.i(tag, "left file cache populated with " + total + " bytes, " + number + " files");
+		Log.i(tag, String.format("left file cache populated with %.1f Mb (%.1f %%), %d files", total / 1024.0f / 1024.0f, 100.0f * total / limit, number));
 		/* FIXME */
 		return new CacheInfo(total, number, 0);
 	}

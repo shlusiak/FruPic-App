@@ -234,6 +234,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	@Override
 	protected void onStop() {
+		if (jobManager != null)
+			jobManager.post(purgeCacheJob, Priority.PRIORITY_LOW);
 
 		super.onStop();
 	}
