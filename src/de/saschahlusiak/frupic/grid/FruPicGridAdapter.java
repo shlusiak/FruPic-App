@@ -1,7 +1,6 @@
 package de.saschahlusiak.frupic.grid;
 
 import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.cache.BitmapCache;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.services.FetchThumbnailJob;
@@ -12,6 +11,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +28,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 	private static final String tag = FruPicGridAdapter.class.getSimpleName();
 	FruPicGrid activity;
 	FrupicFactory factory;
-	BitmapCache<Frupic> cache;
+	LruCache<Integer, Bitmap> cache;
 	
 	public class ViewHolder implements OnJobListener {
 		Frupic frupic;
@@ -59,7 +59,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 				job.cancel();
 			job = null;
 			
-			Bitmap b = cache.get(frupic);
+			Bitmap b = cache.get(frupic.id);
 			if (b != null) {
 				/* bitmap is in cache but view is apparently reused.
 				 * view could be before, after or in transition. set to "after"
@@ -160,7 +160,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 				Log.e(tag, "fetchThumb returned NOT_AVAILABLE");
 			} else {
 				Bitmap b = fj.getBitmap();
-				cache.add(frupic, b);
+				cache.put(frupic.id, b);
 				setImage(b);
 				
 				if (fj.isFromCache())
@@ -181,7 +181,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 		super(activity.getBaseContext(), null, false);
 		this.activity = activity;
 		this.factory = factory;
-		this.cache = new BitmapCache(cacheSize);
+		this.cache = new LruCache<>(cacheSize);
 	}
 
 	@Override

@@ -17,10 +17,8 @@ public class JobManager extends Service {
 	static final String INDEX_URL = "http://api.freamware.net/2.0/get.picture";
 	static final String tag = JobManager.class.getSimpleName();
 	
-	static final int WORKER_THREADS = 20;
+	static final int WORKER_THREADS = 15;
 	
-	public static final int JOB_REFRESH = 1;
-
     Handler handler;
     JobWorker worker[] = new JobWorker[WORKER_THREADS];
     LinkedBlockingDeque<Job> jobsWaiting = new LinkedBlockingDeque<Job>();

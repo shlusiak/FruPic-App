@@ -1,7 +1,5 @@
 package de.saschahlusiak.frupic.services;
 
-import java.net.NetworkInterface;
-
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.grid.FruPicGrid;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
@@ -18,7 +16,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
