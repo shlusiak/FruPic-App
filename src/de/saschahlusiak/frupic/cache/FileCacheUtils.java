@@ -12,8 +12,8 @@ import android.util.Log;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.model.Frupic;
 
-public class FileCache {
-	private static final String tag = FileCache.class.getSimpleName();
+public class FileCacheUtils {
+	private static final String tag = FileCacheUtils.class.getSimpleName();
 	
 	File internal_cachedir, external_cachedir;
 	boolean prefer_external_cache;
@@ -41,7 +41,7 @@ public class FileCache {
 		}
 	}
 
-	public FileCache(Context context) {
+	public FileCacheUtils(Context context) {
 		this.context = context;
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		prefer_external_cache = prefs.getBoolean("external_cache", true);

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.Serializable;
 
 import de.saschahlusiak.frupic.db.FrupicDB;
-
 import android.database.Cursor;
 
 public class Frupic implements Serializable {
@@ -125,5 +124,13 @@ public class Frupic implements Serializable {
 	
 	public boolean isAnimated() {
 		return full_url.endsWith(".gif") || full_url.endsWith(".GIF");
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Frupic))
+			return false;
+		
+		return id == ((Frupic)o).id;
 	}
 }

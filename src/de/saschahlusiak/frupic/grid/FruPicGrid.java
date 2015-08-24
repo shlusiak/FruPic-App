@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.grid;
 
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.about.AboutActivity;
+import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
@@ -131,12 +132,12 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
         		);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-		factory = new FrupicFactory(this, 300);
+		factory = new FrupicFactory(this);
 
 		db = new FrupicDB(this);
 		db.open();
 		
-		adapter = new FruPicGridAdapter(this, factory);
+		adapter = new FruPicGridAdapter(this, factory, 300);
 		grid = (GridView) findViewById(R.id.gridView);
 		grid.setAdapter(adapter);
 		grid.setOnItemClickListener(this);
@@ -150,7 +151,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		} else {
 			currentCategory = 0;
 		}
-		purgeCacheJob = new PurgeCacheJob(factory);
+		purgeCacheJob = new PurgeCacheJob(new FileCacheUtils(this));
 	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE); 
 		navigationItemSelected(currentCategory, 0);
 		
@@ -225,8 +226,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		/* recreate the factory fileCache object to reread changed 
 		 * preferences
 		 */
-		factory.createFileCache();
-		
+		purgeCacheJob = new PurgeCacheJob(new FileCacheUtils(this));
+		factory.recreateFileCache();
 
 		super.onStart();
 	}
@@ -553,6 +554,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		if (jobManager == null)
 			return;
 		if (refreshJob == null)
+			return;
+		if (refreshJob.isScheduled())
 			return;
 		
     	NetworkInfo ni = cm.getActiveNetworkInfo();

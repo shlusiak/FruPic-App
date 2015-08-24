@@ -1,17 +1,17 @@
 package de.saschahlusiak.frupic.services;
 
-import de.saschahlusiak.frupic.model.FrupicFactory;
+import de.saschahlusiak.frupic.cache.FileCacheUtils;
 
 public class PurgeCacheJob extends Job {
-	FrupicFactory factory;
+	FileCacheUtils cacheUtils;
 	
-	public PurgeCacheJob(FrupicFactory factory) {
-		this.factory = factory;
+	public PurgeCacheJob(FileCacheUtils cacheUtils) {
+		this.cacheUtils = cacheUtils;
 	}
 
 	@Override
 	JobState run() {
-		factory.getFileCache().pruneCache();
+		cacheUtils.pruneCache();
 		return null;
 	}
 }

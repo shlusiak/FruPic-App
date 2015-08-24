@@ -124,6 +124,5 @@ public class JobManager extends Service {
     		jobsWaiting.addFirst(job);
     	else
     		jobsWaiting.addLast(job);
-    	
     }
 }

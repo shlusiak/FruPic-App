@@ -3,7 +3,7 @@ package de.saschahlusiak.frupic.detail;
 import java.io.File;
 
 import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.cache.FileCache;
+import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.model.Frupic;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -30,7 +30,7 @@ public class DetailDialog extends ArrayAdapter<DetailItem> {
 	}
 
 	public static AlertDialog create(Context context, Frupic frupic) {
-		FileCache fileCache = new FileCache(context);
+		FileCacheUtils fileCache = new FileCacheUtils(context);
 		
 		DetailDialog d;
 		ContextThemeWrapper ctw = new ContextThemeWrapper( context, R.style.Theme_FruPic_Light_Dialog);		

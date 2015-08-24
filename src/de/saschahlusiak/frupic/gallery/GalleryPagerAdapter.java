@@ -2,15 +2,17 @@ package de.saschahlusiak.frupic.gallery;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Date;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.cache.FileCache;
+import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
@@ -29,11 +31,10 @@ import android.widget.TextView;
 public class GalleryPagerAdapter extends PagerAdapter {
 	private final static String tag = GalleryPagerAdapter.class.getSimpleName();
 
-	FrupicFactory factory;
-	FileCache fileCache;
 	FruPicGallery context;
 	Cursor cursor;
 	boolean showAnimations;
+	FrupicFactory factory;
 	
 	class FetchTask extends Thread implements OnFetchProgress {
 		Frupic frupic;
@@ -96,7 +97,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 				return;
 			}
 
-			factory.fetchFull(frupic, this);
+			factory.fetchFrupicImage(frupic, false, this);
 			if (isCancelled())
 				return;
 
@@ -131,11 +132,10 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		}
 	}
 	
-	public GalleryPagerAdapter(FruPicGallery context, FrupicFactory factory, boolean showAnimations) {
+	public GalleryPagerAdapter(FruPicGallery context, boolean showAnimations) {
 		this.context = context;
-		this.factory = factory;
-		this.fileCache = factory.getFileCache();
 		this.showAnimations = showAnimations;
+		this.factory = new FrupicFactory(context);
 	}
 
 	public void setCursor(Cursor cursor) {
@@ -150,7 +150,7 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		if (showAnimations && frupic.isAnimated()) {
 			v.setVisibility(View.VISIBLE);
 			i.setVisibility(View.GONE);
-			String filename = fileCache.getFileName(frupic, false);
+			String filename = new FileCacheUtils(context).getFileName(frupic, false);
             InputStream stream = null;
 			try {
 				/* Movie calls reset() which the InputStream must support.
@@ -192,11 +192,16 @@ public class GalleryPagerAdapter extends PagerAdapter {
 		}
 		
 		/* fall-through, if loading animation failed */
-		Uri uri = factory.getFullBitmapURI(frupic);
-		if (uri != null) {
+		File file = factory.getCacheFile(frupic, false);
+		Uri uri = null;
+		if (file.exists()) {
+			uri = Uri.fromFile(file);
+			file.setLastModified(new Date().getTime());
+			
 			i.setVisibility(View.VISIBLE);
 			v.setVisibility(View.GONE);
 			i.setImage(ImageSource.uri(uri));
+			
 			return true;
 		}
 		return false;

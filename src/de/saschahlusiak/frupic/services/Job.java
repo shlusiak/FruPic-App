@@ -83,15 +83,15 @@ public abstract class Job {
 	}
 	
 	public final synchronized boolean isRunning() {
-		return 	getState() == JobState.JOB_RUNNING;
+		return getState() == JobState.JOB_RUNNING;
 	}
 	
 	public final synchronized boolean isScheduled() {
-		return 	getState() == JobState.JOB_SCHEDULED;
+		return getState() == JobState.JOB_SCHEDULED;
 	}
 
 	public final synchronized boolean isFailed() {
-		return 	getState() == JobState.JOB_FAILED;
+		return getState() == JobState.JOB_FAILED;
 	}
 	
 	abstract JobState run();

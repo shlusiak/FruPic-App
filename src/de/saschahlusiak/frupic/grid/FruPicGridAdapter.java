@@ -1,9 +1,10 @@
 package de.saschahlusiak.frupic.grid;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.cache.BitmapCache;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
-import de.saschahlusiak.frupic.services.FetchJob;
+import de.saschahlusiak.frupic.services.FetchThumbnailJob;
 import de.saschahlusiak.frupic.services.Job;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
 import de.saschahlusiak.frupic.services.Job.Priority;
@@ -27,11 +28,12 @@ public class FruPicGridAdapter extends CursorAdapter {
 	private static final String tag = FruPicGridAdapter.class.getSimpleName();
 	FruPicGrid activity;
 	FrupicFactory factory;
+	BitmapCache<Frupic> cache;
 	
 	public class ViewHolder implements OnJobListener {
 		Frupic frupic;
 		ImageView image1, image2, imageLabel;
-		FetchJob job;
+		FetchThumbnailJob job;
 		
 		ViewHolder(View convertView) {
 			image1 = (ImageView)convertView.findViewById(R.id.imageView1);
@@ -57,7 +59,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 				job.cancel();
 			job = null;
 			
-			Bitmap b = factory.getThumbBitmap(frupic);
+			Bitmap b = cache.get(frupic);
 			if (b != null) {
 				/* bitmap is in cache but view is apparently reused.
 				 * view could be before, after or in transition. set to "after"
@@ -84,7 +86,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 				return;
 			}
 
-			job = new FetchJob(frupic, true, factory);
+			job = new FetchThumbnailJob(frupic, factory);
 			job.addJobDoneListener(this);
 			activity.jobManager.post(job, Priority.PRIORITY_HIGH);
 		}
@@ -147,30 +149,24 @@ public class FruPicGridAdapter extends CursorAdapter {
 
 		@Override
 		public void OnJobDone(Job job) {
-			FetchJob fj = (FetchJob)job;
+			FetchThumbnailJob fj = (FetchThumbnailJob)job;
 			Frupic frupic = fj.getFrupic();
 			if (frupic != this.frupic)
 				return; 
-			Bitmap b = factory.getThumbBitmap(frupic);
-
-			switch (((FetchJob)job).getResult()) {
-			case FrupicFactory.NOT_AVAILABLE:
+			
+			if (fj.isFailed()) {
 				image1.clearAnimation();
 				image1.setImageResource(R.drawable.broken_frupic);
 				Log.e(tag, "fetchThumb returned NOT_AVAILABLE");
-				break;
-			case FrupicFactory.FROM_CACHE:
+			} else {
+				Bitmap b = fj.getBitmap();
+				cache.add(frupic, b);
 				setImage(b);
-				startFadeAnimation();
-				break;
-			case FrupicFactory.FROM_FILE:
-				setImage(b);
-				startFadeAnimation();
-				break;
-			case FrupicFactory.FROM_WEB:
-				setImage(b);
-				startRotateAnimation();
-				break;
+				
+				if (fj.isFromCache())
+					startFadeAnimation();
+				else
+					startRotateAnimation();
 			}
 			job = null;
 		}
@@ -181,10 +177,11 @@ public class FruPicGridAdapter extends CursorAdapter {
 		}
 	}
 	
-	FruPicGridAdapter(FruPicGrid activity, FrupicFactory factory) {
+	FruPicGridAdapter(FruPicGrid activity, FrupicFactory factory, int cacheSize) {
 		super(activity.getBaseContext(), null, false);
 		this.activity = activity;
 		this.factory = factory;
+		this.cache = new BitmapCache(cacheSize);
 	}
 
 	@Override

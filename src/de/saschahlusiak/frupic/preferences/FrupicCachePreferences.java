@@ -1,8 +1,8 @@
 package de.saschahlusiak.frupic.preferences;
 
 import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.cache.FileCache;
-import de.saschahlusiak.frupic.cache.FileCache.CacheInfo;
+import de.saschahlusiak.frupic.cache.FileCacheUtils;
+import de.saschahlusiak.frupic.cache.FileCacheUtils.CacheInfo;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
@@ -33,7 +33,7 @@ public class FrupicCachePreferences extends PreferenceFragment implements OnShar
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			FileCache fileCache = new FileCache(getActivity());
+			FileCacheUtils fileCache = new FileCacheUtils(getActivity());
 			fileCache.pruneCache(0);
 			FrupicDB db = new FrupicDB(getActivity());
 			db.open();
@@ -52,12 +52,12 @@ public class FrupicCachePreferences extends PreferenceFragment implements OnShar
 	private class UpdateCacheInfoTask extends AsyncTask<Void,Void,Void> {
 		CacheInfo cacheInfo;
 		int cacheSize;
-		FileCache fc = null;
+		FileCacheUtils fc = null;
 		
 		@Override
 		protected void onPreExecute() {
 			if (getActivity() != null) {
-				fc = new FileCache(getActivity());
+				fc = new FileCacheUtils(getActivity());
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 				cacheSize = Integer.parseInt(prefs.getString("cache_size", "16777216"));
 				clear_cache.setSummary(R.string.calculating);

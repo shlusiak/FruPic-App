@@ -3,6 +3,7 @@ package de.saschahlusiak.frupic.gallery;
 import java.io.File;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
@@ -22,13 +23,11 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -41,7 +40,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 	
 	ViewPager pager;
 	GalleryPagerAdapter adapter;
-	FrupicFactory factory;
 	ProgressDialog progressDialog;
 	Cursor cursor;
 	FrupicDB db;
@@ -60,15 +58,9 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         getActionBar().setDisplayShowHomeEnabled(false);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        
-        
-        factory = new FrupicFactory(this, 9);
-        factory.setTargetSize(display.getWidth(), display.getHeight());
-        
-        adapter = new GalleryPagerAdapter(this, factory, prefs.getBoolean("animatedgifs", true));
+                
+        adapter = new GalleryPagerAdapter(this, prefs.getBoolean("animatedgifs", true));
         
         controls = findViewById(R.id.all_controls);
         
@@ -92,8 +84,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 				findViewById(R.id.url).setVisibility(View.INVISIBLE);
 			}
 		});
-
-        
         
         pager.setOnPageChangeListener(this);
   
@@ -278,7 +268,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 
 			/* TODO: If file is not in cache yet, download it first or show message */
 			out = new File(out, frupic.getFileName(false));
-			if (FrupicFactory.copyImageFile(factory.getFileCache().getFile(frupic, false), out)) {
+			if (FrupicFactory.copyImageFile(new FileCacheUtils(this).getFile(frupic, false), out)) {
 				intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("image/?");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));
