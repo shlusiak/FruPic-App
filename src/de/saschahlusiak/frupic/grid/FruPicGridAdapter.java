@@ -87,7 +87,7 @@ public class FruPicGridAdapter extends CursorAdapter {
 			}
 
 			job = new FetchThumbnailJob(frupic, factory);
-			job.addJobDoneListener(this);
+			job.addJobListener(this);
 			activity.jobManager.post(job, Priority.PRIORITY_HIGH);
 		}
 		

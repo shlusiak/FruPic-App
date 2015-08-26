@@ -13,7 +13,6 @@ import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-
 import android.util.Log;
 
 public class FrupicFactory {
@@ -59,7 +58,11 @@ public class FrupicFactory {
 		
 		/* Fetch file from the Interweb, unless cached locally */
 		if (!f.exists()) {
-			if (! fetchFrupicImage(frupic, true, onProgress)) {
+			try {
+				if (! fetchFrupicImage(frupic, true, onProgress)) {
+					return null;
+				}
+			} catch (InterruptedException e) {
 				return null;
 			}
 //			Log.d(tag, "Downloaded file " + frupic.id);
@@ -84,7 +87,7 @@ public class FrupicFactory {
 	 * @param progress
 	 * @return true on success
 	 */
-	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) {
+	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) throws InterruptedException {
 		OutputStream myOutput = null;
 		File tmpFile = null;
 		int copied;
@@ -94,7 +97,7 @@ public class FrupicFactory {
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			
 			if (Thread.interrupted())
-				return false;
+				throw new InterruptedException();
 
 			long maxlength = connection.getContentLength();
 			InputStream myInput = connection.getInputStream();
@@ -128,7 +131,7 @@ public class FrupicFactory {
 					if (!tmpFile.delete()) {
 						Log.e(tag, "error removing partly downloaded file " + tmpFile.getName());
 					}
-					return false;
+					throw new InterruptedException();
 				}
 			
 				if (progress != null)
@@ -143,7 +146,7 @@ public class FrupicFactory {
 				if (!tmpFile.delete()) {
 					Log.e(tag, "error removing partly downloaded file " + tmpFile.getName());
 				}
-				return false;
+				throw new InterruptedException();
 			}
 			synchronized(fileCache) {
 				tmpFile.renameTo(fileCache.getFile(frupic, fetch_thumb));

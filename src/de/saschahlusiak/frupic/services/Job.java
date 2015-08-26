@@ -13,7 +13,7 @@ public abstract class Job {
 		/** this is called in the main thread */
 		public void OnJobDone(Job job);
 	}
-	
+		
 	public enum JobState {
 		JOB_IDLE,
 		JOB_SCHEDULED,
@@ -31,18 +31,20 @@ public abstract class Job {
 	ArrayList<OnJobListener> jobListener = new ArrayList<OnJobListener>();
 	Object tag;
 	JobState state;
+	Thread thread;
 	
 	public Job() {
 		state = JobState.JOB_IDLE;
+		thread = null;
 	}
 	
-	public void addJobDoneListener(OnJobListener listener) {
+	public void addJobListener(OnJobListener listener) {
 		synchronized (jobListener) {
 			jobListener.add(listener);
 		}
 	}
 	
-	public void removeJobDoneListener(OnJobListener listener) {
+	public void removeJobListener(OnJobListener listener) {
 		synchronized (jobListener) {
 			jobListener.remove(listener);
 		}
@@ -75,6 +77,9 @@ public abstract class Job {
 	}
 	
 	public void cancel() {
+		if (thread != null)
+			thread.interrupt();
+		
 		setState(JobState.JOB_CANCELLED);
 	}
 	
@@ -92,6 +97,10 @@ public abstract class Job {
 
 	public final synchronized boolean isFailed() {
 		return getState() == JobState.JOB_FAILED;
+	}
+	
+	public final synchronized boolean isCancelled() {
+		return getState() == JobState.JOB_CANCELLED;
 	}
 	
 	abstract JobState run();

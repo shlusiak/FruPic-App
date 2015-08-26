@@ -60,7 +60,7 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 	public void onDestroy() {
 		Log.d(tag, "OnDestroy");
 		if (refreshJob != null)
-			refreshJob.removeJobDoneListener(this);
+			refreshJob.removeJobListener(this);
 		handler.removeCallbacks(this);
 		refreshJob = null;
 		jobManager = null;
@@ -84,14 +84,14 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 	public void onServiceConnected(ComponentName name, IBinder service) {
 		jobManager = ((JobManagerBinder)service).getService();
 		refreshJob = jobManager.getRefreshJob();
-		refreshJob.addJobDoneListener(this);
+		refreshJob.addJobListener(this);
 		handler.postDelayed(this, interval);
 	}
 
 	@Override
 	public void onServiceDisconnected(ComponentName name) {
 		if (refreshJob != null)
-			refreshJob.removeJobDoneListener(this);
+			refreshJob.removeJobListener(this);
 		refreshJob = null;
 		jobManager = null;
 		handler.removeCallbacks(this);

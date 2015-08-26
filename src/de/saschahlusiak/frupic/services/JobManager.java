@@ -27,14 +27,15 @@ public class JobManager extends Service {
     RefreshJob refreshJob;
 
 	class JobWorker extends Thread {
+		public boolean goDown;
 		
 		public JobWorker() {
-			
+			goDown = false;
 		}
 		
 		@Override
 		public void run() {
-			while (!isInterrupted()) {
+			while (!goDown) {
 				final Job job;
 
 				try {
@@ -47,6 +48,7 @@ public class JobManager extends Service {
 				}
 				
 				job.setState(JobState.JOB_RUNNING);
+				job.thread = this;
 				handler.post(new Runnable() {
 					@Override
 					public void run() {
@@ -54,7 +56,9 @@ public class JobManager extends Service {
 					}
 				});
 				JobState res = job.run();
-				job.setState(res);
+				job.thread = null;
+				if (job.getState() != JobState.JOB_CANCELLED)
+					job.setState(res);
 				jobsRunning.remove(job);
 				handler.post(new Runnable() {
 					@Override
@@ -95,6 +99,7 @@ public class JobManager extends Service {
     public void onDestroy() {
     	Log.d(tag, "onDestroy");
     	for (int i = 0; i < worker.length; i++) {
+    		worker[i].goDown = true;
     		worker[i].interrupt();
     	}
     	super.onDestroy();

@@ -202,7 +202,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		}
 		
 		if (refreshJob != null) {
-			refreshJob.removeJobDoneListener(this);
+			refreshJob.removeJobListener(this);
 			refreshJob = null;
 		}
 		if (cursor != null)
@@ -575,9 +575,10 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {
+		Log.d(tag, "onServiceConnected");
 		jobManager = ((JobManagerBinder)service).getService();
 		refreshJob = jobManager.getRefreshJob();
-		refreshJob.addJobDoneListener(this);
+		refreshJob.addJobListener(this);
 		if (refreshJob.isRunning())
 			OnJobStarted(refreshJob);
 		else
@@ -588,7 +589,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 	@Override
 	public void onServiceDisconnected(ComponentName name) {
-		refreshJob.removeJobDoneListener(this);
+		Log.d(tag, "onServiceDisconnected");
+		refreshJob.removeJobListener(this);
 		refreshJob = null;
 		jobManager = null;
 	}

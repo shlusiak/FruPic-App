@@ -8,18 +8,22 @@ import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
+import de.saschahlusiak.frupic.services.JobManager;
+import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
 import android.app.Activity;
 import android.app.DownloadManager;
-import android.app.ProgressDialog;
 import android.app.DownloadManager.Request;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -35,18 +39,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class FruPicGallery extends Activity implements ViewPager.OnPageChangeListener {
+public class FruPicGallery extends Activity implements ViewPager.OnPageChangeListener, ServiceConnection {
 	private static final String tag = FruPicGallery.class.getSimpleName();
 	
 	ViewPager pager;
 	GalleryPagerAdapter adapter;
-	ProgressDialog progressDialog;
 	Cursor cursor;
 	FrupicDB db;
 	int navIndex;
 	View controls;
 	Animation fadeAnimation;
 	Menu menu;
+	
+	JobManager jobManager;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,8 +65,6 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                 
-        adapter = new GalleryPagerAdapter(this, prefs.getBoolean("animatedgifs", true));
-        
         controls = findViewById(R.id.all_controls);
         
         pager = (ViewPager) findViewById(R.id.viewPager);
@@ -96,8 +99,12 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         	navIndex = getIntent().getIntExtra("navIndex", 0);
         }
 
-        cursorChanged();
+        adapter = new GalleryPagerAdapter(this, prefs.getBoolean("animatedgifs", true));
         pager.setAdapter(adapter);
+        cursorChanged();
+
+		Intent intent = new Intent(this, JobManager.class);
+		bindService(intent, this, Context.BIND_AUTO_CREATE);
 
         
         if (savedInstanceState != null) {
@@ -149,6 +156,9 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     
     @Override
     protected void onDestroy() {
+    	jobManager = null;
+		unbindService(this);
+
     	db.close();
     	super.onDestroy();
     }
@@ -343,5 +353,21 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 
     @Override
     public void onPageScrollStateChanged(int state) {
+    	
     }
+
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+		jobManager = ((JobManagerBinder)service).getService();
+		adapter.setJobManager(jobManager);
+
+		Log.d(tag, "onServiceConnected");
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+		jobManager = null;
+		
+		Log.d(tag, "onServiceDisconnected");
+	}
 }

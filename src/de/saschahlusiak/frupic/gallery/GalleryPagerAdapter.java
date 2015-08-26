@@ -15,7 +15,11 @@ import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
-import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
+import de.saschahlusiak.frupic.services.FetchFrupicJob;
+import de.saschahlusiak.frupic.services.Job;
+import de.saschahlusiak.frupic.services.Job.OnJobListener;
+import de.saschahlusiak.frupic.services.Job.Priority;
+import de.saschahlusiak.frupic.services.JobManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
@@ -28,114 +32,35 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class GalleryPagerAdapter extends PagerAdapter {
+public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 	private final static String tag = GalleryPagerAdapter.class.getSimpleName();
 
 	FruPicGallery context;
 	Cursor cursor;
 	boolean showAnimations;
 	FrupicFactory factory;
+	JobManager jobManager;
 	
-	class FetchTask extends Thread implements OnFetchProgress {
-		Frupic frupic;
-		View view;
-		boolean cancelled = false;
-		ViewGroup progressLayout;
-		ProgressBar progress;
-		TextView progressText;
-
-		FetchTask(final View view, final Frupic frupic) {
-			this.view = view;
-			this.frupic = frupic;
-			final ImageButton stopButton = (ImageButton)view.findViewById(R.id.stopButton);
-			
-			progressLayout = (ViewGroup) view.findViewById(R.id.progressLayout);
-			
-			progress = (ProgressBar)view.findViewById(R.id.progressBar);
-			progress.setIndeterminate(false);
-			progress.setMax(100);
-			progress.setProgress(0);
-			progress.setVisibility(View.VISIBLE);
-			
-			progressText = (TextView)view.findViewById(R.id.progress);
-			progressText.setVisibility(View.VISIBLE);
-			progressText.setText(R.string.waiting_to_start);
-			
-			stopButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
-			stopButton.setVisibility(View.VISIBLE);
-			stopButton.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					if (isCancelled()) {
-						Thread t = new FetchTask(view, frupic);
-						view.setTag(t);
-						t.start();
-					} else {
-						stopButton.setImageResource(android.R.drawable.ic_menu_revert);
-						progressText.setText(R.string.cancelled);
-						cancel();
-					}
-				}
-			});
-		}
-	
-		public synchronized void cancel() {
-			if (cancelled)
-				return;
-			cancelled = true;
-			interrupt();
-		}
-	
-		public synchronized boolean isCancelled() {
-			return cancelled;
-		}
-
-		@Override
-		public void run() {
-			if (isCancelled()) {
-				return;
-			}
-
-			factory.fetchFrupicImage(frupic, false, this);
-			if (isCancelled())
-				return;
-
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					SubsamplingScaleImageView i = (SubsamplingScaleImageView) view.findViewById(R.id.imageView);
-					GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
-					
-					progressLayout.setVisibility(View.GONE);
-					
-					if (!showFrupic(view, frupic)) {
-						i.setVisibility(View.VISIBLE);
-						v.setVisibility(View.GONE);
-						i.setImage(ImageSource.resource(R.drawable.broken_frupic));
-					}
-				}
-			});
-		}
-
-		@Override
-		public void OnProgress(final int read, final int length) {
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					if (isCancelled())
-						return;
-					progress.setProgress((100 * read) / length);
-					progressText.setText(String.format("%dkb / %dkb (%d%%)", read / 1024, length / 1024, (length > 0) ? read * 100 / length : 0));
-				}
-			});
-		}
+	static class ViewHolder {
+		public Frupic frupic;
+		public Job job;
+		public View view;
+		
+		public ViewGroup progressLayout;
+		public ProgressBar progress;
+		public TextView progressText;
 	}
-	
+
 	public GalleryPagerAdapter(FruPicGallery context, boolean showAnimations) {
 		this.context = context;
 		this.showAnimations = showAnimations;
 		this.factory = new FrupicFactory(context);
+	}
+	
+	public void setJobManager(JobManager jobManager) {
+		this.jobManager = jobManager;
+		
+		notifyDataSetChanged();
 	}
 
 	public void setCursor(Cursor cursor) {
@@ -236,29 +161,65 @@ public class GalleryPagerAdapter extends PagerAdapter {
 				context.toggleControls();
 			}
 		});
+		
+		ViewHolder holder = new ViewHolder();
+		holder.view = view;
+		holder.progressLayout = (ViewGroup) view.findViewById(R.id.progressLayout);
+		
+		holder.progress = (ProgressBar)view.findViewById(R.id.progressBar);
+		holder.progress.setIndeterminate(false);
+		holder.progress.setMax(100);
+		holder.progress.setProgress(0);
+		holder.progressText = (TextView)view.findViewById(R.id.progress);
+		
+		holder.frupic = frupic;
+		
+		frupic.tag = holder;
+		view.setTag(holder);
 
 		if (!showFrupic(view, frupic)) {
 			i.setVisibility(View.GONE);
 			v.setVisibility(View.GONE);
-						
-			Thread t = new FetchTask(view, frupic);
-			view.setTag(t);
-			t.start();
+			
+			holder.progress.setVisibility(View.VISIBLE);
+			holder.progressText.setVisibility(View.VISIBLE);
+			holder.progressText.setText(R.string.waiting_to_start);
+		
+			if (jobManager != null) {
+				holder.job = new FetchFrupicJob(frupic, factory);
+				holder.job.addJobListener(this);
+				
+				jobManager.post(holder.job, Priority.PRIORITY_HIGH);
+			} else {
+				Log.d(tag, "JobManager not available yet");
+				holder.view = null;
+			}	
 		} else {
 			view.findViewById(R.id.progressLayout).setVisibility(View.GONE);
 		}
 		
 		container.addView(view);
-		return view;
+		return holder;
 	}
 	
 	@Override
 	public void destroyItem(ViewGroup container, int position, Object object) {
-		View view = (View)object;
-		FetchTask t = (FetchTask)view.getTag();
-		if (t != null)
-			t.cancel();
-		container.removeView(view);
+		Log.w(tag, "destroyItem(" + position + ")");
+		
+		ViewHolder holder = (ViewHolder)object;
+		holder.frupic.tag = null;
+		if (holder.job != null)
+			holder.job.cancel();
+		
+		container.removeView(holder.view);
+	}
+	
+	@Override
+	public int getItemPosition(Object object) {
+		ViewHolder holder = (ViewHolder)object;
+		if (holder.view == null)
+			return POSITION_NONE;
+		return POSITION_UNCHANGED;
 	}
 
 	@Override
@@ -270,6 +231,72 @@ public class GalleryPagerAdapter extends PagerAdapter {
 
 	@Override
 	public boolean isViewFromObject(View view, Object object) {
-		return view == object;
+		return view == ((ViewHolder)object).view;
+	}
+
+	@Override
+	public void OnJobStarted(final Job job) {
+		Frupic frupic = ((FetchFrupicJob)job).getFrupic();
+		final ViewHolder holder = (ViewHolder) frupic.tag;
+		
+		final ImageButton stopButton = (ImageButton)holder.view.findViewById(R.id.stopButton);
+		
+		stopButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
+		stopButton.setVisibility(View.VISIBLE);
+		stopButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (job.isCancelled()) {
+					jobManager.post(job, Priority.PRIORITY_HIGH);
+				} else {
+					job.cancel();
+					stopButton.setImageResource(android.R.drawable.ic_menu_revert);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void OnJobProgress(Job job, final int progress, final int max) {
+		Frupic frupic = ((FetchFrupicJob)job).getFrupic();
+		final ViewHolder holder = (ViewHolder) frupic.tag;
+		
+		if (holder == null)
+			return;
+
+		holder.view.post(new Runnable() {
+			@Override
+			public void run() {
+				holder.progress.setProgress((100 * progress) / max);
+				holder.progressText.setText(String.format("%dkb / %dkb (%d%%)", progress / 1024, max / 1024, (max > 0) ? progress * 100 / max : 0));
+			}
+		});
+	}
+
+	@Override
+	public void OnJobDone(Job job) {
+		Frupic frupic = ((FetchFrupicJob)job).getFrupic();
+		ViewHolder holder = (ViewHolder) frupic.tag;
+		
+		if (holder == null)
+			return;
+		
+		if (job.isCancelled()) {
+			holder.progressText.setText(R.string.cancelled);
+		} else {
+			holder.job.removeJobListener(this);
+			holder.job = null;
+			SubsamplingScaleImageView i = (SubsamplingScaleImageView) holder.view.findViewById(R.id.imageView);
+			GifMovieView v = (GifMovieView)holder.view.findViewById(R.id.videoView);
+			
+			holder.progressLayout.setVisibility(View.GONE);
+			
+			if (!showFrupic(holder.view, frupic)) {
+				i.setVisibility(View.VISIBLE);
+				v.setVisibility(View.GONE);
+				i.setImage(ImageSource.resource(R.drawable.broken_frupic));
+			}
+		}
 	}
 }
