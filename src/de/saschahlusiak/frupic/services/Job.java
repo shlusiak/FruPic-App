@@ -62,14 +62,14 @@ public abstract class Job {
 		return state;
 	}
 	
-	synchronized void onJobStarted() {		
+	void onJobStarted() {		
 		synchronized (jobListener) {
 			for (OnJobListener jl: jobListener)
 				jl.OnJobStarted(this);
 		}
 	}
 	
-	synchronized void onJobDone() {
+	void onJobDone() {
 		synchronized (jobListener) {
 			for (OnJobListener jl: jobListener)
 				jl.OnJobDone(this);

@@ -64,7 +64,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                
+
         controls = findViewById(R.id.all_controls);
         
         pager = (ViewPager) findViewById(R.id.viewPager);
@@ -156,6 +156,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
     
     @Override
     protected void onDestroy() {
+    	adapter.setJobManager(null);
     	jobManager = null;
 		unbindService(this);
 

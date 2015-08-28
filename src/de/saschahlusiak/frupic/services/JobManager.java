@@ -3,7 +3,10 @@ package de.saschahlusiak.frupic.services;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import de.saschahlusiak.frupic.model.Frupic;
+import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.services.Job.JobState;
+import de.saschahlusiak.frupic.services.Job.OnJobListener;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -105,8 +108,36 @@ public class JobManager extends Service {
     	super.onDestroy();
     }
     
+    public synchronized void removeAllJobListener(OnJobListener listener) {
+    	for (Job job: jobsWaiting)
+    		job.removeJobListener(listener);
+    	for (Job job: jobsRunning)
+    		job.removeJobListener(listener);
+    }
+    
     public RefreshJob getRefreshJob() {
     	return refreshJob;
+    }
+    
+    public FetchFrupicJob getFetchJob(Frupic frupic, FrupicFactory factory) {
+    	FetchFrupicJob j = null;
+    	
+    	for (Job job: jobsWaiting)
+    		if (job instanceof FetchFrupicJob)
+    			if (((FetchFrupicJob)job).getFrupic().equals(frupic))
+    				j = (FetchFrupicJob)job;
+    	
+    	for (Job job: jobsRunning)
+    		if (job instanceof FetchFrupicJob)
+    			if (((FetchFrupicJob)job).getFrupic().equals(frupic))
+    				j = (FetchFrupicJob)job;
+    	
+    	if (j == null)
+    		j = new FetchFrupicJob(frupic, factory);
+    	
+    	j.setFrupic(frupic);
+    	
+    	return j;
     }
     
     @Override

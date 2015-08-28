@@ -58,6 +58,9 @@ public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 	}
 	
 	public void setJobManager(JobManager jobManager) {
+		if (jobManager == null && this.jobManager != null) {
+			this.jobManager.removeAllJobListener(this);
+		}
 		this.jobManager = jobManager;
 		
 		notifyDataSetChanged();
@@ -162,7 +165,7 @@ public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 			}
 		});
 		
-		ViewHolder holder = new ViewHolder();
+		final ViewHolder holder = new ViewHolder();
 		holder.view = view;
 		holder.progressLayout = (ViewGroup) view.findViewById(R.id.progressLayout);
 		
@@ -171,6 +174,23 @@ public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 		holder.progress.setMax(100);
 		holder.progress.setProgress(0);
 		holder.progressText = (TextView)view.findViewById(R.id.progress);
+		
+		final ImageButton stopButton = (ImageButton)holder.view.findViewById(R.id.stopButton);
+		
+		stopButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
+		stopButton.setVisibility(View.VISIBLE);
+		stopButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (holder.job.isCancelled()) {
+					jobManager.post(holder.job, Priority.PRIORITY_HIGH);
+				} else {
+					holder.job.cancel();
+					stopButton.setImageResource(android.R.drawable.ic_menu_revert);
+				}
+			}
+		});
 		
 		holder.frupic = frupic;
 		
@@ -186,7 +206,7 @@ public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 			holder.progressText.setText(R.string.waiting_to_start);
 		
 			if (jobManager != null) {
-				holder.job = new FetchFrupicJob(frupic, factory);
+				holder.job = jobManager.getFetchJob(frupic, factory);
 				holder.job.addJobListener(this);
 				
 				jobManager.post(holder.job, Priority.PRIORITY_HIGH);
@@ -239,29 +259,14 @@ public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 		Frupic frupic = ((FetchFrupicJob)job).getFrupic();
 		final ViewHolder holder = (ViewHolder) frupic.tag;
 		
-		final ImageButton stopButton = (ImageButton)holder.view.findViewById(R.id.stopButton);
 		
-		stopButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
-		stopButton.setVisibility(View.VISIBLE);
-		stopButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if (job.isCancelled()) {
-					jobManager.post(job, Priority.PRIORITY_HIGH);
-				} else {
-					job.cancel();
-					stopButton.setImageResource(android.R.drawable.ic_menu_revert);
-				}
-			}
-		});
 	}
 
 	@Override
 	public void OnJobProgress(Job job, final int progress, final int max) {
 		Frupic frupic = ((FetchFrupicJob)job).getFrupic();
 		final ViewHolder holder = (ViewHolder) frupic.tag;
-		
+	
 		if (holder == null)
 			return;
 
@@ -278,6 +283,8 @@ public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 	public void OnJobDone(Job job) {
 		Frupic frupic = ((FetchFrupicJob)job).getFrupic();
 		ViewHolder holder = (ViewHolder) frupic.tag;
+		
+		Log.d(tag, "OnJobDone(" + frupic.id + ")");
 		
 		if (holder == null)
 			return;
