@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.grid;
 
+import me.leolin.shortcutbadger.ShortcutBadger;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.about.AboutActivity;
 import de.saschahlusiak.frupic.cache.FileCacheUtils;
@@ -183,6 +184,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		bindService(intent, this, Context.BIND_AUTO_CREATE);
 		
 		cursorChanged();
+		
+		ShortcutBadger.with(this).count(0);
 	}
 
 	@Override

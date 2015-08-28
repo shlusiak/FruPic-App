@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.services;
 
+import me.leolin.shortcutbadger.ShortcutBadger;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.grid.FruPicGrid;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
@@ -97,26 +98,39 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 		handler.removeCallbacks(this);
 	}
 	
-	@Override
-	public void run() {
-//		Log.d(tag, "autorefresh");
-		handler.postDelayed(this, interval);
+	/**
+	 * @return next interval
+	 */
+	private int doRefresh() {
+		// 15 minutes if unavailable
+		int SHORT = 15 * 60 * 1000;
 		
 		if (refreshJob != null && !refreshJob.isRunning() && !refreshJob.isScheduled()) {
 	    	NetworkInfo ni = cm.getActiveNetworkInfo();
 	    	/* TODO: schedule sooner or listen to network change event? */
 	    	if (ni == null)
-	    		return;
+	    		return SHORT;
+	    	
 	    	if (!ni.isConnected())
-	    		return;
+	    		return SHORT;
+	    	
 	    	if (only_on_wifi && ni.getType() != ConnectivityManager.TYPE_WIFI) {
 //	    		Log.d(tag, "not on wifi, skip");
-	    		return;
+	    		return SHORT;
 	    	}
 
 			refreshJob.setRange(0, FruPicGrid.FRUPICS_STEP);
 			jobManager.post(refreshJob, Priority.PRIORITY_LOW);
 		}
+		
+		return interval;
+	}
+	
+	@Override
+	public void run() {
+		int ret = doRefresh();
+		
+		handler.postDelayed(this, ret);		
 	}
 
 	@Override
@@ -135,6 +149,8 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 			return;
 		
 		new_pictures += refreshJob.getLastCount();
+		
+		ShortcutBadger.with(this).count(new_pictures);
 		
 		Notification.Builder builder = new Notification.Builder(this);
 
