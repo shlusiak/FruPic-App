@@ -183,6 +183,14 @@ public class FruPicGridAdapter extends CursorAdapter {
 		this.factory = factory;
 		this.cache = new LruCache<>(cacheSize);
 	}
+	
+	public void setCache(LruCache<Integer, Bitmap> cache) {
+		this.cache = cache;
+	}
+	
+	public LruCache<Integer, Bitmap> getCache() {
+		return cache;
+	}
 
 	@Override
 	public void bindView(View convertView, Context context, Cursor cursor) {

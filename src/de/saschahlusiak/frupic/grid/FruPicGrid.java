@@ -29,6 +29,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -43,6 +44,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -159,6 +161,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     		this.jobManager = null;
     	}
     }
+    
+    static class RetainedConfig {
+    	JobManagerConnection jobManagerConnection;
+    	LruCache<Integer, Bitmap> cache;
+    }
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
@@ -198,11 +205,17 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		db = new FrupicDB(this);
 		db.open();
 		
-		jobManagerConnection = (JobManagerConnection) getLastNonConfigurationInstance();
+		RetainedConfig retainedConfig = (RetainedConfig) getLastNonConfigurationInstance();
+		if (retainedConfig != null) {
+			jobManagerConnection = retainedConfig.jobManagerConnection;
+			
+		}
+		
 		if (jobManagerConnection != null) { 
 			jobManagerConnection.activity = this;
 			if (jobManagerConnection.refreshJob != null)
 				jobManagerConnection.refreshJob.addJobListener(this);
+			invalidateOptionsMenu();
 		} else {
 			jobManagerConnection = new JobManagerConnection(this);
 			Intent intent = new Intent(this, JobManager.class);
@@ -211,6 +224,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE); 
 		
 		adapter = new FruPicGridAdapter(this, factory, 300);
+		if (retainedConfig != null)
+			adapter.setCache(retainedConfig.cache);
+		
 		grid = (GridView) findViewById(R.id.gridView);
 		grid.setAdapter(adapter);
 		grid.setOnItemClickListener(this);
@@ -289,16 +305,17 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		if (jobManagerConnection.jobManager == null)
-			return null;
+		RetainedConfig retain = new RetainedConfig();
 		
-		Object retain = jobManagerConnection;
-		if (jobManagerConnection.refreshJob != null) {
+		retain.cache = adapter.getCache();
+		
+		if (jobManagerConnection.jobManager != null) {
 			jobManagerConnection.refreshJob.removeJobListener(this);
 			jobManagerConnection.activity = null;
-		}
+			retain.jobManagerConnection = jobManagerConnection;
+			jobManagerConnection = null;
+		}	
 		
-		jobManagerConnection = null;
 		return retain;
 	}
 	
