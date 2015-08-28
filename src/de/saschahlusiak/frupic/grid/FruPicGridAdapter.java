@@ -81,14 +81,14 @@ public class FruPicGridAdapter extends CursorAdapter {
 			image1.setVisibility(View.VISIBLE);
 			image2.setVisibility(View.INVISIBLE);
 
-			if (activity.jobManager == null) {
+			if (activity.jobManagerConnection.jobManager == null) {
 				this.frupic = null;
 				return;
 			}
 
 			job = new FetchThumbnailJob(frupic, factory);
 			job.addJobListener(this);
-			activity.jobManager.post(job, Priority.PRIORITY_HIGH);
+			activity.jobManagerConnection.jobManager.post(job, Priority.PRIORITY_HIGH);
 		}
 		
 		void setImage(Bitmap b) {

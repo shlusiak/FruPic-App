@@ -60,7 +60,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
-public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, ServiceConnection, OnJobListener {
+public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, OnJobListener {
 	static private final String tag = FruPicGrid.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
@@ -71,8 +71,6 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	View mRefreshIndeterminateProgressView;
 	FrupicDB db;
 	Cursor cursor;
-	JobManager jobManager;
-	RefreshJob refreshJob;
 	PurgeCacheJob purgeCacheJob;
 	ConnectivityManager cm;
 	
@@ -82,16 +80,17 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     View mDrawer;
     ActionBarDrawerToggle mDrawerToggle;
     int currentCategory;
+    
+    JobManagerConnection jobManagerConnection;
 
 	public static final int FRUPICS_STEP = 100;
 	
-	private final class RemoveWindow implements Runnable {
+    private Runnable mRemoveWindow = new Runnable() {
         public void run() {
             removeWindow();
         }
-    }
-
-    private RemoveWindow mRemoveWindow = new RemoveWindow();
+    };
+    
     Handler mHandler = new Handler();
     private WindowManager mWindowManager;
     private TextView mDialogText;
@@ -99,6 +98,67 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     private boolean mReady;
     
     SharedPreferences prefs;
+    
+    static class JobManagerConnection implements ServiceConnection {
+    	FruPicGrid activity;
+    	
+    	JobManager jobManager;
+    	RefreshJob refreshJob;
+    	
+    	JobManagerConnection(FruPicGrid activity) {
+    		this.activity = activity;
+    	}
+    	
+    	@Override
+    	public void onServiceConnected(ComponentName name, IBinder service) {
+    		Log.d(tag, "onServiceConnected");
+    		jobManager = ((JobManagerBinder)service).getService();
+    		refreshJob = jobManager.getRefreshJob();
+    		refreshJob.addJobListener(activity);
+    		if (refreshJob.isRunning())
+    			activity.OnJobStarted(refreshJob);
+    		else
+    			requestRefresh(0, FRUPICS_STEP);
+    		activity.adapter.notifyDataSetChanged();
+    		activity.invalidateOptionsMenu();
+    	}
+    	
+    	void requestRefresh(int base, int count) {
+    		if (jobManager == null)
+    			return;
+    		if (refreshJob == null)
+    			return;
+    		if (refreshJob.isScheduled() || refreshJob.isRunning())
+    			return;
+    		
+        	NetworkInfo ni = activity.cm.getActiveNetworkInfo();
+        	if (ni == null)
+        		return;
+        	if (!ni.isConnected())
+        		return;
+
+    		refreshJob.setRange(base, count);
+    		
+    		Intent intent = new Intent(activity, JobManager.class);
+    		activity.startService(intent);
+    		
+    		jobManager.post(refreshJob, Priority.PRIORITY_HIGH);
+    	}
+
+    	@Override
+    	public void onServiceDisconnected(ComponentName name) {
+    		Log.d(tag, "onServiceDisconnected");
+    		refreshJob.removeJobListener(activity);
+    		refreshJob = null;
+    		jobManager = null;
+    	}
+    	
+    	void unbind(Context context) {
+    		context.getApplicationContext().unbindService(this);
+    		this.refreshJob = null;
+    		this.jobManager = null;
+    	}
+    }
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
@@ -138,6 +198,18 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		db = new FrupicDB(this);
 		db.open();
 		
+		jobManagerConnection = (JobManagerConnection) getLastNonConfigurationInstance();
+		if (jobManagerConnection != null) { 
+			jobManagerConnection.activity = this;
+			if (jobManagerConnection.refreshJob != null)
+				jobManagerConnection.refreshJob.addJobListener(this);
+		} else {
+			jobManagerConnection = new JobManagerConnection(this);
+			Intent intent = new Intent(this, JobManager.class);
+			getApplicationContext().bindService(intent, jobManagerConnection, Context.BIND_AUTO_CREATE);
+		}
+	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE); 
+		
 		adapter = new FruPicGridAdapter(this, factory, 300);
 		grid = (GridView) findViewById(R.id.gridView);
 		grid.setAdapter(adapter);
@@ -153,7 +225,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			currentCategory = 0;
 		}
 		purgeCacheJob = new PurgeCacheJob(new FileCacheUtils(this));
-	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE); 
+	    
 		navigationItemSelected(currentCategory, 0);
 		
         mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
@@ -179,10 +251,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		
 		Intent intent = new Intent(this, AutoRefreshManager.class);
 		stopService(intent);
-		
-		intent = new Intent(this, JobManager.class);
-		bindService(intent, this, Context.BIND_AUTO_CREATE);
-		
+				
 		cursorChanged();
 		
 		ShortcutBadger.with(this).count(0);
@@ -190,24 +259,23 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 	@Override
 	protected void onDestroy() {
-		/* delete all temporary external cache files created from "Share Image" */
-		
-		if (jobManager != null) {
-			jobManager = null;
+		if (jobManagerConnection != null) {
+			if (jobManagerConnection.refreshJob != null) {
+				jobManagerConnection.refreshJob.removeJobListener(this);
+			}
+			
+			jobManagerConnection.unbind(this);
+			jobManagerConnection = null;
+			
+			int interval = Integer.parseInt(prefs.getString("autorefresh", "0"));
+			if (prefs.getBoolean("autorefresh_enabled", true)) {
+				Intent intent = new Intent(this, AutoRefreshManager.class);
+				intent.putExtra("interval", interval);
+				startService(intent);
+			}
 		}
-		unbindService(this);
 		
-		int interval = Integer.parseInt(prefs.getString("autorefresh", "0"));
-		if (prefs.getBoolean("autorefresh_enabled", true)) {
-			Intent intent = new Intent(this, AutoRefreshManager.class);
-			intent.putExtra("interval", interval);
-			startService(intent);
-		}
 		
-		if (refreshJob != null) {
-			refreshJob.removeJobListener(this);
-			refreshJob = null;
-		}
 		if (cursor != null)
 			cursor.close();
 		cursor = null;
@@ -217,6 +285,21 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
         mWindowManager.removeView(mDialogText);
         mReady = false;		
 		super.onDestroy();
+	}
+	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		if (jobManagerConnection.jobManager == null)
+			return null;
+		
+		Object retain = jobManagerConnection;
+		if (jobManagerConnection.refreshJob != null) {
+			jobManagerConnection.refreshJob.removeJobListener(this);
+			jobManagerConnection.activity = null;
+		}
+		
+		jobManagerConnection = null;
+		return retain;
 	}
 	
 	protected void onSaveInstanceState(Bundle outState) {
@@ -237,8 +320,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	@Override
 	protected void onStop() {
-		if (jobManager != null)
-			jobManager.post(purgeCacheJob, Priority.PRIORITY_LOW);
+		if (jobManagerConnection != null)
+			jobManagerConnection.jobManager.post(purgeCacheJob, Priority.PRIORITY_LOW);
 
 		super.onStop();
 	}
@@ -290,10 +373,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     int lastScrollState = SCROLL_STATE_IDLE;
     
 	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
-		if (currentCategory == 0 && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
-			requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+		if (currentCategory == 0 && firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP && visibleItemCount > 0) {
+			jobManagerConnection.requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 		}
         if (mReady) {
         	Cursor first = (Cursor)adapter.getItem(firstVisibleItem);
@@ -324,11 +406,11 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			int firstVisibleItem = grid.getFirstVisiblePosition();
 			int visibleItemCount = grid.getLastVisiblePosition() - firstVisibleItem + 1;
 			if (firstVisibleItem + visibleItemCount > adapter.getCount() - FRUPICS_STEP) {
-				requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
+				jobManagerConnection.requestRefresh(adapter.getCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 			}
 			
-			if (jobManager != null)
-				jobManager.post(purgeCacheJob, Priority.PRIORITY_LOW);
+			if (jobManagerConnection.jobManager != null)
+				jobManagerConnection.jobManager.post(purgeCacheJob, Priority.PRIORITY_LOW);
 		}
 	}
 
@@ -343,12 +425,12 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.refresh).setEnabled(refreshJob != null);
+		menu.findItem(R.id.refresh).setEnabled(jobManagerConnection.refreshJob != null);
 		menu.findItem(R.id.mark_seen).setVisible(currentCategory == 1);
 		menu.findItem(R.id.mark_seen).setEnabled(cursor == null || cursor.getCount() >= 1);
 			
 		/* in case the tasks gets started before the options menu is created */
-		if (refreshJob != null && refreshJob.isRunning())
+		if (jobManagerConnection.refreshJob != null && jobManagerConnection.refreshJob.isRunning())
 			setProgressActionView(true);
 
 		return super.onPrepareOptionsMenu(menu);
@@ -371,7 +453,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			
 		case R.id.refresh:
 			db.updateFlags(null, Frupic.FLAG_NEW, false);
-			requestRefresh(0, FRUPICS_STEP);
+			jobManagerConnection.requestRefresh(0, FRUPICS_STEP);
 			return true;
 
 		case R.id.upload:
@@ -554,50 +636,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		return true;
 	}
 	
-	void requestRefresh(int base, int count) {
-		if (jobManager == null)
-			return;
-		if (refreshJob == null)
-			return;
-		if (refreshJob.isScheduled() || refreshJob.isRunning())
-			return;
-		
-    	NetworkInfo ni = cm.getActiveNetworkInfo();
-    	if (ni == null)
-    		return;
-    	if (!ni.isConnected())
-    		return;
-
-		refreshJob.setRange(base, count);
-		
-		Intent intent = new Intent(this, JobManager.class);
-		startService(intent);
-		
-		jobManager.post(refreshJob, Priority.PRIORITY_HIGH);
-	}
 	
-	@Override
-	public void onServiceConnected(ComponentName name, IBinder service) {
-		Log.d(tag, "onServiceConnected");
-		jobManager = ((JobManagerBinder)service).getService();
-		refreshJob = jobManager.getRefreshJob();
-		refreshJob.addJobListener(this);
-		if (refreshJob.isRunning())
-			OnJobStarted(refreshJob);
-		else
-			requestRefresh(0, FRUPICS_STEP);
-		adapter.notifyDataSetChanged();
-		invalidateOptionsMenu();
-	}
-
-	@Override
-	public void onServiceDisconnected(ComponentName name) {
-		Log.d(tag, "onServiceDisconnected");
-		refreshJob.removeJobListener(this);
-		refreshJob = null;
-		jobManager = null;
-	}
-
+	
 	@Override
 	public void OnJobStarted(Job job) {
 		setProgressActionView(true);		
@@ -607,7 +647,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	public void OnJobDone(Job job) {
 		setProgressActionView(false);
 		if (job.isFailed()) {
-			Toast.makeText(this, refreshJob.getError(), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, jobManagerConnection.refreshJob.getError(), Toast.LENGTH_LONG).show();
 		} else
 			cursorChanged();
 	}
