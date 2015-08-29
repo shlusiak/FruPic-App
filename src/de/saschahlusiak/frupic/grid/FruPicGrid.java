@@ -43,6 +43,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
@@ -62,7 +64,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
-public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, OnJobListener {
+public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, OnJobListener, OnRefreshListener {
 	static private final String tag = FruPicGrid.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
@@ -98,6 +100,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
     private TextView mDialogText;
     private boolean mShowing;
     private boolean mReady;
+    SwipeRefreshLayout swipeLayout;
     
     SharedPreferences prefs;
     
@@ -176,6 +179,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.navigation_list);
         mDrawer = findViewById(R.id.left_drawer);
+        
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
+        swipeLayout.setOnRefreshListener(this);
 
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         navigationAdapter = new NavigationListAdapter(this);
@@ -663,6 +669,7 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void OnJobDone(Job job) {
 		setProgressActionView(false);
+		swipeLayout.setRefreshing(false);
 		if (job.isFailed()) {
 			Toast.makeText(this, jobManagerConnection.refreshJob.getError(), Toast.LENGTH_LONG).show();
 		} else
@@ -672,5 +679,19 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 	@Override
 	public void OnJobProgress(Job job, int progress, int max) {
 		/* ignore, because RefreshJob does not have progress */
+	}
+
+	@Override
+	public void onRefresh() {
+		if (jobManagerConnection.refreshJob == null) {
+			swipeLayout.setRefreshing(false);
+			return;
+		}
+		if (jobManagerConnection.refreshJob.isRunning() || jobManagerConnection.refreshJob.isScheduled()) {
+			return;
+		}
+		
+		jobManagerConnection.requestRefresh(0, FRUPICS_STEP);
+		swipeLayout.setRefreshing(true);
 	}
 }
