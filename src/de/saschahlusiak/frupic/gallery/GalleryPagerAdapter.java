@@ -148,22 +148,21 @@ public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 		
 		i.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
 		
+		// TODO: context menu on image view seems to be broken
+		context.registerForContextMenu(view);
 		context.registerForContextMenu(i);
 		context.registerForContextMenu(v);
 		
-		i.setOnClickListener(new OnClickListener() {
+		OnClickListener l = new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				context.toggleControls();
 			}
-		});
+		};
 		
-		v.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				context.toggleControls();
-			}
-		});
+		i.setOnClickListener(l);
+		v.setOnClickListener(l);
+		view.setOnClickListener(l);
 		
 		final ViewHolder holder = new ViewHolder();
 		holder.view = view;
