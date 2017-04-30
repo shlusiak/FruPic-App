@@ -3,6 +3,7 @@ package de.saschahlusiak.frupic.gallery;
 import java.io.File;
 
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.db.FrupicDB;
@@ -43,24 +44,26 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPageChangeListener, ServiceConnection {
 	private static final String tag = FruPicGallery.class.getSimpleName();
 	
-	ViewPager pager;
-	GalleryPagerAdapter adapter;
-	Cursor cursor;
-	FrupicDB db;
-	int navIndex;
-	View controls;
-	Animation fadeAnimation;
-	Menu menu;
+	private ViewPager pager;
+	private GalleryPagerAdapter adapter;
+	private Cursor cursor;
+	private FrupicDB db;
+	private int navIndex;
+	private View controls;
+	private Animation fadeAnimation;
+	private Menu menu;
 	
-	JobManager jobManager;
+	private JobManager jobManager;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-       	requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        
-        setContentView(R.layout.gallery_activity);
+
+		setContentView(R.layout.gallery_activity);
+
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+
         getSupportActionBar().setDisplayShowHomeEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

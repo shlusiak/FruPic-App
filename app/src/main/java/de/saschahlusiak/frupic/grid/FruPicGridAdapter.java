@@ -26,9 +26,9 @@ import android.widget.ImageView;
 
 public class FruPicGridAdapter extends CursorAdapter {
 	private static final String tag = FruPicGridAdapter.class.getSimpleName();
-	FruPicGrid activity;
-	FrupicFactory factory;
-	LruCache<Integer, Bitmap> cache;
+	private FruPicGrid activity;
+	private FrupicFactory factory;
+	private LruCache<Integer, Bitmap> cache;
 	
 	public class ViewHolder implements OnJobListener {
 		Frupic frupic;

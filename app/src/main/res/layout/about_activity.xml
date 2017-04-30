@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:singleLine="true"
-                android:text="Copyright (c) Sascha Hlusiak, 2012-2015."
+                android:text="Copyright (c) Sascha Hlusiak, 2012-2017."
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView

@@ -35,11 +35,11 @@ import android.widget.TextView;
 public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 	private final static String tag = GalleryPagerAdapter.class.getSimpleName();
 
-	FruPicGallery context;
-	Cursor cursor;
-	boolean showAnimations;
-	FrupicFactory factory;
-	JobManager jobManager;
+	private FruPicGallery context;
+	private Cursor cursor;
+	private boolean showAnimations;
+	private FrupicFactory factory;
+	private JobManager jobManager;
 	
 	static class ViewHolder {
 		public Frupic frupic;

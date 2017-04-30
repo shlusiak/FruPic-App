@@ -1,28 +1,27 @@
 package de.saschahlusiak.frupic.grid;
 
+import android.app.DownloadManager;
+import android.os.*;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import me.leolin.shortcutbadger.ShortcutBadger;
-import de.saschahlusiak.frupic.R;
+import android.support.v7.widget.Toolbar;
+import android.view.*;
 import de.saschahlusiak.frupic.about.AboutActivity;
-import de.saschahlusiak.frupic.cache.FileCacheUtils;
-import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
-import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
-import de.saschahlusiak.frupic.services.AutoRefreshManager;
-import de.saschahlusiak.frupic.services.Job;
-import de.saschahlusiak.frupic.services.PurgeCacheJob;
+import de.saschahlusiak.frupic.services.*;
+import de.saschahlusiak.frupic.upload.UploadActivity;
+import me.leolin.shortcutbadger.ShortcutBadger;
+import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.cache.FileCacheUtils;
+import de.saschahlusiak.frupic.db.FrupicDB;
+import de.saschahlusiak.frupic.model.*;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
 import de.saschahlusiak.frupic.services.Job.Priority;
-import de.saschahlusiak.frupic.services.JobManager;
 import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
-import de.saschahlusiak.frupic.services.RefreshJob;
-import de.saschahlusiak.frupic.upload.UploadActivity;
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.DownloadManager;
-import android.app.DownloadManager.Request;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -35,25 +34,11 @@ import android.graphics.PixelFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.Log;
 import android.util.LruCache;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -65,126 +50,137 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
-public class FruPicGrid extends AppCompatActivity implements OnItemClickListener, OnScrollListener, OnJobListener, OnRefreshListener {
+public class FruPicGrid extends AppCompatActivity implements OnItemClickListener, OnScrollListener, OnJobListener, SwipeRefreshLayout.OnRefreshListener {
 	static private final String tag = FruPicGrid.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
-	GridView grid;
-	FruPicGridAdapter adapter;
-	FrupicFactory factory;
-	Menu optionsMenu;
-	View mRefreshIndeterminateProgressView;
-	FrupicDB db;
-	Cursor cursor;
-	PurgeCacheJob purgeCacheJob;
-	ConnectivityManager cm;
-	
-    DrawerLayout mDrawerLayout;
-    ListView mDrawerList;
-    NavigationListAdapter navigationAdapter;
-    View mDrawer;
-    ActionBarDrawerToggle mDrawerToggle;
-    int currentCategory;
-    
-    JobManagerConnection jobManagerConnection;
+	private GridView grid;
+	private FruPicGridAdapter adapter;
+	private FrupicFactory factory;
+	private Menu optionsMenu;
+	private View mRefreshIndeterminateProgressView;
+	private FrupicDB db;
+	private Cursor cursor;
+	private PurgeCacheJob purgeCacheJob;
+	private ConnectivityManager cm;
+
+	private DrawerLayout mDrawerLayout;
+	private ListView mDrawerList;
+	private NavigationListAdapter navigationAdapter;
+	private View mDrawer;
+	private ActionBarDrawerToggle mDrawerToggle;
+	private int currentCategory;
+
+	/* access from GridAdapter */
+	public JobManagerConnection jobManagerConnection;
 
 	public static final int FRUPICS_STEP = 100;
-	
-    private Runnable mRemoveWindow = new Runnable() {
-        public void run() {
-            removeWindow();
-        }
-    };
-    
-    Handler mHandler = new Handler();
-    private WindowManager mWindowManager;
-    private TextView mDialogText;
-    private boolean mShowing;
-    private boolean mReady;
-    SwipeRefreshLayout swipeLayout;
-    
-    SharedPreferences prefs;
-    
-    static class JobManagerConnection implements ServiceConnection {
-    	FruPicGrid activity;
-    	
-    	JobManager jobManager;
-    	RefreshJob refreshJob;
-    	
-    	JobManagerConnection(FruPicGrid activity) {
-    		this.activity = activity;
-    	}
-    	
-    	@Override
-    	public void onServiceConnected(ComponentName name, IBinder service) {
-    		Log.d(tag, "onServiceConnected");
-    		jobManager = ((JobManagerBinder)service).getService();
-    		refreshJob = jobManager.getRefreshJob();
-    		refreshJob.addJobListener(activity);
-    		if (refreshJob.isRunning())
-    			activity.OnJobStarted(refreshJob);
-    		else
-    			requestRefresh(0, FRUPICS_STEP);
-    		activity.adapter.notifyDataSetChanged();
-    		activity.invalidateOptionsMenu();
-    	}
-    	
-    	void requestRefresh(int base, int count) {
-    		if (jobManager == null)
-    			return;
-    		if (refreshJob == null)
-    			return;
-    		if (refreshJob.isScheduled() || refreshJob.isRunning())
-    			return;
-    		
-        	NetworkInfo ni = activity.cm.getActiveNetworkInfo();
-        	if (ni == null)
-        		return;
-        	if (!ni.isConnected())
-        		return;
 
-    		refreshJob.setRange(base, count);
-    		
-    		Intent intent = new Intent(activity, JobManager.class);
-    		activity.startService(intent);
-    		
-    		jobManager.post(refreshJob, Priority.PRIORITY_HIGH);
-    	}
+	private Runnable mRemoveWindow = new Runnable() {
+		public void run() {
+			removeWindow();
+		}
+	};
 
-    	@Override
-    	public void onServiceDisconnected(ComponentName name) {
-    		Log.d(tag, "onServiceDisconnected");
-    		refreshJob.removeJobListener(activity);
-    		refreshJob = null;
-    		jobManager = null;
-    	}
-    	
-    	void unbind(Context context) {
-    		context.getApplicationContext().unbindService(this);
-    		this.refreshJob = null;
-    		this.jobManager = null;
-    	}
-    }
-    
-    static class RetainedConfig {
-    	JobManagerConnection jobManagerConnection;
-    	LruCache<Integer, Bitmap> cache;
-    }
+	private Handler mHandler = new Handler();
+	private WindowManager mWindowManager;
+	private TextView mDialogText;
+	private boolean mShowing;
+	private boolean mReady;
+	private SwipeRefreshLayout swipeLayout;
+
+	private SharedPreferences prefs;
+
+	static class JobManagerConnection implements ServiceConnection {
+		FruPicGrid activity;
+
+		JobManager jobManager;
+		RefreshJob refreshJob;
+
+		JobManagerConnection(FruPicGrid activity) {
+			this.activity = activity;
+		}
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			Log.d(tag, "onServiceConnected");
+			jobManager = ((JobManagerBinder) service).getService();
+			refreshJob = jobManager.getRefreshJob();
+			refreshJob.addJobListener(activity);
+			if (refreshJob.isRunning())
+				activity.OnJobStarted(refreshJob);
+			else
+				requestRefresh(0, FRUPICS_STEP);
+			activity.adapter.notifyDataSetChanged();
+			activity.invalidateOptionsMenu();
+		}
+
+		void requestRefresh(int base, int count) {
+			if (jobManager == null)
+				return;
+			if (refreshJob == null)
+				return;
+			if (refreshJob.isScheduled() || refreshJob.isRunning())
+				return;
+
+			NetworkInfo ni = activity.cm.getActiveNetworkInfo();
+			if (ni == null)
+				return;
+			if (!ni.isConnected())
+				return;
+
+			refreshJob.setRange(base, count);
+
+			Intent intent = new Intent(activity, JobManager.class);
+			activity.startService(intent);
+
+			jobManager.post(refreshJob, Priority.PRIORITY_HIGH);
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			Log.d(tag, "onServiceDisconnected");
+			refreshJob.removeJobListener(activity);
+			refreshJob = null;
+			jobManager = null;
+		}
+
+		void unbind(Context context) {
+			context.getApplicationContext().unbindService(this);
+			this.refreshJob = null;
+			this.jobManager = null;
+		}
+	}
+
+	static class RetainedConfig {
+		JobManagerConnection jobManagerConnection;
+		LruCache<Integer, Bitmap> cache;
+	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {		
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.grid_activity);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.navigation_list);
-        mDrawer = findViewById(R.id.left_drawer);
-        
-        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
-        swipeLayout.setOnRefreshListener(this);
 
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerList = (ListView) findViewById(R.id.navigation_list);
+		mDrawer = findViewById(R.id.left_drawer);
+
+		mDrawerToggle = new android.support.v7.app.ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+		mDrawerLayout.addDrawerListener(mDrawerToggle);
+		mDrawerToggle.syncState();
+		mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+//					onNavigateUp();
+			}
+		});
+
         navigationAdapter = new NavigationListAdapter(this);
         mDrawerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mDrawerList.setAdapter(navigationAdapter);
@@ -199,15 +195,9 @@ public class FruPicGrid extends AppCompatActivity implements OnItemClickListener
         if (getSupportActionBar() != null) {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
-        
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                mDrawerLayout,         /* DrawerLayout object */
-                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
-                R.string.drawer_open,  /* "open drawer" description for accessibility */
-                R.string.drawer_close  /* "close drawer" description for accessibility */
-        		);
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
+        swipeLayout.setOnRefreshListener(this);
 
 		factory = new FrupicFactory(this);
 
@@ -230,7 +220,17 @@ public class FruPicGrid extends AppCompatActivity implements OnItemClickListener
 			Intent intent = new Intent(this, JobManager.class);
 			getApplicationContext().bindService(intent, jobManagerConnection, Context.BIND_AUTO_CREATE);
 		}
-	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE); 
+	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+
+		findViewById(R.id.upload).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(Intent.ACTION_PICK);
+				intent.setType("image/*");
+				startActivityForResult(Intent.createChooser(intent,
+					getString(R.string.upload)), REQUEST_PICK_PICTURE);
+			}
+		});
 		
 		adapter = new FruPicGridAdapter(this, factory, 300);
 		if (retainedConfig != null)
@@ -558,7 +558,7 @@ public class FruPicGrid extends AppCompatActivity implements OnItemClickListener
 			req.setVisibleInDownloadsUi(true);
 			
 			req.allowScanningByMediaScanner();
-			req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+			req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			
 			req.setTitle(frupic.getFileName(false));
 			req.setDescription("Frupic " + frupic.getId());
@@ -632,12 +632,9 @@ public class FruPicGrid extends AppCompatActivity implements OnItemClickListener
 			currentCategory = position;
 			mDrawerList.setItemChecked(currentCategory, true);
 
-			if (getSupportActionBar() != null) {
-				getSupportActionBar().setTitle(navigationAdapter.getItem(position));
-				if (Build.VERSION.SDK_INT >= 14) {
-					getSupportActionBar().setIcon(navigationAdapter.getIcon(position));
-				}
-			}
+			setTitle(navigationAdapter.getItem(position));
+			getSupportActionBar().setTitle(navigationAdapter.getItem(position));
+
 			cursorChanged();
 			invalidateOptionsMenu();
 		} else {
@@ -663,8 +660,6 @@ public class FruPicGrid extends AppCompatActivity implements OnItemClickListener
 		}
 		return true;
 	}
-	
-	
 	
 	@Override
 	public void OnJobStarted(Job job) {
