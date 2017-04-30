@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Theme.FruPic.Grid" parent="android:Theme.DeviceDefault"></style>
-    <style name="Theme.FruPic.Gallery" parent="android:Theme.DeviceDefault"></style>
-    <style name="Theme.FruPic.Preferences" parent="android:Theme.DeviceDefault"></style>
-    <style name="Theme.FruPic.Dialog" parent="android:Theme.DeviceDefault.Dialog.MinWidth"></style>
-    <style name="Theme.FruPic.Light.Dialog" parent="android:Theme.DeviceDefault.Light.Dialog.MinWidth"></style>
-</resources>

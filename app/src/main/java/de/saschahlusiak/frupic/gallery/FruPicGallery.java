@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.gallery;
 
 import java.io.File;
 
+import android.support.v7.app.AppCompatActivity;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.db.FrupicDB;
@@ -39,7 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class FruPicGallery extends Activity implements ViewPager.OnPageChangeListener, ServiceConnection {
+public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPageChangeListener, ServiceConnection {
 	private static final String tag = FruPicGallery.class.getSimpleName();
 	
 	ViewPager pager;
@@ -60,8 +61,8 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
        	requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         
         setContentView(R.layout.gallery_activity);
-        getActionBar().setDisplayShowHomeEnabled(false);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
@@ -127,7 +128,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
         pager.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				if (getActionBar().isShowing())
+				if (getSupportActionBar().isShowing())
 					toggleControls();
 			}
 		}, 2000);
@@ -137,11 +138,11 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
      * toggles visibility of the controls
      */
     void toggleControls() {
-    	if (getActionBar().isShowing()) {
-    		getActionBar().hide();
+    	if (getSupportActionBar().isShowing()) {
+    		getSupportActionBar().hide();
     		controls.startAnimation(fadeAnimation);
     	} else {
-    		getActionBar().show();
+    		getSupportActionBar().show();
     		controls.clearAnimation();
 			findViewById(R.id.url).setVisibility(View.VISIBLE);
     	}
@@ -185,7 +186,7 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 		t = (TextView)findViewById(R.id.username);
 		t.setText(getString(R.string.gallery_posted_by, frupic.getUsername()));
 		
-		getActionBar().setTitle(String.format("#%d", frupic.getId()));
+		getSupportActionBar().setTitle(String.format("#%d", frupic.getId()));
 		
 		if (menu != null) {
 			MenuItem item = menu.findItem(R.id.star);
@@ -339,12 +340,12 @@ public class FruPicGallery extends Activity implements ViewPager.OnPageChangeLis
 			db.updateFlags(frupic, Frupic.FLAG_NEW | Frupic.FLAG_UNSEEN, false);
 		}
 
-		if (!getActionBar().isShowing()) {
+		if (!getSupportActionBar().isShowing()) {
 			toggleControls();
 	        pager.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					if (getActionBar().isShowing())
+					if (getSupportActionBar().isShowing())
 						toggleControls();
 				}
 			}, 2000);

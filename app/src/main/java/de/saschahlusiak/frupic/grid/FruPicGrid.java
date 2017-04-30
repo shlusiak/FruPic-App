@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.grid;
 
+import android.support.v7.app.AppCompatActivity;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.about.AboutActivity;
@@ -64,7 +65,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
-public class FruPicGrid extends Activity implements OnItemClickListener, OnScrollListener, OnJobListener, OnRefreshListener {
+public class FruPicGrid extends AppCompatActivity implements OnItemClickListener, OnScrollListener, OnJobListener, OnRefreshListener {
 	static private final String tag = FruPicGrid.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
@@ -195,7 +196,9 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			}
 		});
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
         
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
@@ -210,8 +213,8 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 
 		db = new FrupicDB(this);
 		db.open();
-		
-		RetainedConfig retainedConfig = (RetainedConfig) getLastNonConfigurationInstance();
+
+		RetainedConfig retainedConfig = (RetainedConfig) getLastCustomNonConfigurationInstance();
 		if (retainedConfig != null) {
 			jobManagerConnection = retainedConfig.jobManagerConnection;
 			
@@ -289,15 +292,14 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 			jobManagerConnection.unbind(this);
 			jobManagerConnection = null;
 			
-			int interval = Integer.parseInt(prefs.getString("autorefresh", "0"));
+			int interval = Integer.parseInt(prefs.getString("autorefresh", "86400"));
 			if (prefs.getBoolean("autorefresh_enabled", true)) {
 				Intent intent = new Intent(this, AutoRefreshManager.class);
 				intent.putExtra("interval", interval);
 				startService(intent);
 			}
 		}
-		
-		
+
 		if (cursor != null)
 			cursor.close();
 		cursor = null;
@@ -308,23 +310,24 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
         mReady = false;		
 		super.onDestroy();
 	}
-	
+
+
 	@Override
-	public Object onRetainNonConfigurationInstance() {
+	public Object onRetainCustomNonConfigurationInstance() {
 		RetainedConfig retain = new RetainedConfig();
-		
+
 		retain.cache = adapter.getCache();
-		
+
 		if (jobManagerConnection.jobManager != null) {
 			jobManagerConnection.refreshJob.removeJobListener(this);
 			jobManagerConnection.activity = null;
 			retain.jobManagerConnection = jobManagerConnection;
 			jobManagerConnection = null;
-		}	
-		
+		}
+
 		return retain;
 	}
-	
+
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt("navItem", currentCategory);
@@ -628,11 +631,13 @@ public class FruPicGrid extends Activity implements OnItemClickListener, OnScrol
 		if (position <= 2) {
 			currentCategory = position;
 			mDrawerList.setItemChecked(currentCategory, true);
-	        
-	        getActionBar().setTitle(navigationAdapter.getItem(position));
-	        if (Build.VERSION.SDK_INT >= 14) {
-	        	getActionBar().setIcon(navigationAdapter.getIcon(position));
-	        }
+
+			if (getSupportActionBar() != null) {
+				getSupportActionBar().setTitle(navigationAdapter.getItem(position));
+				if (Build.VERSION.SDK_INT >= 14) {
+					getSupportActionBar().setIcon(navigationAdapter.getIcon(position));
+				}
+			}
 			cursorChanged();
 			invalidateOptionsMenu();
 		} else {

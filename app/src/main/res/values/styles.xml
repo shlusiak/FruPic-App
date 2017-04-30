@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.FruPic.Grid" parent="android:Theme.Holo"></style>
-    <style name="Theme.FruPic.Gallery" parent="android:Theme.Holo"></style>
-    <style name="Theme.FruPic.Preferences" parent="android:Theme.Holo"></style>
-    <style name="Theme.FruPic.Dialog" parent="android:Theme.Holo.Dialog.MinWidth"></style>
-    <style name="Theme.FruPic.Light.Dialog" parent="android:Theme.Holo.Light.Dialog.MinWidth"></style>
+    <style name="AppTheme" parent="Theme.AppCompat">
+        <!-- Customize your theme here. -->
+        <!--<item name="colorPrimary">@color/colorPrimary</item>-->
+        <!--<item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+        <!--<item name="colorAccent">@color/colorAccent</item>-->
+    </style>
+
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert"/>
 </resources>

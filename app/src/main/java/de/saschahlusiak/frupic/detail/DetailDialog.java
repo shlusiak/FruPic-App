@@ -33,7 +33,7 @@ public class DetailDialog extends ArrayAdapter<DetailItem> {
 		FileCacheUtils fileCache = new FileCacheUtils(context);
 		
 		DetailDialog d;
-		ContextThemeWrapper ctw = new ContextThemeWrapper( context, R.style.Theme_FruPic_Light_Dialog);		
+		ContextThemeWrapper ctw = new ContextThemeWrapper( context, R.style.AppTheme_Dialog);
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
 		builder.setTitle("Frupic #" + frupic.getId());
 		
