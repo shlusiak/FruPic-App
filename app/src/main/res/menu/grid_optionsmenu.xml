@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/mark_seen" android:title="@string/mark_as_seen"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_read" />
     
-	<item android:id="@+id/refresh" android:title="@string/refresh"
-	    android:showAsAction="ifRoom|withText"
-		android:icon="@android:drawable/ic_popup_sync" />
-	
-	<item android:id="@+id/upload" android:title="@string/upload"
-	    android:icon="@android:drawable/ic_menu_upload" />
-	
 	<item android:id="@+id/preferences" android:title="@string/preferences"
 		android:icon="@android:drawable/ic_menu_preferences" />
+
+    <item android:id="@+id/openinbrowser" android:title="@string/openinbrowser"
+		android:icon="@drawable/ic_action_web_site" />
 	
 	<item android:id="@+id/about" android:title="@string/about"
 		android:icon="@android:drawable/ic_menu_info_details" />

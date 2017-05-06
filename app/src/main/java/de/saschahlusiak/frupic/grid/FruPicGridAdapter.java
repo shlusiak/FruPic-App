@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.grid;
 
+import android.support.v7.widget.RecyclerView;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
@@ -7,7 +8,6 @@ import de.saschahlusiak.frupic.services.FetchThumbnailJob;
 import de.saschahlusiak.frupic.services.Job;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
 import de.saschahlusiak.frupic.services.Job.Priority;
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -20,22 +20,33 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
-import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import de.saschahlusiak.frupic.services.JobManager;
 
 
-public class FruPicGridAdapter extends CursorAdapter {
+public class FruPicGridAdapter extends RecyclerView.Adapter<FruPicGridAdapter.ViewHolder> {
 	private static final String tag = FruPicGridAdapter.class.getSimpleName();
-	private FruPicGrid activity;
+	private OnItemClickListener activity;
 	private FrupicFactory factory;
 	private LruCache<Integer, Bitmap> cache;
-	
-	public class ViewHolder implements OnJobListener {
+	private Cursor cursor;
+
+	public interface OnItemClickListener
+	{
+		void onItemClick(int position, long id);
+		JobManager getJobManager();
+	}
+
+	class ViewHolder extends RecyclerView.ViewHolder implements OnJobListener, View.OnClickListener {
 		Frupic frupic;
 		ImageView image1, image2, imageLabel;
 		FetchThumbnailJob job;
 		
 		ViewHolder(View convertView) {
+			super(convertView);
+
+			itemView.setOnClickListener(this);
+
 			image1 = (ImageView)convertView.findViewById(R.id.imageView1);
 			image2 = (ImageView)convertView.findViewById(R.id.imageView2);
 			imageLabel = (ImageView)convertView.findViewById(R.id.imageLabel);
@@ -51,21 +62,20 @@ public class FruPicGridAdapter extends CursorAdapter {
 				imageLabel.setImageResource(R.drawable.new_label);
 			} else
 				imageLabel.setVisibility(View.INVISIBLE);
-			
+
 			if ((this.frupic != null) && (this.frupic.getId() == frupic.getId()))
 				return;
 			this.frupic = frupic;
+
 			if (job != null)
 				job.cancel();
 			job = null;
-			
+
 			Bitmap b = cache.get(frupic.id);
 			if (b != null) {
 				/* bitmap is in cache but view is apparently reused.
 				 * view could be before, after or in transition. set to "after"
 				 */
-				image1.clearAnimation();
-				image2.clearAnimation();
 				image1.setVisibility(View.INVISIBLE);
 				image2.setVisibility(View.VISIBLE);
 				setImage(b);
@@ -76,19 +86,18 @@ public class FruPicGridAdapter extends CursorAdapter {
 			image1.setImageResource(R.drawable.frupic);
 			image2.setImageResource(R.drawable.frupic);
 
-			image1.clearAnimation();
-			image2.clearAnimation();
 			image1.setVisibility(View.VISIBLE);
 			image2.setVisibility(View.INVISIBLE);
 
-			if (activity.jobManagerConnection.jobManager == null) {
+			// no jobmanager, no frupic
+			if (activity.getJobManager() == null) {
 				this.frupic = null;
 				return;
 			}
 
 			job = new FetchThumbnailJob(frupic, factory);
 			job.addJobListener(this);
-			activity.jobManagerConnection.jobManager.post(job, Priority.PRIORITY_HIGH);
+			activity.getJobManager().post(job, Priority.PRIORITY_HIGH);
 		}
 		
 		void setImage(Bitmap b) {
@@ -152,8 +161,8 @@ public class FruPicGridAdapter extends CursorAdapter {
 			FetchThumbnailJob fj = (FetchThumbnailJob)job;
 			Frupic frupic = fj.getFrupic();
 			if (frupic != this.frupic)
-				return; 
-			
+				return;
+
 			if (fj.isFailed()) {
 				image1.clearAnimation();
 				image1.setImageResource(R.drawable.broken_frupic);
@@ -168,45 +177,63 @@ public class FruPicGridAdapter extends CursorAdapter {
 				else
 					startRotateAnimation();
 			}
-			job = null;
+			this.job = null;
 		}
 
 		@Override
 		public void OnJobProgress(Job job, int progress, int max) {
 			/* ignore, because preview FetchJob does not have progress */
 		}
+
+		@Override
+		public void onClick(View v) {
+			activity.onItemClick(getAdapterPosition(), frupic.getId());
+		}
 	}
-	
-	FruPicGridAdapter(FruPicGrid activity, FrupicFactory factory, int cacheSize) {
-		super(activity.getBaseContext(), null, false);
+
+	FruPicGridAdapter(FruPicGridFragment activity, FrupicFactory factory, int cacheSize) {
 		this.activity = activity;
 		this.factory = factory;
 		this.cache = new LruCache<>(cacheSize);
 	}
-	
+
+	@Override
+	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.grid_item, parent, false);
+		return new ViewHolder(view);
+	}
+
+	@Override
+	public void onBindViewHolder(ViewHolder holder, int position) {
+		Frupic frupic = new Frupic(getItem(position));
+		holder.setFrupic(frupic);
+	}
+
+	@Override
+	public int getItemCount() {
+		return cursor == null ? 0 : cursor.getCount();
+	}
+
+	public Cursor getItem(int position) {
+		if (cursor == null)
+			return null;
+		cursor.moveToPosition(position);
+		return cursor;
+	}
+
+	public void setCursor(Cursor cursor) {
+		if (this.cursor != null )
+			this.cursor.close();
+		this.cursor = cursor;
+
+		notifyDataSetChanged();
+	}
+
 	public void setCache(LruCache<Integer, Bitmap> cache) {
 		this.cache = cache;
 	}
 	
 	public LruCache<Integer, Bitmap> getCache() {
 		return cache;
-	}
-
-	@Override
-	public void bindView(View convertView, Context context, Cursor cursor) {
-		ViewHolder v;
-
-		v = (ViewHolder)convertView.getTag();
-		Frupic frupic = new Frupic(cursor);
-		v.setFrupic(frupic);
-	}
-
-	@Override
-	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		ViewHolder v;
-		View convertView = LayoutInflater.from(context).inflate(R.layout.grid_item, parent, false);
-		v = new ViewHolder(convertView);
-		convertView.setTag(v);
-		return convertView;
 	}
 }

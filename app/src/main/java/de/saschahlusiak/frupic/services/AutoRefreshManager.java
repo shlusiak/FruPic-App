@@ -2,7 +2,7 @@ package de.saschahlusiak.frupic.services;
 
 import me.leolin.shortcutbadger.ShortcutBadger;
 import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.grid.FruPicGrid;
+import de.saschahlusiak.frupic.grid.FruPicGridActivity;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
 import de.saschahlusiak.frupic.services.Job.Priority;
 import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
@@ -119,7 +119,7 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 	    		return SHORT;
 	    	}
 
-			refreshJob.setRange(0, FruPicGrid.FRUPICS_STEP);
+			refreshJob.setRange(0, FruPicGridActivity.FRUPICS_STEP);
 			jobManager.post(refreshJob, Priority.PRIORITY_LOW);
 		}
 		
@@ -160,7 +160,7 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 		builder.setTicker(getString(R.string.refresh_service_count_text, new_pictures));
 		builder.setAutoCancel(true);
 		builder.setOngoing(false);
-		Intent intent = new Intent(this, FruPicGrid.class);
+		Intent intent = new Intent(this, FruPicGridActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(pendingIntent);
 		

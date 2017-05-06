@@ -5,13 +5,13 @@ import java.util.ArrayList;
 public abstract class Job {
 	public interface OnJobListener {
 		/** this is called in the main thread */
-		public void OnJobStarted(Job job);
+		void OnJobStarted(Job job);
 		
 		/** this is called in the worker thread context */
-		public void OnJobProgress(Job job, int progress, int max);
+		void OnJobProgress(Job job, int progress, int max);
 		
 		/** this is called in the main thread */
-		public void OnJobDone(Job job);
+		void OnJobDone(Job job);
 	}
 		
 	public enum JobState {
@@ -28,9 +28,9 @@ public abstract class Job {
 		PRIORITY_HIGH
 	};
 	
-	ArrayList<OnJobListener> jobListener = new ArrayList<OnJobListener>();
-	Object tag;
-	JobState state;
+	final ArrayList<OnJobListener> jobListener = new ArrayList<OnJobListener>();
+	private Object tag;
+	private JobState state;
 	Thread thread;
 	
 	public Job() {

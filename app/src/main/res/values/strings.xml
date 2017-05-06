@@ -22,17 +22,11 @@
     
     <string name="star_frupic">Star</string>
     <string name="mark_as_seen">Mark all seen</string>
-    
-    <string-array name="grid_dropdown_list">
-        <item>All FruPics</item>
-        <item>Unseen</item>
-        <item>Starred</item>
-        <item></item>
-        <item>Upload</item>
-        <item>Open Website</item>
-        <item>Settings</item>
-    </string-array>
-    
+
+    <string name="all_frupics">All</string>
+    <string name="unseen">New</string>
+    <string name="starred">Starred</string>
+
     <string name="please_wait">Please wait</string>
     <string name="fetching_image_message">Fetching %1$s</string>
     <string name="download">Download</string>

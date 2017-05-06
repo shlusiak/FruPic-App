@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/share_picture"
         android:icon="@android:drawable/ic_menu_share"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/share_picture"/>
     
     <item
@@ -19,13 +20,13 @@
     <item
         android:id="@+id/cache_now"
         android:icon="@android:drawable/ic_menu_save"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/download"/>
     
     <item
         android:id="@+id/star"
         android:icon="@drawable/star_empty"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:checkable="true"        
         android:title="@string/star_frupic" />
     

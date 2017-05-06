@@ -35,10 +35,10 @@
             android:id="@+id/url"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/galleryControlBackground"
             android:layout_alignParentBottom="true"
             android:layout_toLeftOf="@+id/username"
             android:autoLink="web"
-            android:background="#9f0f0f0f"
             android:gravity="left"
             android:linksClickable="true"
             android:text="URL"
@@ -48,19 +48,20 @@
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/galleryControlBackground"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:background="#9f0f0f0f"
             android:text="Username"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
             android:id="@+id/tags"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/galleryControlBackground"
             android:layout_above="@+id/username"
             android:layout_alignParentRight="true"
-            android:background="#9f0f0f0f"
+            android:gravity="right"
             android:text="[Tags]"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </RelativeLayout>

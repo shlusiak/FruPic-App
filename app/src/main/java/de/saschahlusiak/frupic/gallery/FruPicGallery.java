@@ -12,7 +12,6 @@ import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.services.JobManager;
 import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
 import android.content.ClipboardManager;
@@ -70,10 +69,10 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         controls = findViewById(R.id.all_controls);
-        
+
         pager = (ViewPager) findViewById(R.id.viewPager);
         fadeAnimation = new AlphaAnimation(1.0f, 0.0f);
-        fadeAnimation.setDuration(400);
+        fadeAnimation.setDuration(200);
         fadeAnimation.setFillAfter(true);
         fadeAnimation.setAnimationListener(new AnimationListener() {
 			@Override
@@ -91,12 +90,12 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 				findViewById(R.id.url).setVisibility(View.INVISIBLE);
 			}
 		});
-        
+
         pager.setOnPageChangeListener(this);
-  
+
         db = new FrupicDB(this);
         db.open();
-        
+
         if (savedInstanceState != null) {
         	navIndex = savedInstanceState.getInt("navIndex", 0);
         } else {
@@ -110,7 +109,7 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 		Intent intent = new Intent(this, JobManager.class);
 		bindService(intent, this, Context.BIND_AUTO_CREATE);
 
-        
+
         if (savedInstanceState != null) {
         	/* FIXME: before rotate the old cursor may have unstarred items, but now the cursor
         	 * was requeried and the index of the current item changed. maybe keep the db/cursor between
@@ -126,17 +125,8 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
     		}
     	}
         updateLabels(getCurrentFrupic());
-        
-        
-        pager.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				if (getSupportActionBar().isShowing())
-					toggleControls();
-			}
-		}, 2000);
-    }
-    
+	}
+
     /**
      * toggles visibility of the controls
      */
@@ -345,13 +335,6 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 
 		if (!getSupportActionBar().isShowing()) {
 			toggleControls();
-	        pager.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					if (getSupportActionBar().isShowing())
-						toggleControls();
-				}
-			}, 2000);
 	    }
 	    updateLabels(frupic);
     }

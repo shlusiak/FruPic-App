@@ -28,17 +28,11 @@
     
     <string name="star_frupic">Favorit</string>
     <string name="mark_as_seen">Alle gesehen</string>
-    
-    <string-array name="grid_dropdown_list">
-        <item>Alle FruPics</item>
-        <item>Ungesehen</item>
-        <item>Favoriten</item>
-        <item></item>
-        <item>Upload</item>
-        <item>Webseite</item>
-        <item>Settings</item>
-    </string-array>
-    
+
+    <string name="all_frupics">Alle</string>
+    <string name="unseen">Neu</string>
+    <string name="starred">Favoriten</string>
+
     <string name="please_wait">Bitte warten</string>
     <string name="fetching_image_message">Lade %1$s</string>
     <string name="download">Download</string>
