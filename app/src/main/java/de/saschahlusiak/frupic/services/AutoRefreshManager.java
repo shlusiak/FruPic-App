@@ -1,15 +1,12 @@
 package de.saschahlusiak.frupic.services;
 
+import android.app.*;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.grid.FruPicGridActivity;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
 import de.saschahlusiak.frupic.services.Job.Priority;
 import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -22,30 +19,32 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-public class AutoRefreshManager extends Service implements ServiceConnection, Runnable, OnJobListener {
+public class AutoRefreshManager extends IntentService implements OnJobListener, ServiceConnection {
 	private static final String tag = AutoRefreshManager.class.getSimpleName();
-	
-	public static final int DEFAULT_INTERVAL = 7200; /* 7200 sec */
 	
 	private static final int nId = 2; /* must be a unique notification id */
 	
-	Handler handler = new Handler();
-	JobManager jobManager;
-	RefreshJob refreshJob;
-	ConnectivityManager cm;
-	NotificationManager nm;
-	SharedPreferences prefs;
+	private JobManager jobManager;
+	private RefreshJob refreshJob;
+	private ConnectivityManager cm;
+	private NotificationManager nm;
+	private SharedPreferences prefs;
 	
-	boolean only_on_wifi;
+	private boolean only_on_wifi;
 	
-	int new_pictures;
-	
-	int interval = DEFAULT_INTERVAL;
-	
+	private int new_pictures;
+
+	/**
+	 * Creates an IntentService.  Invoked by your subclass's constructor.
+	 */
+	public AutoRefreshManager() {
+		super("AutoRefreshManager");
+	}
+
+
 	@Override
 	public void onCreate() {
 		/* TODO: run on device boot? */
-		/* TODO: persistate the current waiting time, in case service is killed? */
 		Log.d(tag, "onCreate");
 		Intent intent = new Intent(this, JobManager.class);
 		bindService(intent, this, BIND_AUTO_CREATE);
@@ -54,6 +53,7 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		only_on_wifi = prefs.getBoolean("refresh_only_on_wlan", false);
 		new_pictures = 0;
+
 		super.onCreate();
 	}
 	
@@ -62,7 +62,6 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 		Log.d(tag, "OnDestroy");
 		if (refreshJob != null)
 			refreshJob.removeJobListener(this);
-		handler.removeCallbacks(this);
 		refreshJob = null;
 		jobManager = null;
 		unbindService(this);
@@ -71,68 +70,36 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 	}
 
 	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		interval = intent.getIntExtra("interval", DEFAULT_INTERVAL) * 1000;
-		return START_REDELIVER_INTENT;
-	}
-
-	@Override
-	public void onServiceConnected(ComponentName name, IBinder service) {
-		jobManager = ((JobManagerBinder)service).getService();
-		refreshJob = jobManager.getRefreshJob();
-		refreshJob.addJobListener(this);
-		handler.postDelayed(this, interval);
-	}
-
-	@Override
-	public void onServiceDisconnected(ComponentName name) {
-		if (refreshJob != null)
-			refreshJob.removeJobListener(this);
-		refreshJob = null;
-		jobManager = null;
-		handler.removeCallbacks(this);
+	protected void onHandleIntent(Intent intent) {
+		Log.d(tag, "onHandleIntent");
+		doRefresh();
 	}
 	
 	/**
 	 * @return next interval
 	 */
-	private int doRefresh() {
-		// 15 minutes if unavailable
-		int SHORT = 15 * 60 * 1000;
-		
+	private void doRefresh() {
 		if (refreshJob != null && !refreshJob.isRunning() && !refreshJob.isScheduled()) {
 	    	NetworkInfo ni = cm.getActiveNetworkInfo();
 	    	/* TODO: schedule sooner or listen to network change event? */
 	    	if (ni == null)
-	    		return SHORT;
-	    	
+	    		return;
+
 	    	if (!ni.isConnected())
-	    		return SHORT;
-	    	
+	    		return;
+
 	    	if (only_on_wifi && ni.getType() != ConnectivityManager.TYPE_WIFI) {
 //	    		Log.d(tag, "not on wifi, skip");
-	    		return SHORT;
+	    		return;
 	    	}
 
 			refreshJob.setRange(0, FruPicGridActivity.FRUPICS_STEP);
 			jobManager.post(refreshJob, Priority.PRIORITY_LOW);
+
+			// FIXME: refresh is asynchronous but this service terminates when this method terminates and kills the job
 		}
-		
-		return interval;
 	}
 	
-	@Override
-	public void run() {
-		int ret = doRefresh();
-		
-		handler.postDelayed(this, ret);		
-	}
-
 	@Override
 	public void OnJobStarted(Job job) {
 		
@@ -145,6 +112,7 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 
 	@Override
 	public void OnJobDone(Job job) {
+		Log.d(tag, "Refresh finished, new frupics: " + refreshJob.getLastCount());
 		if (refreshJob.getLastCount() == 0)
 			return;
 		
@@ -165,5 +133,20 @@ public class AutoRefreshManager extends Service implements ServiceConnection, Ru
 		builder.setContentIntent(pendingIntent);
 		
 		nm.notify(nId, builder.getNotification());
+	}
+
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+		jobManager = ((JobManagerBinder)service).getService();
+		refreshJob = jobManager.getRefreshJob();
+		refreshJob.addJobListener(this);
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+		if (refreshJob != null)
+			refreshJob.removeJobListener(this);
+		refreshJob = null;
+		jobManager = null;
 	}
 }

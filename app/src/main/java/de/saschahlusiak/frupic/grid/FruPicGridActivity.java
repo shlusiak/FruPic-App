@@ -1,6 +1,9 @@
 package de.saschahlusiak.frupic.grid;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.*;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -186,11 +189,7 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 			jobManagerConnection = null;
 			
 			int interval = Integer.parseInt(prefs.getString("autorefresh", "86400"));
-			if (prefs.getBoolean("autorefresh_enabled", true)) {
-				Intent intent = new Intent(this, AutoRefreshManager.class);
-				intent.putExtra("interval", interval);
-				startService(intent);
-			}
+			scheduleAlarm(prefs.getBoolean("autorefresh_enabled", true), interval);
 		}
 
 		FrupicDB db = new FrupicDB(this);
@@ -200,6 +199,27 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 		}
 
 		super.onDestroy();
+	}
+
+	public void scheduleAlarm(boolean enable, int interval) {
+		PackageManager pm = getPackageManager();
+		AlarmManager alarmMgr;
+		PendingIntent alarmIntent;
+
+		alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+		Intent intent = new Intent(this, AutoRefreshManager.class);
+		alarmIntent = PendingIntent.getService(this, 0, intent, 0);
+
+		if (enable) {
+			Log.d(tag, "scheduling alarm");
+			alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
+				interval,
+				interval,
+				alarmIntent);
+		} else {
+			Log.d(tag, "cancel alarm");
+			alarmMgr.cancel(alarmIntent);
+		}
 	}
 
 	@Override
