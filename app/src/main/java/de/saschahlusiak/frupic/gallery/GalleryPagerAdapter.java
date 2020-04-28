@@ -22,7 +22,7 @@ import de.saschahlusiak.frupic.services.Job.Priority;
 import de.saschahlusiak.frupic.services.JobManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.view.PagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
