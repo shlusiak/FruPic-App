@@ -81,23 +81,7 @@
     <string name="preferences_display">Anzeige</string>
     <string name="preferences_show_animated_gifs_summary">Animierte GIFs zeigen (experimentell)</string>
     <string name="preferences_show_animated_gifs">GIF-Animationen</string>
-    
-    <string name="preferences_notifications">Benachrichtigungen</string>
-    <string name="preferences_notifications_enabled">Benachrichtigungen</string>
-    <string name="preferences_notifications_enabled_summary">Benachrichtigung bei neuen Bildern</string>
-    <string name="preferences_notifications_autorefresh_interval">Aktualisierungsinterval</string>
-    <string name="preferences_notifications_autorefresh_interval_title">Aktualisierungsinterval</string>
-   
-    <string name="preferences_notifications_only_on_wlan_summary">Nur aktualisieren wenn mit WLAN verbunden</string>
-    <string name="preferences_notifications_only_on_wlan">Nur über WLAN</string>
-    <string-array name="autorefresh_labels">
-        <item>30 Minuten</item>
-        <item>1 Stunde</item>
-        <item>2 Stunden</item>
-        <item>4 Stunden</item>
-        <item>1 Tag</item>
-    </string-array>
-        
+
     <string name="preferences_upload">Hochladen</string>
     <string name="preferences_upload_username">Benutzername</string>
     <string name="preferences_upload_username_summary">Standardname für Hochladen</string>

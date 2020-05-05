@@ -1,9 +1,10 @@
 package de.saschahlusiak.frupic.grid;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.*;
-import android.content.pm.PackageManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -11,29 +12,37 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import com.google.android.material.tabs.TabLayout;
+import android.util.Log;
+import android.util.LruCache;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import android.util.Log;
-import android.util.LruCache;
-import android.view.*;
+
+import com.google.android.material.tabs.TabLayout;
+
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.about.AboutActivity;
 import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
-import de.saschahlusiak.frupic.services.*;
+import de.saschahlusiak.frupic.services.Job;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
 import de.saschahlusiak.frupic.services.Job.Priority;
+import de.saschahlusiak.frupic.services.JobManager;
 import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
+import de.saschahlusiak.frupic.services.PurgeCacheJob;
+import de.saschahlusiak.frupic.services.RefreshJob;
 import de.saschahlusiak.frupic.upload.UploadActivity;
-import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class FruPicGridActivity extends AppCompatActivity implements OnJobListener, ViewPager.OnPageChangeListener, SwipeRefreshLayout.OnRefreshListener {
 	static private final String tag = FruPicGridActivity.class.getSimpleName();
@@ -171,11 +180,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		purgeCacheJob = new PurgeCacheJob(new FileCacheUtils(this));
-	    
-		Intent intent = new Intent(this, AutoRefreshManager.class);
-		stopService(intent);
-
-		ShortcutBadger.with(this).count(0);
 	}
 
 	@Override
@@ -187,9 +191,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 			
 			jobManagerConnection.unbind(this);
 			jobManagerConnection = null;
-			
-			int interval = Integer.parseInt(prefs.getString("autorefresh", "86400"));
-			scheduleAlarm(prefs.getBoolean("autorefresh_enabled", true), interval);
 		}
 
 		FrupicDB db = new FrupicDB(this);
@@ -199,27 +200,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 		}
 
 		super.onDestroy();
-	}
-
-	public void scheduleAlarm(boolean enable, int interval) {
-		PackageManager pm = getPackageManager();
-		AlarmManager alarmMgr;
-		PendingIntent alarmIntent;
-
-		alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		Intent intent = new Intent(this, AutoRefreshManager.class);
-		alarmIntent = PendingIntent.getService(this, 0, intent, 0);
-
-		if (enable) {
-			Log.d(tag, "scheduling alarm");
-			alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-				interval,
-				interval,
-				alarmIntent);
-		} else {
-			Log.d(tag, "cancel alarm");
-			alarmMgr.cancel(alarmIntent);
-		}
 	}
 
 	@Override

@@ -17,7 +17,7 @@ import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.model.Frupic;
 
 public class RefreshJob extends Job {
-	static final String INDEX_URL = "http://api.freamware.net/2.0/get.picture";
+	static final String INDEX_URL = "https://api.freamware.net/2.0/get.picture";
 
 	int base, count;
 	

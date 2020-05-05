@@ -71,7 +71,7 @@ public class Frupic implements Serializable {
 	}
 	
 	public String getUrl() {
-		return "http://frupic.frubar.net/" + id;
+		return "https://frupic.frubar.net/" + id;
 	}
 	
 	public String getFullUrl() {

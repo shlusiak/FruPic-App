@@ -5,10 +5,6 @@
         	android:icon="@drawable/ic_action_storage"
             android:title="@string/preferences_cache" />
 
-    <header android:fragment="de.saschahlusiak.frupic.preferences.FrupicNotificationsPreferences"
-        	android:icon="@drawable/ic_action_notifications"
-            android:title="@string/preferences_notifications" />
-
     <header android:fragment="de.saschahlusiak.frupic.preferences.FrupicUploadPreferences"
         	android:icon="@drawable/ic_action_upload"
             android:title="@string/preferences_upload" />

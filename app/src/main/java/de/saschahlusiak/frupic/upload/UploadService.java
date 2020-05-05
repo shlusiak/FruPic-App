@@ -34,7 +34,7 @@ public class UploadService extends IntentService {
 	private static final String tag = UploadService.class.getSimpleName();
 	private final static int nId = 1; /* must be a unique notification id */
 	
-	private final String FruPicApi = "http://api.freamware.net/2.0/upload.picture";
+	private final String FruPicApi = "https://api.freamware.net/2.0/upload.picture";
 	
 	/* when scaling down, make largest side as small but bigger than these bounds */
 	private final static int destWidth = 1024;

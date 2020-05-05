@@ -80,29 +80,6 @@
     <string name="preferences_show_animated_gifs_summary">Show animated gif images (experimental)</string>
     <string name="preferences_show_animated_gifs">Animate GIFs</string>
     
-    <string name="preferences_notifications">Notifications</string>
-    <string name="preferences_notifications_enabled">Enable notifications</string>
-    <string name="preferences_notifications_enabled_summary">Check and notify on new images</string>
-    <string name="preferences_notifications_autorefresh_interval">Refresh interval</string>
-    <string name="preferences_notifications_autorefresh_interval_title">Refresh interval</string>
-   
-    <string name="preferences_notifications_only_on_wlan_summary">Only when connected to Wi-Fi</string>
-    <string name="preferences_notifications_only_on_wlan">Only on Wi-Fi</string>
-    <string-array name="autorefresh_labels">
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>2 hours</item>
-        <item>4 hours</item>
-        <item>1 day</item>
-    </string-array>
-    <string-array name="autorefresh_values" translateable="false">
-        <item>1800</item>
-        <item>3600</item>
-        <item>7200</item>
-        <item>14400</item>
-        <item>86400</item>
-    </string-array>
-
     <string name="preferences_upload">Uploading</string>
     <string name="preferences_upload_username">Username</string>
     <string name="preferences_upload_username_summary">Username used for uploading</string>

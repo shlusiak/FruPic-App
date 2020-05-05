@@ -25,7 +25,6 @@ public class FrupicPreferences extends PreferenceActivity {
 	protected boolean isValidFragment(String fragmentName) {
 		if (fragmentName.equals(FrupicCachePreferences.class.getName())) return true;
 		if (fragmentName.equals(FrupicDisplayPreferences.class.getName())) return true;
-		if (fragmentName.equals(FrupicNotificationsPreferences.class.getName())) return true;
 		if (fragmentName.equals(FrupicUploadPreferences.class.getName())) return true;
 		if (fragmentName.equals(FrupicAboutPreferences.class.getName())) return true;
 
