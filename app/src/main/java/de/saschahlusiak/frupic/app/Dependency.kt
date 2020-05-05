@@ -1,5 +1,7 @@
 package de.saschahlusiak.frupic.app
 
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import com.squareup.picasso.Picasso
 import dagger.Component
 import dagger.Module
@@ -9,8 +11,13 @@ import javax.inject.Singleton
 @Module
 class AppModule(private val app: App) {
     @Provides
+    fun getApp(): App = app
+
+    @Provides
     fun getPicasso(): Picasso = Picasso.get()
 
+    @Provides
+    fun getSharedPreferences(app: App): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(app)
 
 }
 

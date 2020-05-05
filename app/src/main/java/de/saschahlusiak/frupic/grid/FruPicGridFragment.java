@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -28,7 +27,6 @@ import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
 import de.saschahlusiak.frupic.model.Frupic;
-import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.services.Job;
 import de.saschahlusiak.frupic.services.JobManager;
 import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
@@ -39,14 +37,13 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 
 	private RecyclerView grid;
 	private FruPicGridAdapter adapter;
-	private FrupicFactory factory;
 	private FrupicDB db;
 	private Cursor cursor;
 	private ConnectivityManager cm;
 
 	private int category;
 
-	public static final int FRUPICS_STEP = 100;
+	private static final int FRUPICS_STEP = 100;
 
 	private Runnable mRemoveWindow = new Runnable() {
 		public void run() {
@@ -60,8 +57,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 	private boolean mShowing;
 	private boolean mReady;
 
-	private SharedPreferences prefs;
-	GridLayoutManager layoutManager;
+	private GridLayoutManager layoutManager;
 
 	private JobManagerConnection jobManagerConnection;
 
@@ -125,16 +121,12 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		factory = new FrupicFactory(getContext());
-
 		category = getArguments().getInt("nav");
 
 		db = new FrupicDB(getContext());
 		db.open();
 
 	    cm = (ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-		prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
 
 		mWindowManager = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
 
@@ -153,7 +145,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		adapter = new FruPicGridAdapter(this, factory, 300);
+		adapter = new FruPicGridAdapter(this);
 
 		grid = (RecyclerView) getView().findViewById(R.id.gridView);
 		int columnWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 88, getResources().getDisplayMetrics());
