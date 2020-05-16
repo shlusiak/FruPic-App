@@ -5,22 +5,16 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import de.saschahlusiak.frupic.db.FrupicDB
-import de.saschahlusiak.frupic.model.Frupic
-import de.saschahlusiak.frupic.utils.toList
 import kotlinx.coroutines.*
-import org.json.JSONArray
 import org.json.JSONException
-import org.json.JSONObject
-import java.io.BufferedReader
 import java.io.IOException
-import java.io.InputStreamReader
-import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.system.measureTimeMillis
 
 @Singleton
 class FrupicRepository @Inject constructor(
+    private val api: FreamwareApi,
     private val db: FrupicDB
 ) {
     private val _synchronizing = MutableLiveData(false)
@@ -34,10 +28,6 @@ class FrupicRepository @Inject constructor(
 
     init {
         Log.d(tag, "Initializing ${FrupicRepository::class.simpleName}")
-
-        GlobalScope.launch(Dispatchers.Main) {
-            synchronize()
-        }
     }
 
     @Deprecated("Remove in favour of suspend function")
@@ -69,6 +59,7 @@ class FrupicRepository @Inject constructor(
         }
     }
 
+
     /**
      * Fetches the Frupics for the given range. Will not set the [synchronizing] status and does not handle
      * errors.
@@ -84,10 +75,7 @@ class FrupicRepository @Inject constructor(
             Log.d(tag, "Fetching $limit Frupics")
 
             val start = System.currentTimeMillis()
-            val query = "$INDEX_URL?offset=$offset&limit=$limit"
-            val result = parse(fetchURL(query))
-
-            result ?: return@withContext
+            val result = api.getPicture(offset, limit)
 
             val duration = System.currentTimeMillis() - start
             Log.d(tag, "Fetched ${result.size} Frupics in $duration ms")
@@ -104,38 +92,7 @@ class FrupicRepository @Inject constructor(
         _lastUpdated.value = System.currentTimeMillis()
     }
 
-    /**
-     * Return the response of the given URL as String
-     */
-    @Throws(IOException::class)
-    private fun fetchURL(url: String): String {
-        return URL(url).openStream().use { stream ->
-            BufferedReader(InputStreamReader(stream)).use {
-                it.readLines().joinToString("\n")
-            }
-        }
-    }
-
-    /**
-     * Parses the JSON response to a list of [Frupic]
-     */
-    @Throws(JSONException::class)
-    private fun parse(json: String): List<Frupic>? {
-        return JSONArray(json).toList<JSONObject>().map { jo ->
-            Frupic(
-                jo.getInt("id"),
-                Frupic.FLAG_NEW or Frupic.FLAG_UNSEEN,
-                jo.getString("url"),
-                jo.getString("thumb_url"),
-                jo.getString("date"),
-                jo.getString("username"),
-                jo.getJSONArray("tags").toList()
-            )
-        }
-    }
-
     companion object {
         private val tag = FrupicRepository::class.simpleName
-        private const val INDEX_URL = "https://api.freamware.net/2.0/get.picture"
     }
 }

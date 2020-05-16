@@ -28,8 +28,6 @@ public class JobManager extends Service {
     LinkedBlockingDeque<Job> jobsWaiting = new LinkedBlockingDeque<Job>();
     ArrayBlockingQueue<Job> jobsRunning = new ArrayBlockingQueue<Job>(worker.length);
     
-    RefreshJob refreshJob;
-
 	class JobWorker extends Thread {
 		public boolean goDown;
 		
@@ -91,7 +89,6 @@ public class JobManager extends Service {
     public void onCreate() {
     	super.onCreate();
     	handler = new Handler();
-    	refreshJob = new RefreshJob(getApplicationContext());
     	Log.d(tag, "onCreate");
     	for (int i = 0; i < worker.length; i++) {
     		worker[i] = new JobWorker();
@@ -114,10 +111,6 @@ public class JobManager extends Service {
     		job.removeJobListener(listener);
     	for (Job job: jobsRunning)
     		job.removeJobListener(listener);
-    }
-    
-    public RefreshJob getRefreshJob() {
-    	return refreshJob;
     }
     
     public FetchFrupicJob getFetchJob(Frupic frupic, FrupicFactory factory) {
