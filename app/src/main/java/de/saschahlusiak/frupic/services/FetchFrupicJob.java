@@ -7,9 +7,9 @@ import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
 
 @Deprecated
 public class FetchFrupicJob extends Job implements OnFetchProgress {
-	static final String tag = FetchFrupicJob.class.getSimpleName();
-	Frupic frupic;
-	FrupicFactory factory;
+	private static final String tag = FetchFrupicJob.class.getSimpleName();
+	private Frupic frupic;
+	private FrupicFactory factory;
 	
 	FetchFrupicJob(Frupic frupic, FrupicFactory factory) {
 		this.frupic = frupic;
@@ -20,7 +20,7 @@ public class FetchFrupicJob extends Job implements OnFetchProgress {
 	public JobState run() {
 		try {
 			Log.d(tag, "fetching #" + frupic.id);
-			factory.fetchFrupicImage(frupic, false, this);
+			factory.fetchFrupicImage(frupic, this);
 		}
 		catch (InterruptedException e) {
 			Log.d(tag, "cancelled #" + frupic.id);

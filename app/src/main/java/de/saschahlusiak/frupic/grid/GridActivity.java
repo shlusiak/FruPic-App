@@ -20,6 +20,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.inject.Inject;
 
 import de.saschahlusiak.frupic.R;
@@ -53,19 +55,18 @@ public class GridActivity extends AppCompatActivity implements ViewPager.OnPageC
 
 		setContentView(R.layout.grid_activity);
 
-
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        viewPager = findViewById(R.id.viewPager);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.addOnPageChangeListener(this);
 
-		TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+		TabLayout tabLayout = findViewById(R.id.tabs);
 		tabLayout.setupWithViewPager(viewPager);
 
-		swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+		swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 		swipeRefreshLayout.setOnRefreshListener(this);
 
 		findViewById(R.id.upload).setOnClickListener(new View.OnClickListener() {
@@ -194,7 +195,7 @@ public class GridActivity extends AppCompatActivity implements ViewPager.OnPageC
 
 	private class ViewPagerAdapter extends FragmentPagerAdapter {
 
-		public ViewPagerAdapter(FragmentManager fm) {
+		ViewPagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
 
@@ -204,10 +205,11 @@ public class GridActivity extends AppCompatActivity implements ViewPager.OnPageC
 				case 0: return getString(R.string.all_frupics);
 				case 1: return getString(R.string.unseen);
 				case 2: return getString(R.string.starred);
-				default: return String.format("Fragment " + position);
+				default: return "Fragment " + position;
 			}
 		}
 
+		@NotNull
 		@Override
 		public Fragment getItem(int position) {
 			GridFragment f;

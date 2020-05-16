@@ -1,5 +1,8 @@
 package de.saschahlusiak.frupic.model;
 
+import android.content.Context;
+import android.util.Log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,19 +10,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
 
 import de.saschahlusiak.frupic.cache.FileCacheUtils;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 
 public class FrupicFactory {
 	static final private String tag = FrupicFactory.class.getSimpleName();
 
-	Context context;
-	FileCacheUtils fileCache;
+	private Context context;
+	private FileCacheUtils fileCache;
 
 	public interface OnFetchProgress {
 		void OnProgress(int read, int length);
@@ -37,63 +35,26 @@ public class FrupicFactory {
 	/**
 	 * Returns a File object for the cached file on storage. File may not exist.
 	 * @param frupic
-	 * @param thumb
 	 * @return File for cached file
 	 */
-	public File getCacheFile(Frupic frupic, boolean thumb) {
-		return fileCache.getFile(frupic, thumb);
-	}
-	
-	/**
-	 * Either decodes the Bitmap from file cache or downloads it first and then decodes it
-	 * @param frupic
-	 * @param onProgress
-	 * @return loaded Bitmap or null on error
-	 */
-	public Bitmap getThumbnail(Frupic frupic, OnFetchProgress onProgress) {
-		String filename = fileCache.getFileName(frupic, true);
-		Bitmap b;
-
-		File f = new File(filename);
-		
-		/* Fetch file from the Interweb, unless cached locally */
-		if (!f.exists()) {
-			try {
-				if (! fetchFrupicImage(frupic, true, onProgress)) {
-					return null;
-				}
-			} catch (InterruptedException e) {
-				return null;
-			}
-//			Log.d(tag, "Downloaded file " + frupic.id);
-		}
-		
-		if (Thread.interrupted())
-			return null;
-		
-		/* touch file, so it is purged from cache last */
-		f.setLastModified(new Date().getTime());
-
-		b = BitmapFactory.decodeFile(filename);
-
-		return b;
+	public File getCacheFile(Frupic frupic) {
+		return fileCache.getFile(frupic);
 	}
 
 	/**
 	 * Downloads the given image into file cache
 	 * 
 	 * @param frupic
-	 * @param fetch_thumb
 	 * @param progress
 	 * @return true on success
 	 */
-	public boolean fetchFrupicImage(Frupic frupic, boolean fetch_thumb, OnFetchProgress progress) throws InterruptedException {
+	public boolean fetchFrupicImage(Frupic frupic, OnFetchProgress progress) throws InterruptedException {
 		OutputStream myOutput = null;
 		File tmpFile = null;
 		int copied;
 		
 		try {
-			URL url = new URL(fetch_thumb ? frupic.getThumbUrl() : frupic.getFullUrl());
+			URL url = new URL(frupic.getFullUrl());
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			
 			if (Thread.interrupted())
@@ -112,7 +73,7 @@ public class FrupicFactory {
 				 * renamed to the frupic image file
 				 */
 				do {
-					tmpFile = new File(fileCache.getFileName(frupic, fetch_thumb) + ".tmp." + i);
+					tmpFile = new File(fileCache.getFileName(frupic) + ".tmp." + i);
 					i++;
 				} while (tmpFile.exists());
 			}
@@ -149,7 +110,7 @@ public class FrupicFactory {
 				throw new InterruptedException();
 			}
 			synchronized(fileCache) {
-				tmpFile.renameTo(fileCache.getFile(frupic, fetch_thumb));
+				tmpFile.renameTo(fileCache.getFile(frupic));
 			}
 			return true;
 		} catch (Exception e) {

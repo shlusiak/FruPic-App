@@ -78,7 +78,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 		if (showAnimations && frupic.isAnimated()) {
 			v.setVisibility(View.VISIBLE);
 			i.setVisibility(View.GONE);
-			String filename = new FileCacheUtils(context).getFileName(frupic, false);
+			String filename = new FileCacheUtils(context).getFileName(frupic);
             InputStream stream = null;
 			try {
 				/* Movie calls reset() which the InputStream must support.
@@ -120,7 +120,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 		}
 		
 		/* fall-through, if loading animation failed */
-		File file = factory.getCacheFile(frupic, false);
+		File file = factory.getCacheFile(frupic);
 		Uri uri = null;
 		if (file.exists()) {
 			uri = Uri.fromFile(file);

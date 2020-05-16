@@ -45,8 +45,8 @@ class Frupic(
 //            .replace("frupic.frubar.net".toRegex(), "d1ofuc5rnolp9w.cloudfront.net")
 
     @Deprecated("Don't use this")
-    fun getFileName(thumb: Boolean): String {
-        return if (!thumb) File(fullUrl).name else "frupic_" + id + if (thumb) "_thumb" else ""
+    fun getFileName(): String {
+        return File(fullUrl).name
     }
 
     fun hasFlag(flag: Int) = (flags and flag) != 0

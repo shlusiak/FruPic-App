@@ -295,9 +295,9 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 			req.allowScanningByMediaScanner();
 			req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			
-			req.setTitle(frupic.getFileName(false));
+			req.setTitle(frupic.getFileName());
 			req.setDescription("Frupic " + frupic.id);
-			req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
+			req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName());
 			dm.enqueue(req);
 			return true;
 

@@ -50,11 +50,11 @@ public class DetailDialog extends ArrayAdapter<DetailItem> {
 		items[2].setValue(frupic.getDate());
 		items[4].setValue(frupic.getFullUrl());
 
-		File f = fileCache.getFile(frupic, false);
+		File f = fileCache.getFile(frupic);
 		if (f.exists()) {
 			Options options = new Options();
 			options.inJustDecodeBounds = true;
-			BitmapFactory.decodeFile(fileCache.getFileName(frupic, false), options);
+			BitmapFactory.decodeFile(fileCache.getFileName(frupic), options);
 
 			items[3].setValue(String.format(
 					"%d x %d (%d kb)", options.outWidth, options.outHeight, f.length() / 1024));

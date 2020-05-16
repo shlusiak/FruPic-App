@@ -2,7 +2,7 @@ package de.saschahlusiak.frupic.utils
 
 import org.json.JSONArray
 
-fun <T> JSONArray.toSequence() = sequence<T> {
+fun <T> JSONArray.toSequence() = sequence {
     @Suppress("UNCHECKED_CAST")
     for (i in 0 until length()) yield(get(i) as T)
 }

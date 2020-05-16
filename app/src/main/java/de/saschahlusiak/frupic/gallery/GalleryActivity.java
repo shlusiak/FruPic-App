@@ -220,12 +220,12 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 		req.allowScanningByMediaScanner();
 		req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 		
-		req.setTitle(frupic.getFileName(false));
+		req.setTitle(frupic.getFileName());
 		req.setDescription("Frupic " + frupic.id);
-		req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
+		req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName());
 		dm.enqueue(req);
 		
-		Toast.makeText(this, getString(R.string.fetching_image_message, frupic.getFileName(false)), Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, getString(R.string.fetching_image_message, frupic.getFileName()), Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -271,8 +271,8 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			/* The created external files are deleted in onDestroy() */
 
 			/* TODO: If file is not in cache yet, download it first or show message */
-			out = new File(out, frupic.getFileName(false));
-			if (FrupicFactory.copyImageFile(new FileCacheUtils(this).getFile(frupic, false), out)) {
+			out = new File(out, frupic.getFileName());
+			if (FrupicFactory.copyImageFile(new FileCacheUtils(this).getFile(frupic), out)) {
 				intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("image/?");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));

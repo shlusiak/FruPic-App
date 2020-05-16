@@ -12,6 +12,7 @@ class App : Application() {
             .builder()
             .appModule(AppModule(this))
             .build()
+
         appComponent.inject(this)
     }
 }
