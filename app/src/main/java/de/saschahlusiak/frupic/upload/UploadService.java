@@ -11,7 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.grid.FruPicGridActivity;
+import de.saschahlusiak.frupic.grid.GridActivity;
 import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.app.Notification;
@@ -347,7 +347,7 @@ public class UploadService extends IntentService {
 			builder.setOngoing(false);
 		}
 		/* TODO: set progress dialog intent when ongoing */
-		Intent intent = new Intent(this, FruPicGridActivity.class);
+		Intent intent = new Intent(this, GridActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(pendingIntent);
 		

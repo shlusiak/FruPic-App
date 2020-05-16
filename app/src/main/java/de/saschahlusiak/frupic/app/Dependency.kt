@@ -7,8 +7,8 @@ import com.squareup.picasso.Picasso
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import de.saschahlusiak.frupic.grid.FruPicGridActivity
-import de.saschahlusiak.frupic.grid.FruPicGridFragment
+import de.saschahlusiak.frupic.grid.GridActivity
+import de.saschahlusiak.frupic.grid.GridFragment
 import javax.inject.Singleton
 
 @Module
@@ -27,6 +27,6 @@ class AppModule(private val app: App) {
 @Singleton
 interface AppComponent {
     fun inject(app: App)
-    fun inject(activity: FruPicGridActivity)
-    fun inject(fragment: FruPicGridFragment)
+    fun inject(activity: GridActivity)
+    fun inject(fragment: GridFragment)
 }

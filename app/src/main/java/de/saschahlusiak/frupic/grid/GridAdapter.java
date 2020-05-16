@@ -16,8 +16,8 @@ import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.model.Frupic;
 
 
-public class FruPicGridAdapter extends RecyclerView.Adapter<FruPicGridAdapter.ViewHolder> {
-	private static final String tag = FruPicGridAdapter.class.getSimpleName();
+public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
+	private static final String tag = GridAdapter.class.getSimpleName();
 
 	private OnItemClickListener activity;
 	private Cursor cursor;
@@ -66,7 +66,7 @@ public class FruPicGridAdapter extends RecyclerView.Adapter<FruPicGridAdapter.Vi
 		}
 	}
 
-	FruPicGridAdapter(FruPicGridFragment activity) {
+	GridAdapter(GridFragment activity) {
 		this.activity = activity;
 	}
 

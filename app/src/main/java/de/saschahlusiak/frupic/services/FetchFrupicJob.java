@@ -5,6 +5,7 @@ import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.model.FrupicFactory.OnFetchProgress;
 
+@Deprecated
 public class FetchFrupicJob extends Job implements OnFetchProgress {
 	static final String tag = FetchFrupicJob.class.getSimpleName();
 	Frupic frupic;

@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.services;
 
 import java.util.ArrayList;
 
+@Deprecated
 public abstract class Job {
 	public interface OnJobListener {
 		/** this is called in the main thread */

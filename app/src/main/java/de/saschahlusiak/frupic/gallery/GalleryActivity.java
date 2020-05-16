@@ -39,11 +39,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPageChangeListener, ServiceConnection {
-	private static final String tag = FruPicGallery.class.getSimpleName();
+public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, ServiceConnection {
+	private static final String tag = GalleryActivity.class.getSimpleName();
 	
 	private ViewPager pager;
-	private GalleryPagerAdapter adapter;
+	private GalleryAdapter adapter;
 	private Cursor cursor;
 	private FrupicDB db;
 	private int navIndex;
@@ -101,7 +101,7 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
         	navIndex = getIntent().getIntExtra("navIndex", 0);
         }
 
-        adapter = new GalleryPagerAdapter(this, prefs.getBoolean("animatedgifs", true));
+        adapter = new GalleryAdapter(this, prefs.getBoolean("animatedgifs", true));
         pager.setAdapter(adapter);
         cursorChanged();
 
@@ -289,7 +289,7 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 		case R.id.copy_to_clipboard:
 			ClipboardManager clipboard = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
 			clipboard.setText(frupic.getUrl());
-			Toast.makeText(FruPicGallery.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+			Toast.makeText(GalleryActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
 			return true;
 			
 		default:

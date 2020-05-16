@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+@Deprecated
 public class JobManager extends Service {
     private final IBinder mBinder = new JobManagerBinder();
     

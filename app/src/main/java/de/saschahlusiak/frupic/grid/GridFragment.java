@@ -37,15 +37,15 @@ import de.saschahlusiak.frupic.app.App;
 import de.saschahlusiak.frupic.app.FrupicRepository;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
-import de.saschahlusiak.frupic.gallery.FruPicGallery;
+import de.saschahlusiak.frupic.gallery.GalleryActivity;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.services.Job;
 
-public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.OnItemClickListener, Job.OnJobListener {
-	static private final String tag = FruPicGridFragment.class.getSimpleName();
+public class GridFragment extends Fragment implements GridAdapter.OnItemClickListener, Job.OnJobListener {
+	static private final String tag = GridFragment.class.getSimpleName();
 
 	private RecyclerView grid;
-	private FruPicGridAdapter adapter;
+	private GridAdapter adapter;
 	private FrupicDB db;
 	private Cursor cursor;
 	private ConnectivityManager cm;
@@ -109,7 +109,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		adapter = new FruPicGridAdapter(this);
+		adapter = new GridAdapter(this);
 
 		grid = (RecyclerView) getView().findViewById(R.id.gridView);
 		int columnWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 88, getResources().getDisplayMetrics());
@@ -172,7 +172,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 
 	@Override
 	public void onItemClick(int position, long id) {
-		Intent intent = new Intent(getContext(), FruPicGallery.class);
+		Intent intent = new Intent(getContext(), GalleryActivity.class);
 		intent.putExtra("position", position);
 		intent.putExtra("id", id);
 		intent.putExtra("navIndex", category);

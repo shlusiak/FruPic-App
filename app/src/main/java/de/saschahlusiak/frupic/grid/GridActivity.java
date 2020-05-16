@@ -1,11 +1,9 @@
 package de.saschahlusiak.frupic.grid;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,8 +31,8 @@ import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.upload.UploadActivity;
 
-public class FruPicGridActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, SwipeRefreshLayout.OnRefreshListener {
-	static private final String tag = FruPicGridActivity.class.getSimpleName();
+public class GridActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, SwipeRefreshLayout.OnRefreshListener {
+	static private final String tag = GridActivity.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
 	public static final int FRUPICS_STEP = 100;
@@ -212,19 +210,19 @@ public class FruPicGridActivity extends AppCompatActivity implements ViewPager.O
 
 		@Override
 		public Fragment getItem(int position) {
-			FruPicGridFragment f;
+			GridFragment f;
 			Bundle args = new Bundle();
 			switch (position) {
 				case 0:
-					f = new FruPicGridFragment();
+					f = new GridFragment();
 					args.putInt("nav", 0);
 					break;
 				case 1:
-					f = new FruPicGridFragment();
+					f = new GridFragment();
 					args.putInt("nav", 1);
 					break;
 				case 2:
-					f = new FruPicGridFragment();
+					f = new GridFragment();
 					args.putInt("nav", 2);
 					break;
 				default:

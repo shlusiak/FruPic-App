@@ -12,6 +12,7 @@ import android.util.Log;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.model.Frupic;
 
+@Deprecated
 public class FileCacheUtils {
 	private static final String tag = FileCacheUtils.class.getSimpleName();
 	

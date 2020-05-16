@@ -32,10 +32,10 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
-	private final static String tag = GalleryPagerAdapter.class.getSimpleName();
+public class GalleryAdapter extends PagerAdapter implements OnJobListener {
+	private final static String tag = GalleryAdapter.class.getSimpleName();
 
-	private FruPicGallery context;
+	private GalleryActivity context;
 	private Cursor cursor;
 	private boolean showAnimations;
 	private FrupicFactory factory;
@@ -51,7 +51,7 @@ public class GalleryPagerAdapter extends PagerAdapter implements OnJobListener {
 		public TextView progressText;
 	}
 
-	public GalleryPagerAdapter(FruPicGallery context, boolean showAnimations) {
+	public GalleryAdapter(GalleryActivity context, boolean showAnimations) {
 		this.context = context;
 		this.showAnimations = showAnimations;
 		this.factory = new FrupicFactory(context);
