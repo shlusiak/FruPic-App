@@ -30,7 +30,7 @@ public class FrupicFactory {
 		recreateFileCache();
 	}
 	
-	public void recreateFileCache() {
+	private void recreateFileCache() {
 		fileCache = new FileCacheUtils(context);
 	}
 	
@@ -93,7 +93,7 @@ public class FrupicFactory {
 		int copied;
 		
 		try {
-			URL url = new URL(fetch_thumb ? frupic.thumb_url : frupic.full_url);
+			URL url = new URL(fetch_thumb ? frupic.getThumbUrl() : frupic.getFullUrl());
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			
 			if (Thread.interrupted())

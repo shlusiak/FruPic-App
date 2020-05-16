@@ -7,6 +7,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import java.util.List;
+
 public class FrupicDB {
 	Context context;
 	SQLiteDatabase db;
@@ -70,26 +72,20 @@ public class FrupicDB {
 
 	public boolean addFrupic(Frupic frupic) {
 		final String fields[] = { ID_ID };
-		Cursor c = db.query(TABLE, fields, ID_ID + "=" + frupic.getId(), null, null, null, null);
+		Cursor c = db.query(TABLE, fields, ID_ID + "=" + frupic.id, null, null, null, null);
 		/* don't add frupic with the same id */
 		if (c.getCount() <= 0) {
 			c.close();
 			ContentValues values = new ContentValues();
 
-			values.put(ID_ID, frupic.getId());
+			values.put(ID_ID, frupic.id);
 			values.put(FULLURL_ID, frupic.getFullUrl());
 			values.put(THUMBURL_ID, frupic.getThumbUrl());
 			values.put(DATE_ID, frupic.getDate());
 			values.put(USERNAME_ID, frupic.getUsername());
-			values.put(FLAGS_ID, frupic.getFlags());
+			values.put(FLAGS_ID, frupic.flags);
 			
-			String tags_s = "";
-			String tags[] = frupic.getTags();
-			if (tags != null) {
-				for (int i = 0; i < tags.length - 1; i++)
-					tags_s += tags[i] + ", ";
-				tags_s += tags[tags.length - 1];
-			}
+			String tags_s = frupic.getTagsString();
 			values.put(TAGS_ID, tags_s);
 
 			db.insert(TABLE, null, values);
@@ -110,6 +106,18 @@ public class FrupicDB {
 		return true;
 	}
 
+	public int addFrupics(List<Frupic> frupics) {
+		int added = 0;
+		db.beginTransaction();
+		for (int i = 0; i < frupics.size(); i++) {
+			if (addFrupic(frupics.get(i)))
+				added++;
+		}
+		db.setTransactionSuccessful();
+		db.endTransaction();
+		return added;
+	}
+
 	public boolean clearAll(boolean includeFavourite) {
 		try {
 			return db.delete(TABLE, includeFavourite ? null : ("NOT " + FLAGS_ID + "=" + Frupic.FLAG_FAV), null) > 0;
@@ -125,7 +133,7 @@ public class FrupicDB {
 			clearMask += 65536;
 		String sql = "UPDATE " + TABLE + " SET flags = (flags & " + clearMask + ") | " + set;
 		if (frupic != null)
-			sql += " WHERE " + ID_ID + "=" + frupic.getId();
+			sql += " WHERE " + ID_ID + "=" + frupic.id;
 		db.execSQL(sql);
 		return true;
 	}

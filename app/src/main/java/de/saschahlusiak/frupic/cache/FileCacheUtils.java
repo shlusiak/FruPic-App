@@ -113,9 +113,8 @@ public class FileCacheUtils {
 			Cursor cursor = db.getFrupics(null, Frupic.FLAG_FAV);
 			if (cursor != null) {
 				cursor.moveToFirst();
-				Frupic frupic = new Frupic();
 				do {
-					frupic.fromCursor(cursor);
+					Frupic frupic = new Frupic(cursor);
 					String filename;
 					
 					filename = getFileName(frupic, false);

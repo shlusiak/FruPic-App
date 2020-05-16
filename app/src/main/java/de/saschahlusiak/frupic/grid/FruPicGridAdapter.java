@@ -50,10 +50,10 @@ public class FruPicGridAdapter extends RecyclerView.Adapter<FruPicGridAdapter.Vi
 			} else
 				imageLabel.setVisibility(View.INVISIBLE);
 
-			if ((this.frupic != null) && (this.frupic.getId() == frupic.getId()))
+			if ((this.frupic != null) && (this.frupic.id == frupic.id))
 				return;
 
-			Picasso.get().load(frupic.thumb_url)
+			Picasso.get().load(frupic.getThumbUrl())
 				.placeholder(R.drawable.frupic)
 				.into(image);
 
@@ -62,7 +62,7 @@ public class FruPicGridAdapter extends RecyclerView.Adapter<FruPicGridAdapter.Vi
 		
 		@Override
 		public void onClick(View v) {
-			activity.onItemClick(getAdapterPosition(), frupic.getId());
+			activity.onItemClick(getAdapterPosition(), frupic.id);
 		}
 	}
 

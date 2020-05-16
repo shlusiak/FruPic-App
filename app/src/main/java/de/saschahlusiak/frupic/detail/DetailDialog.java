@@ -35,7 +35,7 @@ public class DetailDialog extends ArrayAdapter<DetailItem> {
 		DetailDialog d;
 		ContextThemeWrapper ctw = new ContextThemeWrapper( context, R.style.AppTheme_Dialog);
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
-		builder.setTitle("Frupic #" + frupic.getId());
+		builder.setTitle("Frupic #" + frupic.id);
 		
 		DetailItem items[] = new DetailItem[5];
 		items[0] = new DetailItem(context.getString(R.string.details_posted_by));

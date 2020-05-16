@@ -287,7 +287,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 		Frupic frupic = new Frupic((Cursor)adapter.getItem((int) info.position));
 
-		menu.setHeaderTitle("#" + frupic.getId());
+		menu.setHeaderTitle("#" + frupic.id);
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
 	}
 
@@ -300,7 +300,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 
 		switch (item.getItemId()) {
 		case R.id.star:
-			db.updateFlags(frupic, Frupic.FLAG_FAV, !((frupic.getFlags() & Frupic.FLAG_FAV) == Frupic.FLAG_FAV));
+			db.updateFlags(frupic, Frupic.FLAG_FAV, !((frupic.flags & Frupic.FLAG_FAV) == Frupic.FLAG_FAV));
 			cursorChanged();
 			return true;
 
@@ -318,7 +318,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 			intent = new Intent(Intent.ACTION_SEND);
 			intent.setType("text/plain");
 			intent.putExtra(Intent.EXTRA_TEXT, frupic.getUrl());
-			intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.getId());
+			intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.id);
 			startActivity(Intent.createChooser(intent,
 					getString(R.string.share_link)));
 			return true;
@@ -335,7 +335,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 			req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			
 			req.setTitle(frupic.getFileName(false));
-			req.setDescription("Frupic " + frupic.getId());
+			req.setDescription("Frupic " + frupic.id);
 			req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
 			dm.enqueue(req);
 			return true;

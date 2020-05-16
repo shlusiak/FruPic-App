@@ -178,7 +178,7 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 		t = (TextView)findViewById(R.id.username);
 		t.setText(getString(R.string.gallery_posted_by, frupic.getUsername()));
 		
-		getSupportActionBar().setTitle(String.format("#%d", frupic.getId()));
+		getSupportActionBar().setTitle(String.format("#%d", frupic.id));
 		
 		if (menu != null) {
 			MenuItem item = menu.findItem(R.id.star);
@@ -221,7 +221,7 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 		req.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 		
 		req.setTitle(frupic.getFileName(false));
-		req.setDescription("Frupic " + frupic.getId());
+		req.setDescription("Frupic " + frupic.id);
 		req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName(false));
 		dm.enqueue(req);
 		
@@ -258,7 +258,7 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 			intent = new Intent(Intent.ACTION_SEND);
 			intent.setType("text/plain");
 			intent.putExtra(Intent.EXTRA_TEXT, frupic.getUrl());
-			intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.getId());
+			intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.id);
 			startActivity(Intent.createChooser(intent, getString(R.string.share_link)));
 			return true;
 			
@@ -281,8 +281,8 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 			return true;
 
 		case R.id.star:
-			frupic.setFlags(frupic.getFlags() ^ Frupic.FLAG_FAV);
-			db.updateFlags(frupic, Frupic.FLAG_FAV, (frupic.getFlags() & Frupic.FLAG_FAV) == Frupic.FLAG_FAV);
+			frupic.flags = frupic.flags ^ Frupic.FLAG_FAV;
+			db.updateFlags(frupic, Frupic.FLAG_FAV, (frupic.flags & Frupic.FLAG_FAV) == Frupic.FLAG_FAV);
 			updateLabels(frupic);
 			return true;
 
@@ -304,7 +304,7 @@ public class FruPicGallery extends AppCompatActivity implements ViewPager.OnPage
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 		Frupic frupic = getCurrentFrupic();
-		menu.setHeaderTitle("#" + frupic.getId());
+		menu.setHeaderTitle("#" + frupic.id);
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
 	}
 	
