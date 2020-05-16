@@ -7,8 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import de.saschahlusiak.frupic.db.FrupicDB
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.utils.toList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -22,7 +21,7 @@ import kotlin.system.measureTimeMillis
 class FrupicRepository @Inject constructor(
     private val db: FrupicDB
 ) {
-    private val _synchronizing = MutableLiveData<Boolean>(false)
+    private val _synchronizing = MutableLiveData(false)
     private val _lastUpdated = MutableLiveData(0L)
 
     // Flag whether synchronizing is currently in progress
@@ -33,6 +32,17 @@ class FrupicRepository @Inject constructor(
 
     init {
         Log.d(tag, "Initializing ${FrupicRepository::class.simpleName}")
+
+        GlobalScope.launch(Dispatchers.Main) {
+            synchronize()
+        }
+    }
+
+    @Deprecated("Remove in favour of suspend function")
+    fun synchronizeAsync() {
+        GlobalScope.launch(Dispatchers.Main) {
+            synchronize()
+        }
     }
 
     /**
@@ -58,7 +68,7 @@ class FrupicRepository @Inject constructor(
     }
 
     /**
-     * Fetches the Frupics for the given range. Will not set the [synchronising] status and does not handle
+     * Fetches the Frupics for the given range. Will not set the [synchronizing] status and does not handle
      * errors.
      *
      * Will update value of [lastUpdated], so changes can be observed on.
@@ -69,6 +79,8 @@ class FrupicRepository @Inject constructor(
     @MainThread
     suspend fun fetch(offset: Int, limit: Int) {
         withContext(Dispatchers.IO) {
+            Log.d(tag, "Fetching $limit Frupics")
+
             val start = System.currentTimeMillis()
             val query = "$INDEX_URL?offset=$offset&limit=$limit"
             val result = parse(fetchURL(query))

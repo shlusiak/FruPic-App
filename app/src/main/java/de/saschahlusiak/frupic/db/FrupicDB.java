@@ -9,6 +9,8 @@ import android.util.Log;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class FrupicDB {
 	Context context;
 	SQLiteDatabase db;
@@ -50,6 +52,7 @@ public class FrupicDB {
 	
 	public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE + ";";
 
+	@Inject
 	public FrupicDB(Context context) {
 		this.context = context;
 	}

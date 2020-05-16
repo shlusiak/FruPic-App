@@ -1,17 +1,9 @@
 package de.saschahlusiak.frupic.grid;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.Menu;
@@ -24,24 +16,25 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.lifecycle.Observer;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
+import javax.inject.Inject;
+
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.about.AboutActivity;
+import de.saschahlusiak.frupic.app.App;
+import de.saschahlusiak.frupic.app.FrupicRepository;
 import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.services.Job;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
-import de.saschahlusiak.frupic.services.Job.Priority;
-import de.saschahlusiak.frupic.services.JobManager;
-import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
 import de.saschahlusiak.frupic.services.PurgeCacheJob;
-import de.saschahlusiak.frupic.services.RefreshJob;
 import de.saschahlusiak.frupic.upload.UploadActivity;
 
 public class FruPicGridActivity extends AppCompatActivity implements OnJobListener, ViewPager.OnPageChangeListener, SwipeRefreshLayout.OnRefreshListener {
@@ -49,89 +42,26 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 	static private final int REQUEST_PICK_PICTURE = 1;
 
 	private PurgeCacheJob purgeCacheJob;
-	private ConnectivityManager cm;
-
-	/* access from GridAdapter */
-	private JobManagerConnection jobManagerConnection;
 
 	public static final int FRUPICS_STEP = 100;
-
-	private SharedPreferences prefs;
 
 	private ViewPager viewPager;
 	private ViewPagerAdapter viewPagerAdapter;
 
 	private SwipeRefreshLayout swipeRefreshLayout;
 
-
-	private static class JobManagerConnection implements ServiceConnection {
-		FruPicGridActivity activity;
-
-		JobManager jobManager;
-		RefreshJob refreshJob;
-
-		JobManagerConnection(FruPicGridActivity activity) {
-			this.activity = activity;
-		}
-
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			Log.d(tag, "onServiceConnected");
-			jobManager = ((JobManagerBinder) service).getService();
-			refreshJob = jobManager.getRefreshJob();
-			refreshJob.addJobListener(activity);
-			if (refreshJob.isRunning())
-				activity.OnJobStarted(refreshJob);
-			else
-				requestRefresh(0, FRUPICS_STEP);
-			activity.invalidateOptionsMenu();
-		}
-
-		void requestRefresh(int base, int count) {
-			if (jobManager == null)
-				return;
-			if (refreshJob == null)
-				return;
-			if (refreshJob.isScheduled() || refreshJob.isRunning())
-				return;
-
-			NetworkInfo ni = activity.cm.getActiveNetworkInfo();
-			if (ni == null)
-				return;
-			if (!ni.isConnected())
-				return;
-
-			refreshJob.setRange(base, count);
-
-			Intent intent = new Intent(activity, JobManager.class);
-			activity.startService(intent);
-
-			jobManager.post(refreshJob, Priority.PRIORITY_HIGH);
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			Log.d(tag, "onServiceDisconnected");
-			refreshJob.removeJobListener(activity);
-			refreshJob = null;
-			jobManager = null;
-		}
-
-		void unbind(Context context) {
-			context.getApplicationContext().unbindService(this);
-			this.refreshJob = null;
-			this.jobManager = null;
-		}
-	}
+	@Inject
+	protected FrupicRepository repository;
 
 	static class RetainedConfig {
-		JobManagerConnection jobManagerConnection;
 		LruCache<Integer, Bitmap> cache;
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		((App)getApplication()).appComponent.inject(this);
 
 		setContentView(R.layout.grid_activity);
 
@@ -151,21 +81,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 		swipeRefreshLayout.setOnRefreshListener(this);
 
 		RetainedConfig retainedConfig = (RetainedConfig) getLastCustomNonConfigurationInstance();
-		if (retainedConfig != null) {
-			jobManagerConnection = retainedConfig.jobManagerConnection;
-		}
-		
-		if (jobManagerConnection != null) { 
-			jobManagerConnection.activity = this;
-			if (jobManagerConnection.refreshJob != null)
-				jobManagerConnection.refreshJob.addJobListener(this);
-			invalidateOptionsMenu();
-		} else {
-			jobManagerConnection = new JobManagerConnection(this);
-			Intent intent = new Intent(this, JobManager.class);
-			getApplicationContext().bindService(intent, jobManagerConnection, Context.BIND_AUTO_CREATE);
-		}
-	    cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
 
 		findViewById(R.id.upload).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -176,23 +91,19 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 					getString(R.string.upload)), REQUEST_PICK_PICTURE);
 			}
 		});
-		
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
+
 		purgeCacheJob = new PurgeCacheJob(new FileCacheUtils(this));
+
+		repository.getSynchronizing().observe(this, new Observer<Boolean>() {
+			@Override
+			public void onChanged(Boolean synchronizing) {
+				swipeRefreshLayout.setRefreshing(synchronizing);
+			}
+		});
 	}
 
 	@Override
 	protected void onDestroy() {
-		if (jobManagerConnection != null) {
-			if (jobManagerConnection.refreshJob != null) {
-				jobManagerConnection.refreshJob.removeJobListener(this);
-			}
-			
-			jobManagerConnection.unbind(this);
-			jobManagerConnection = null;
-		}
-
 		FrupicDB db = new FrupicDB(this);
 		if (db.open()) {
 			db.updateFlags(null, Frupic.FLAG_NEW, false);
@@ -203,20 +114,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 	}
 
 	@Override
-	public Object onRetainCustomNonConfigurationInstance() {
-		RetainedConfig retain = new RetainedConfig();
-
-		if (jobManagerConnection.jobManager != null) {
-			jobManagerConnection.refreshJob.removeJobListener(this);
-			jobManagerConnection.activity = null;
-			retain.jobManagerConnection = jobManagerConnection;
-			jobManagerConnection = null;
-		}
-
-		return retain;
-	}
-
-	@Override
 	protected void onStart() {
 		/* recreate the factory fileCache object to reread changed 
 		 * preferences
@@ -224,14 +121,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 		purgeCacheJob = new PurgeCacheJob(new FileCacheUtils(this));
 
 		super.onStart();
-	}
-	
-	@Override
-	protected void onStop() {
-		if (jobManagerConnection != null && jobManagerConnection.jobManager != null)
-			jobManagerConnection.jobManager.post(purgeCacheJob, Priority.PRIORITY_LOW);
-
-		super.onStop();
 	}
 	
 	@Override
@@ -341,7 +230,7 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 			db.close();
 		}
 
-		jobManagerConnection.requestRefresh(0, FRUPICS_STEP);
+		repository.synchronizeAsync();
 	}
 
 	private class ViewPagerAdapter extends FragmentPagerAdapter {
