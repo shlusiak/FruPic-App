@@ -28,20 +28,14 @@ import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.about.AboutActivity;
 import de.saschahlusiak.frupic.app.App;
 import de.saschahlusiak.frupic.app.FrupicRepository;
-import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
-import de.saschahlusiak.frupic.services.Job;
-import de.saschahlusiak.frupic.services.Job.OnJobListener;
-import de.saschahlusiak.frupic.services.PurgeCacheJob;
 import de.saschahlusiak.frupic.upload.UploadActivity;
 
-public class FruPicGridActivity extends AppCompatActivity implements OnJobListener, ViewPager.OnPageChangeListener, SwipeRefreshLayout.OnRefreshListener {
+public class FruPicGridActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, SwipeRefreshLayout.OnRefreshListener {
 	static private final String tag = FruPicGridActivity.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
-
-	private PurgeCacheJob purgeCacheJob;
 
 	public static final int FRUPICS_STEP = 100;
 
@@ -52,10 +46,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 
 	@Inject
 	protected FrupicRepository repository;
-
-	static class RetainedConfig {
-		LruCache<Integer, Bitmap> cache;
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -80,8 +70,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 		swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
 		swipeRefreshLayout.setOnRefreshListener(this);
 
-		RetainedConfig retainedConfig = (RetainedConfig) getLastCustomNonConfigurationInstance();
-
 		findViewById(R.id.upload).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -91,8 +79,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 					getString(R.string.upload)), REQUEST_PICK_PICTURE);
 			}
 		});
-
-		purgeCacheJob = new PurgeCacheJob(new FileCacheUtils(this));
 
 		repository.getSynchronizing().observe(this, new Observer<Boolean>() {
 			@Override
@@ -113,16 +99,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 		super.onDestroy();
 	}
 
-	@Override
-	protected void onStart() {
-		/* recreate the factory fileCache object to reread changed 
-		 * preferences
-		 */
-		purgeCacheJob = new PurgeCacheJob(new FileCacheUtils(this));
-
-		super.onStart();
-	}
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -191,21 +167,6 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 			break;
 		}
 	}
-	
-	@Override
-	public void OnJobStarted(Job job) {
-		swipeRefreshLayout.setRefreshing(true);
-	}
-
-	@Override
-	public void OnJobProgress(Job job, int progress, int max) {
-		/* ignore, because RefreshJob does not have progress */
-	}
-
-	@Override
-	public void OnJobDone(Job job) {
-		swipeRefreshLayout.setRefreshing(false);
-	}
 
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -230,7 +191,7 @@ public class FruPicGridActivity extends AppCompatActivity implements OnJobListen
 			db.close();
 		}
 
-		repository.synchronizeAsync();
+		repository.synchronizeAsync(0, FRUPICS_STEP);
 	}
 
 	private class ViewPagerAdapter extends FragmentPagerAdapter {

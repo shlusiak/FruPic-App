@@ -8,6 +8,7 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import de.saschahlusiak.frupic.grid.FruPicGridActivity
+import de.saschahlusiak.frupic.grid.FruPicGridFragment
 import javax.inject.Singleton
 
 @Module
@@ -27,4 +28,5 @@ class AppModule(private val app: App) {
 interface AppComponent {
     fun inject(app: App)
     fun inject(activity: FruPicGridActivity)
+    fun inject(fragment: FruPicGridFragment)
 }

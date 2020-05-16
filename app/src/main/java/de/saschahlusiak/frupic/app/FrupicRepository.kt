@@ -16,8 +16,10 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.net.URL
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.system.measureTimeMillis
 
+@Singleton
 class FrupicRepository @Inject constructor(
     private val db: FrupicDB
 ) {
@@ -39,9 +41,9 @@ class FrupicRepository @Inject constructor(
     }
 
     @Deprecated("Remove in favour of suspend function")
-    fun synchronizeAsync() {
+    fun synchronizeAsync(base: Int, limit: Int) {
         GlobalScope.launch(Dispatchers.Main) {
-            synchronize()
+            synchronize(base, limit)
         }
     }
 

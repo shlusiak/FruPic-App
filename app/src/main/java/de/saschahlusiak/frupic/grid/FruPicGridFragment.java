@@ -1,36 +1,45 @@
 package de.saschahlusiak.frupic.grid;
 
 import android.app.DownloadManager;
-import android.content.*;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.IBinder;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.*;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+
+import javax.inject.Inject;
+
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.app.App;
+import de.saschahlusiak.frupic.app.FrupicRepository;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.FruPicGallery;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.services.Job;
-import de.saschahlusiak.frupic.services.JobManager;
-import de.saschahlusiak.frupic.services.JobManager.JobManagerBinder;
-import de.saschahlusiak.frupic.services.RefreshJob;
 
 public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.OnItemClickListener, Job.OnJobListener {
 	static private final String tag = FruPicGridFragment.class.getSimpleName();
@@ -59,67 +68,14 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 
 	private GridLayoutManager layoutManager;
 
-	private JobManagerConnection jobManagerConnection;
-
-	static class JobManagerConnection implements ServiceConnection {
-		FruPicGridFragment activity;
-		RefreshJob refreshJob;
-		JobManager jobManager;
-
-		JobManagerConnection(FruPicGridFragment activity) {
-			this.activity = activity;
-		}
-
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			Log.d(tag, "onServiceConnected");
-			jobManager = ((JobManagerBinder) service).getService();
-
-			refreshJob = jobManager.getRefreshJob();
-			refreshJob.addJobListener(activity);
-
-			if (activity.adapter != null)
-				activity.adapter.notifyDataSetChanged();
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			Log.d(tag, "onServiceDisconnected");
-			refreshJob.removeJobListener(activity);
-			jobManager = null;
-		}
-
-		void unbind(Context context) {
-			context.getApplicationContext().unbindService(this);
-			this.jobManager = null;
-		}
-
-		void requestRefresh(int base, int count) {
-			if (jobManager == null)
-				return;
-			if (refreshJob == null)
-				return;
-			if (refreshJob.isScheduled() || refreshJob.isRunning())
-				return;
-
-			NetworkInfo ni = activity.cm.getActiveNetworkInfo();
-			if (ni == null)
-				return;
-			if (!ni.isConnected())
-				return;
-
-			refreshJob.setRange(base, count);
-
-			Intent intent = new Intent(activity.getContext(), JobManager.class);
-			activity.getContext().startService(intent);
-
-			jobManager.post(refreshJob, Job.Priority.PRIORITY_HIGH);
-		}
-	}
+	@Inject
+	protected FrupicRepository repository;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		((App)(requireContext().getApplicationContext())).appComponent.inject(this);
 
 		category = getArguments().getInt("nav");
 
@@ -129,16 +85,24 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 	    cm = (ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		mWindowManager = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
-
-		jobManagerConnection = new JobManagerConnection(this);
-		Intent intent = new Intent(getContext(), JobManager.class);
-		getContext().getApplicationContext().bindService(intent, jobManagerConnection, Context.BIND_AUTO_CREATE);
 	}
 
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.grid_fragment, container, false);
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		repository.getLastUpdated().observe(getViewLifecycleOwner(), new Observer<Long>() {
+			@Override
+			public void onChanged(Long aLong) {
+				cursorChanged();
+			}
+		});
 	}
 
 	@Override
@@ -155,9 +119,9 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 		grid.addOnScrollListener(scrollListener);
 		registerForContextMenu(grid);
 
-		LayoutInflater inflate = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		mDialogText = (TextView) inflate.inflate(R.layout.grid_list_position, null);
+		mDialogText = (TextView) inflater.inflate(R.layout.grid_list_position, null);
 		mDialogText.setVisibility(View.INVISIBLE);
 
 		mHandler.post(new Runnable() {
@@ -188,9 +152,6 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 			mWindowManager.removeView(mDialogText);
 		}
         mReady = false;
-
-		jobManagerConnection.unbind(getContext());
-		jobManagerConnection = null;
 
 		super.onDestroy();
 	}
@@ -225,6 +186,10 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
         }
     }
 
+    private void requestRefresh(int base, int count) {
+		repository.synchronizeAsync(base, count);
+	}
+
     private OnScrollListener scrollListener = new OnScrollListener() {
 		private int lastScrollState = RecyclerView.SCROLL_STATE_IDLE;
 		private String mPrevDate = "";
@@ -238,7 +203,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 				int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
 
 				if (lastVisibleItem > adapter.getItemCount() - FRUPICS_STEP) {
-					jobManagerConnection.requestRefresh(adapter.getItemCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
+					requestRefresh(adapter.getItemCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 				}
 			}
 		}
@@ -249,7 +214,7 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 			int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
 
 			if (category == 0 && lastVisibleItem > adapter.getItemCount() - FRUPICS_STEP && lastVisibleItem > 0) {
-				jobManagerConnection.requestRefresh(adapter.getItemCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
+				requestRefresh(adapter.getItemCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 			}
 			if (mReady) {
 				Cursor first = adapter.getItem(firstVisibleItem);
@@ -273,10 +238,6 @@ public class FruPicGridFragment extends Fragment implements FruPicGridAdapter.On
 			}
 		}
 	};
-
-	public JobManager getJobManager() {
-		return jobManagerConnection.jobManager;
-	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
