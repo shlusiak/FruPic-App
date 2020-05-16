@@ -33,12 +33,16 @@ class FrupicRepository @Inject constructor(
     @Deprecated("Remove in favour of suspend function")
     fun synchronizeAsync(base: Int, limit: Int) {
         GlobalScope.launch(Dispatchers.Main) {
-            synchronize(base, limit)
+            try {
+                synchronize(base, limit)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
     /**
-     * Synchronize the most recent 1000 Frupics.
+     * Synchronize the most recent Frupics.
      *
      * Will set the [synchronizing] status while running and handle errors transparently.
      */
@@ -58,7 +62,6 @@ class FrupicRepository @Inject constructor(
             _synchronizing.value = false
         }
     }
-
 
     /**
      * Fetches the Frupics for the given range. Will not set the [synchronizing] status and does not handle

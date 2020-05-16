@@ -2,33 +2,4 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="first_preferencescreen" >
 
-    <ListPreference
-        android:defaultValue="16777216"
-        android:dialogTitle="@string/preferences_cache_size"
-        android:entries="@array/cache_labels"
-        android:entryValues="@array/cache_values"
-        android:key="cache_size"
-        android:persistent="true"
-        android:title="@string/preferences_cache_size" />
-    
-    <CheckBoxPreference
-        android:defaultValue="1"
-        android:key="always_keep_starred"
-        android:persistent="true"
-        android:summary="@string/preferences_always_keep_starred_summary"
-        android:title="@string/preferences_always_keep_starred" />
-
-    <PreferenceScreen
-        android:key="clear_cache"
-        android:summary="@string/calculating"
-        android:enabled="false"
-        android:title="@string/preferences_cache_clear" />
-
-    <CheckBoxPreference
-        android:defaultValue="1"
-        android:key="external_cache"
-        android:persistent="true"
-        android:summary="@string/preferences_external_cache_summary"
-        android:title="@string/preferences_external_cache" />
-
 </PreferenceScreen>

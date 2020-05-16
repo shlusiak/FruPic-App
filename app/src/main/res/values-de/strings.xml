@@ -66,18 +66,9 @@
     <string name="share_link">Link senden via</string>
     <string name="share_picture">Bild senden via</string>
         
-    <string name="calculating">berechne...</string>
-    
     <string name="preferences">Einstellungen</string>
     <string name="preferences_cache">Cache</string>
-    <string name="preferences_cache_size">Größe Zwischenspeicher</string>
-    <string name="preferences_external_cache">Externen Cache benutzen</string>
-    <string name="preferences_external_cache_summary">Bevorzugt auf SD-Karte cachen</string>
-    <string name="preferences_cache_clear">Zwischenspeicher leeren</string>
-    <string name="preferences_cache_clear_summary">%1$d Bilder, %2$.1f MB (%3$.1f %%)</string>
-    <string name="preferences_always_keep_starred_summary">Favoriten immer im Cache behalten</string>
-    <string name="preferences_always_keep_starred">Favoriten behalten</string>
-    
+
     <string name="preferences_display">Anzeige</string>
     <string name="preferences_show_animated_gifs_summary">Animierte GIFs zeigen (experimentell)</string>
     <string name="preferences_show_animated_gifs">GIF-Animationen</string>
