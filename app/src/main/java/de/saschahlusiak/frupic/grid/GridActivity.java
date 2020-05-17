@@ -3,7 +3,6 @@ package de.saschahlusiak.frupic.grid;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,15 +11,8 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.Observer;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.ViewPager;
-
-import com.google.android.material.tabs.TabLayout;
-
-import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
@@ -33,14 +25,11 @@ import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.preferences.FrupicPreferences;
 import de.saschahlusiak.frupic.upload.UploadActivity;
 
-public class GridActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, SwipeRefreshLayout.OnRefreshListener {
+public class GridActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 	static private final String tag = GridActivity.class.getSimpleName();
 	static private final int REQUEST_PICK_PICTURE = 1;
 
 	public static final int FRUPICS_STEP = 100;
-
-	private ViewPager viewPager;
-	private ViewPagerAdapter viewPagerAdapter;
 
 	private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -58,13 +47,13 @@ public class GridActivity extends AppCompatActivity implements ViewPager.OnPageC
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-        viewPager = findViewById(R.id.viewPager);
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(viewPagerAdapter);
-        viewPager.addOnPageChangeListener(this);
-
-		TabLayout tabLayout = findViewById(R.id.tabs);
-		tabLayout.setupWithViewPager(viewPager);
+		if (savedInstanceState == null) {
+			final Fragment f = new GridFragment();
+			f.setArguments(new Bundle());
+			getSupportFragmentManager().beginTransaction()
+				.replace(R.id.fragment, f)
+				.commit();
+		}
 
 		swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 		swipeRefreshLayout.setOnRefreshListener(this);
@@ -168,21 +157,6 @@ public class GridActivity extends AppCompatActivity implements ViewPager.OnPageC
 	}
 
 	@Override
-	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-	}
-
-	@Override
-	public void onPageSelected(int position) {
-		Log.d(tag, "onPageSelected: " + position);
-	}
-
-	@Override
-	public void onPageScrollStateChanged(int state) {
-		swipeRefreshLayout.setEnabled(state == ViewPager.SCROLL_STATE_IDLE);
-	}
-
-	@Override
 	public void onRefresh() {
 		FrupicDB db = new FrupicDB(this);
 		if (db.open()) {
@@ -191,32 +165,5 @@ public class GridActivity extends AppCompatActivity implements ViewPager.OnPageC
 		}
 
 		repository.synchronizeAsync(0, FRUPICS_STEP);
-	}
-
-	@Deprecated
-	private class ViewPagerAdapter extends FragmentPagerAdapter {
-
-		ViewPagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
-
-		@Override
-		public CharSequence getPageTitle(int position) {
-			return getString(R.string.all_frupics);
-		}
-
-		@NotNull
-		@Override
-		public Fragment getItem(int position) {
-			Fragment f = new GridFragment();
-			Bundle args = new Bundle();
-			f.setArguments(args);
-			return f;
-		}
-
-		@Override
-		public int getCount() {
-			return 1;
-		}
 	}
 }
