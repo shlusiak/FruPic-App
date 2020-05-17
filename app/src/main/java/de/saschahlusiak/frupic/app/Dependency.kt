@@ -3,6 +3,7 @@ package de.saschahlusiak.frupic.app
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.squareup.picasso.Picasso
 import dagger.Component
 import dagger.Module
@@ -20,13 +21,15 @@ class AppModule(private val app: App) {
     fun getPicasso(): Picasso = Picasso.get()
 
     @Provides
-    fun getSharedPreferences(app: App): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(app)
+    fun getSharedPreferences(context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+
+    @Provides
+    fun getFirebaseAnalytics(context: Context) = FirebaseAnalytics.getInstance(context)
 }
 
 @Component(modules = [AppModule::class])
 @Singleton
 interface AppComponent {
-    fun inject(app: App)
     fun inject(activity: GridActivity)
     fun inject(fragment: GridFragment)
 }

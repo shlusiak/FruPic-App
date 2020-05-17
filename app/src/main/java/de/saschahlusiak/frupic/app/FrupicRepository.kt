@@ -74,22 +74,22 @@ class FrupicRepository @Inject constructor(
      */
     @MainThread
     suspend fun fetch(offset: Int, limit: Int) {
-        withContext(Dispatchers.IO) {
-            Log.d(tag, "Fetching $limit Frupics")
+        Log.d(tag, "Fetching $limit Frupics")
 
-            val start = System.currentTimeMillis()
-            val result = api.getPicture(offset, limit)
+        val start = System.currentTimeMillis()
+        val result = api.getPicture(offset, limit)
 
-            val duration = System.currentTimeMillis() - start
-            Log.d(tag, "Fetched ${result.size} Frupics in $duration ms")
+        val duration = System.currentTimeMillis() - start
+        Log.d(tag, "Fetched ${result.size} Frupics in $duration ms")
 
-            measureTimeMillis {
+        measureTimeMillis {
+            withContext(Dispatchers.Default) {
                 db.open()
                 db.addFrupics(result)
                 db.close()
-            }.also {
-                Log.d(tag, "Stored ${result.size} Frupics in db in $it ms")
             }
+        }.also {
+            Log.d(tag, "Stored ${result.size} Frupics in db in $it ms")
         }
 
         _lastUpdated.value = System.currentTimeMillis()
