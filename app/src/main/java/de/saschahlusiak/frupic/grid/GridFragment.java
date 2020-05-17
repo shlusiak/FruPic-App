@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -48,13 +47,10 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 	private RecyclerView grid;
 	private GridAdapter adapter;
 	private FrupicDB db;
-	private ConnectivityManager cm;
-
-	private int category;
 
 	private static final int FRUPICS_STEP = 100;
 
-	private Runnable mRemoveWindow = () -> removeWindow();
+	private Runnable mRemoveWindow = this::removeWindow;
 	private Handler mHandler = new Handler();
 	private WindowManager mWindowManager;
 	private TextView mDialogText;
@@ -74,12 +70,8 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 
 		((App)(requireContext().getApplicationContext())).appComponent.inject(this);
 
-		category = getArguments().getInt("nav");
-
 		db = new FrupicDB(getContext());
 		db.open();
-
-	    cm = (ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		mWindowManager = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
 
@@ -181,7 +173,7 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		Intent intent = new Intent(getContext(), GalleryActivity.class);
 		intent.putExtra("position", position);
 		intent.putExtra("id", id);
-		intent.putExtra("navIndex", category);
+		intent.putExtra("navIndex", 0);
 		startActivity(intent);
 	}
 
@@ -204,7 +196,7 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 			lastScrollState = newState;
 
-			if (newState == RecyclerView.SCROLL_STATE_IDLE && (category == 0)) {
+			if (newState == RecyclerView.SCROLL_STATE_IDLE && (viewModel.getStarred().getValue() != true)) {
 				int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
 				int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
 
@@ -218,8 +210,9 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		public void onScrolled(RecyclerView recyclerView, int dx, int dy){
 			int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
 			int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+			boolean isStarred = viewModel.getStarred().getValue();
 
-			if (category == 0 && lastVisibleItem > adapter.getItemCount() - FRUPICS_STEP && lastVisibleItem > 0) {
+			if (!isStarred && lastVisibleItem > adapter.getItemCount() - FRUPICS_STEP && lastVisibleItem > 0) {
 				requestRefresh(adapter.getItemCount() - FRUPICS_STEP, FRUPICS_STEP + FRUPICS_STEP);
 			}
 			if (mReady) {

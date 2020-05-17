@@ -5,3 +5,4 @@ gen/
 .gradle/
 *.iml
 build/
+google-services.json

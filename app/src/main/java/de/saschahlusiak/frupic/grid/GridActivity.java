@@ -193,6 +193,7 @@ public class GridActivity extends AppCompatActivity implements ViewPager.OnPageC
 		repository.synchronizeAsync(0, FRUPICS_STEP);
 	}
 
+	@Deprecated
 	private class ViewPagerAdapter extends FragmentPagerAdapter {
 
 		ViewPagerAdapter(FragmentManager fm) {
@@ -201,42 +202,21 @@ public class GridActivity extends AppCompatActivity implements ViewPager.OnPageC
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			switch (position) {
-				case 0: return getString(R.string.all_frupics);
-				case 1: return getString(R.string.unseen);
-				case 2: return getString(R.string.starred);
-				default: return "Fragment " + position;
-			}
+			return getString(R.string.all_frupics);
 		}
 
 		@NotNull
 		@Override
 		public Fragment getItem(int position) {
-			GridFragment f;
+			Fragment f = new GridFragment();
 			Bundle args = new Bundle();
-			switch (position) {
-				case 0:
-					f = new GridFragment();
-					args.putInt("nav", 0);
-					break;
-				case 1:
-					f = new GridFragment();
-					args.putInt("nav", 1);
-					break;
-				case 2:
-					f = new GridFragment();
-					args.putInt("nav", 2);
-					break;
-				default:
-					throw new IllegalArgumentException("Fragment " + position + " not supported");
-			}
 			f.setArguments(args);
 			return f;
 		}
 
 		@Override
 		public int getCount() {
-			return 3;
+			return 1;
 		}
 	}
 }
