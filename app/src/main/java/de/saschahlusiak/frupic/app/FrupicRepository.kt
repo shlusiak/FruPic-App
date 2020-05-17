@@ -1,11 +1,18 @@
 package de.saschahlusiak.frupic.app
 
+import android.database.Cursor
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import de.saschahlusiak.frupic.db.FrupicDB
-import kotlinx.coroutines.*
+import de.saschahlusiak.frupic.model.Frupic
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import org.json.JSONException
 import java.io.IOException
 import javax.inject.Inject
@@ -19,6 +26,7 @@ class FrupicRepository @Inject constructor(
 ) {
     private val _synchronizing = MutableLiveData(false)
     private val _lastUpdated = MutableLiveData(0L)
+    private val dbLock = Mutex()
 
     // Flag whether synchronizing is currently in progress
     val synchronizing = _synchronizing as LiveData<Boolean>
@@ -28,6 +36,8 @@ class FrupicRepository @Inject constructor(
 
     init {
         Log.d(tag, "Initializing ${FrupicRepository::class.simpleName}")
+        // FIXME: make this idempotent
+        db.open()
     }
 
     @Deprecated("Remove in favour of suspend function")
@@ -84,15 +94,31 @@ class FrupicRepository @Inject constructor(
 
         measureTimeMillis {
             withContext(Dispatchers.Default) {
-                db.open()
-                db.addFrupics(result)
-                db.close()
+                withDB {
+                    addFrupics(result)
+                }
             }
         }.also {
             Log.d(tag, "Stored ${result.size} Frupics in db in $it ms")
         }
 
         _lastUpdated.value = System.currentTimeMillis()
+    }
+
+    suspend fun getFrupics(starred: Boolean = false): Cursor = withContext(Dispatchers.IO) {
+        val mask = if (starred) Frupic.FLAG_FAV else 0
+        return@withContext withDB {
+            getFrupics(null, mask)
+        }
+    }
+
+    /**
+     * Runs the given block in an exclusive DB session.
+     */
+    private suspend fun <R> withDB(block: FrupicDB.() -> R): R {
+        dbLock.withLock {
+            return block(db)
+        }
     }
 
     companion object {

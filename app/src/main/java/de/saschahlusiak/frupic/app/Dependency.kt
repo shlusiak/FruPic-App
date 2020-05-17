@@ -10,6 +10,7 @@ import dagger.Module
 import dagger.Provides
 import de.saschahlusiak.frupic.grid.GridActivity
 import de.saschahlusiak.frupic.grid.GridFragment
+import de.saschahlusiak.frupic.grid.GridViewModel
 import javax.inject.Singleton
 
 @Module
@@ -32,4 +33,5 @@ class AppModule(private val app: App) {
 interface AppComponent {
     fun inject(activity: GridActivity)
     fun inject(fragment: GridFragment)
+    fun inject(viewModel: GridViewModel)
 }

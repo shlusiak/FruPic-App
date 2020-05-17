@@ -96,8 +96,6 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
 	}
 
 	public void setCursor(Cursor cursor) {
-		if (this.cursor != null )
-			this.cursor.close();
 		this.cursor = cursor;
 
 		notifyDataSetChanged();

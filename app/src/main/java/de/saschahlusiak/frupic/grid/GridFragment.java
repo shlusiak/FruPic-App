@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
@@ -41,25 +42,19 @@ import de.saschahlusiak.frupic.gallery.GalleryActivity;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.services.Job;
 
-public class GridFragment extends Fragment implements GridAdapter.OnItemClickListener, Job.OnJobListener {
+public class GridFragment extends Fragment implements GridAdapter.OnItemClickListener {
 	static private final String tag = GridFragment.class.getSimpleName();
 
 	private RecyclerView grid;
 	private GridAdapter adapter;
 	private FrupicDB db;
-	private Cursor cursor;
 	private ConnectivityManager cm;
 
 	private int category;
 
 	private static final int FRUPICS_STEP = 100;
 
-	private Runnable mRemoveWindow = new Runnable() {
-		public void run() {
-			removeWindow();
-		}
-	};
-
+	private Runnable mRemoveWindow = () -> removeWindow();
 	private Handler mHandler = new Handler();
 	private WindowManager mWindowManager;
 	private TextView mDialogText;
@@ -67,6 +62,8 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 	private boolean mReady;
 
 	private GridLayoutManager layoutManager;
+
+	private GridViewModel viewModel;
 
 	@Inject
 	protected FrupicRepository repository;
@@ -85,6 +82,8 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 	    cm = (ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		mWindowManager = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
+
+		viewModel = new ViewModelProvider(this).get(GridViewModel.class);
 	}
 
 	@Nullable
@@ -100,9 +99,18 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		repository.getLastUpdated().observe(getViewLifecycleOwner(), new Observer<Long>() {
 			@Override
 			public void onChanged(Long aLong) {
-				cursorChanged();
+				viewModel.reloadData();
 			}
 		});
+
+		viewModel.getCursor().observe(getViewLifecycleOwner(), new Observer<Cursor>() {
+			@Override
+			public void onChanged(Cursor cursor) {
+				adapter.setCursor(cursor);
+			}
+		});
+
+		view.findViewById(R.id.starredButton).setOnClickListener(this::onStarredButtonClick);
 	}
 
 	@Override
@@ -137,15 +145,10 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 				mWindowManager.addView(mDialogText, lp);
 			}
 		});
-
-		cursorChanged();
 	}
 
 	@Override
 	public void onDestroy() {
-		if (cursor != null)
-			cursor.close();
-		cursor = null;
 		db.close();
 		db = null;
 		if (mDialogText != null) {
@@ -159,7 +162,6 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 	@Override
 	public void onResume() {
 		mReady = true;
-		cursorChanged();
 		super.onResume();
 	}
 
@@ -168,6 +170,10 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		super.onPause();
 		removeWindow();
 		mReady = false;
+	}
+
+	private void onStarredButtonClick(View v) {
+		viewModel.toggleStarred();
 	}
 
 	@Override
@@ -262,7 +268,7 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		switch (item.getItemId()) {
 		case R.id.star:
 			db.updateFlags(frupic, Frupic.FLAG_FAV, !((frupic.flags & Frupic.FLAG_FAV) == Frupic.FLAG_FAV));
-			cursorChanged();
+			viewModel.reloadData();
 			return true;
 
 		case R.id.openinbrowser:
@@ -304,36 +310,5 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		default:
 			return super.onContextItemSelected(item);
 		}
-	}
-
-	private void cursorChanged() {
-		int mask = 0;
-		if (db == null)
-			return;
-		
-		if (category == 2)
-			mask |= Frupic.FLAG_FAV;
-
-		if (category == 1)
-			mask |= Frupic.FLAG_UNSEEN;
-
-		cursor = db.getFrupics(null, mask);
-		
-		adapter.setCursor(cursor);
-	}
-
-	@Override
-	public void OnJobStarted(Job job) {
-		if (adapter != null) adapter.notifyDataSetChanged();
-	}
-
-	@Override
-	public void OnJobProgress(Job job, int progress, int max) {
-
-	}
-
-	@Override
-	public void OnJobDone(Job job) {
-		if (adapter != null) cursorChanged();
 	}
 }
