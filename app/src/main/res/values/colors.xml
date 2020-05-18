@@ -2,6 +2,10 @@
 <resources>
     <color name="colorPrimary">#d2b800</color>
     <color name="colorPrimaryDark">#7e6d00</color>
-    <color name="colorAccent">#efdb01</color>
+    <color name="colorAccent">@color/brand_yellow</color>
+
+<!--    <color name="brand_yellow">#ffe200</color>-->
+    <color name="brand_yellow">#E8D964</color>
+    <color name="launcher_icon_background">#1f1f1f</color>
     <color name="galleryControlBackground">@android:color/black</color>
 </resources>
