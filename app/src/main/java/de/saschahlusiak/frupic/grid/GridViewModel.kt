@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicRepository
+import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -38,9 +39,16 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun toggleStarred() {
+    fun toggleShowStarred() {
         starred.value = (starred.value == false)
         reloadData()
+    }
+
+    fun toggleFrupicStarred(frupic: Frupic) {
+        viewModelScope.launch {
+            repository.setStarred(frupic, !frupic.isStarred)
+            reloadData()
+        }
     }
 
     fun reloadData() {

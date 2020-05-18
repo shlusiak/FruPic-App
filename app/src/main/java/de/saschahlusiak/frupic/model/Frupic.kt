@@ -26,6 +26,8 @@ class Frupic(
     val isAnimated = fullUrl.endsWith(".gif") || fullUrl.endsWith(".GIF")
     val tagsString = tags.joinToString(", ")
 
+    val isStarred get() = (flags and FLAG_FAV) != 0
+
     constructor(cursor: Cursor) : this(
         id = cursor.getInt(FrupicDB.ID_INDEX),
         flags = cursor.getInt(FrupicDB.FLAGS_INDEX),

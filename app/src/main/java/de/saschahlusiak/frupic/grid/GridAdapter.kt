@@ -15,17 +15,28 @@ class GridAdapter internal constructor(private val listener: OnItemClickListener
 
     interface OnItemClickListener {
         fun onFrupicClick(position: Int, frupic: Frupic)
+        fun onFrupicLongClick(view: View, position: Int, frupic: Frupic)
     }
 
-    inner class ViewHolder(containerView: View) : RecyclerView.ViewHolder(containerView), View.OnClickListener {
+    inner class ViewHolder(containerView: View) : RecyclerView.ViewHolder(containerView) {
         var frupic: Frupic? = null
         private var image: ImageView
         private var imageLabel: ImageView
 
         init {
-            itemView.setOnClickListener(this)
             image = containerView.findViewById(R.id.image)
             imageLabel = containerView.findViewById(R.id.imageLabel)
+
+            itemView.setOnClickListener {
+                val frupic = frupic ?: return@setOnClickListener
+                listener.onFrupicClick(adapterPosition, frupic)
+            }
+
+            itemView.setOnLongClickListener {
+                val frupic = frupic ?: return@setOnLongClickListener false
+                listener.onFrupicLongClick(it, adapterPosition, frupic)
+                true
+            }
         }
 
         fun bindFrupic(frupic: Frupic) {
@@ -47,11 +58,6 @@ class GridAdapter internal constructor(private val listener: OnItemClickListener
                 .load(frupic.thumbUrl)
                 .placeholder(R.drawable.frupic)
                 .into(image)
-        }
-
-        override fun onClick(v: View) {
-            val frupic = frupic ?: return
-            listener.onFrupicClick(adapterPosition, frupic)
         }
     }
 

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Bundle
@@ -12,8 +11,7 @@ import android.os.Environment
 import android.os.Handler
 import android.util.TypedValue
 import android.view.*
-import android.view.ContextMenu.ContextMenuInfo
-import android.widget.AdapterView.AdapterContextMenuInfo
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -27,7 +25,6 @@ import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.about.AboutActivity
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicRepository
-import de.saschahlusiak.frupic.db.FrupicDB
 import de.saschahlusiak.frupic.detail.DetailDialog
 import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.model.Frupic
@@ -40,8 +37,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListener {
-    private var db: FrupicDB? = null
-
     private val mRemoveWindow = Runnable { removeWindow() }
     private val mHandler = Handler()
     private var mWindowManager: WindowManager? = null
@@ -63,10 +58,6 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
 
         val app = requireContext().applicationContext as App
         app.appComponent.inject(this)
-
-        db = FrupicDB(context).apply {
-            open()
-        }
 
         mWindowManager = requireContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -90,7 +81,6 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
             layoutManager = gridLayoutManager
             adapter = gridAdapter
             addOnScrollListener(scrollListener)
-            registerForContextMenu(this)
         }
 
         upload.setOnClickListener {
@@ -144,8 +134,6 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
     }
 
     override fun onDestroy() {
-        db?.close()
-        db = null
         if (mDialogText != null) {
             mWindowManager?.removeView(mDialogText)
         }
@@ -173,7 +161,7 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
         val intent: Intent
         when (item.itemId) {
             R.id.starred -> {
-                viewModel.toggleStarred()
+                viewModel.toggleShowStarred()
                 return true
             }
             R.id.upload -> {
@@ -292,43 +280,37 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
         }
     }
 
-    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo?) {
+    override fun onFrupicLongClick(view: View, position: Int, frupic: Frupic) {
         val inflater = activity?.menuInflater ?: return
-        inflater.inflate(R.menu.grid_contextmenu, menu)
-        val info = menuInfo as AdapterContextMenuInfo
-        val frupic = Frupic((gridAdapter.getItem(info.position) as Cursor))
-        menu.setHeaderTitle("#" + frupic.id)
-        menu.findItem(R.id.star).isChecked = frupic.hasFlag(Frupic.FLAG_FAV)
+        val popup = PopupMenu(requireContext(), view)
+        inflater.inflate(R.menu.grid_contextmenu, popup.menu)
+        popup.menu.findItem(R.id.star).isChecked = frupic.hasFlag(Frupic.FLAG_FAV)
+        popup.setOnMenuItemClickListener { item ->
+            onFrupicContextItemSelected(frupic, item)
+            true
+        }
+        popup.show()
     }
 
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        val info = item.menuInfo as AdapterContextMenuInfo
-        val frupic = Frupic((gridAdapter.getItem(info.position) as Cursor))
+    private fun onFrupicContextItemSelected(frupic: Frupic, item: MenuItem) {
         val intent: Intent
         when (item.itemId) {
             R.id.star -> {
-                // FIXME
-                db?.updateFlags(frupic, Frupic.FLAG_FAV, (frupic.flags and Frupic.FLAG_FAV) != Frupic.FLAG_FAV)
-                viewModel.reloadData()
-                return true
+                viewModel.toggleFrupicStarred(frupic)
             }
             R.id.openinbrowser -> {
                 intent = Intent("android.intent.action.VIEW", Uri.parse(frupic.url))
                 startActivity(intent)
-                return true
             }
             R.id.details -> {
                 DetailDialog.create(context, frupic).show()
-                return true
             }
             R.id.share_link -> {
                 intent = Intent(Intent.ACTION_SEND)
                 intent.type = "text/plain"
                 intent.putExtra(Intent.EXTRA_TEXT, frupic.url)
                 intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.id)
-                startActivity(Intent.createChooser(intent,
-                    getString(R.string.share_link)))
-                return true
+                startActivity(Intent.createChooser(intent, getString(R.string.share_link)))
             }
 
             R.id.cache_now -> {
@@ -343,10 +325,7 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
                 req.setDescription("Frupic " + frupic.id)
                 req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName())
                 dm.enqueue(req)
-                return true
             }
-
-            else -> return super.onContextItemSelected(item)
         }
     }
 

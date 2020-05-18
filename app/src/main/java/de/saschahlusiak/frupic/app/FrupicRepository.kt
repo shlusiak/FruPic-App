@@ -114,6 +114,16 @@ class FrupicRepository @Inject constructor(
         _lastUpdated.value = System.currentTimeMillis()
     }
 
+    @MainThread
+    suspend fun setStarred(frupic: Frupic, starred: Boolean) {
+        withContext(Dispatchers.IO) {
+            withDB {
+                updateFlags(frupic, Frupic.FLAG_FAV, starred)
+            }
+        }
+        _lastUpdated.value = System.currentTimeMillis()
+    }
+
     /**
      * Runs the given block in an exclusive DB session.
      */
