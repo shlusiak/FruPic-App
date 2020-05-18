@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.grid;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.os.Handler;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,26 +25,32 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import javax.inject.Inject;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.about.AboutActivity;
 import de.saschahlusiak.frupic.app.App;
 import de.saschahlusiak.frupic.app.FrupicRepository;
 import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.gallery.GalleryActivity;
 import de.saschahlusiak.frupic.model.Frupic;
-import de.saschahlusiak.frupic.services.Job;
+import de.saschahlusiak.frupic.preferences.FrupicPreferences;
+import de.saschahlusiak.frupic.upload.UploadActivity;
 
-public class GridFragment extends Fragment implements GridAdapter.OnItemClickListener {
+public class GridFragment extends Fragment implements GridAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 	static private final String tag = GridFragment.class.getSimpleName();
+	static private final int REQUEST_PICK_PICTURE = 1;
 
 	private RecyclerView grid;
 	private GridAdapter adapter;
@@ -50,6 +58,8 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 
 	private static final int FRUPICS_STEP = 100;
 
+	private Toolbar toolbar;
+	private SwipeRefreshLayout swipeRefreshLayout;
 	private Runnable mRemoveWindow = this::removeWindow;
 	private Handler mHandler = new Handler();
 	private WindowManager mWindowManager;
@@ -68,14 +78,15 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		((App)(requireContext().getApplicationContext())).appComponent.inject(this);
+		((App) (requireContext().getApplicationContext())).appComponent.inject(this);
 
 		db = new FrupicDB(getContext());
 		db.open();
 
-		mWindowManager = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
+		mWindowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
 
 		viewModel = new ViewModelProvider(this).get(GridViewModel.class);
+		setHasOptionsMenu(true);
 	}
 
 	@Nullable
@@ -88,6 +99,21 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
+		swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+		swipeRefreshLayout.setOnRefreshListener(this);
+
+		toolbar = view.findViewById(R.id.toolbar);
+
+		view.findViewById(R.id.upload).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(Intent.ACTION_PICK);
+				intent.setType("image/*");
+				startActivityForResult(Intent.createChooser(intent,
+					getString(R.string.upload)), REQUEST_PICK_PICTURE);
+			}
+		});
+
 		repository.getLastUpdated().observe(getViewLifecycleOwner(), new Observer<Long>() {
 			@Override
 			public void onChanged(Long aLong) {
@@ -95,14 +121,24 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 			}
 		});
 
-		viewModel.getCursor().observe(getViewLifecycleOwner(), new Observer<Cursor>() {
-			@Override
-			public void onChanged(Cursor cursor) {
-				adapter.setCursor(cursor);
-			}
+		repository.getSynchronizing().observe(getViewLifecycleOwner(), synchronizing -> {
+			swipeRefreshLayout.setRefreshing(synchronizing);
 		});
 
-		view.findViewById(R.id.starredButton).setOnClickListener(this::onStarredButtonClick);
+		viewModel.getCursor().observe(getViewLifecycleOwner(), cursor -> {
+			adapter.setCursor(cursor);
+		});
+
+		viewModel.getStarred().observe(getViewLifecycleOwner(), isStarred -> {
+			getActivity().invalidateOptionsMenu();
+		});
+	}
+
+	@Override
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+
+		inflater.inflate(R.menu.grid_optionsmenu, menu);
 	}
 
 	@Override
@@ -119,7 +155,7 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		grid.addOnScrollListener(scrollListener);
 		registerForContextMenu(grid);
 
-		LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 		mDialogText = (TextView) inflater.inflate(R.layout.grid_list_position, null);
 		mDialogText.setVisibility(View.INVISIBLE);
@@ -137,6 +173,9 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 				mWindowManager.addView(mDialogText, lp);
 			}
 		});
+
+		final AppCompatActivity activity = (AppCompatActivity) getActivity();
+		activity.setSupportActionBar(toolbar);
 	}
 
 	@Override
@@ -146,7 +185,7 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		if (mDialogText != null) {
 			mWindowManager.removeView(mDialogText);
 		}
-        mReady = false;
+		mReady = false;
 
 		super.onDestroy();
 	}
@@ -164,8 +203,82 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		mReady = false;
 	}
 
-	private void onStarredButtonClick(View v) {
-		viewModel.toggleStarred();
+	@Override
+	public void onPrepareOptionsMenu(@NonNull Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+
+		menu.findItem(R.id.starred).setIcon(viewModel.getStarred().getValue() == true ? R.drawable.star_label : R.drawable.star_empty);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent;
+
+		switch (item.getItemId()) {
+			case R.id.starred:
+				viewModel.toggleStarred();
+				return true;
+
+			case R.id.upload:
+				intent = new Intent(Intent.ACTION_PICK);
+				intent.setType("image/*");
+				startActivityForResult(Intent.createChooser(intent,
+					getString(R.string.upload)), REQUEST_PICK_PICTURE);
+				return true;
+
+			case R.id.preferences:
+				intent = new Intent(requireContext(), FrupicPreferences.class);
+				startActivity(intent);
+				return true;
+
+			case R.id.openinbrowser:
+				intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse("http://frupic.frubar.net"));
+				startActivity(intent);
+				return true;
+
+			case R.id.about:
+				intent = new Intent(requireContext(), AboutActivity.class);
+				startActivity(intent);
+				return true;
+
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		Intent intent;
+
+		switch (requestCode) {
+			case REQUEST_PICK_PICTURE:
+				if (resultCode == Activity.RESULT_OK) {
+					if (data != null) {
+						Uri uri = data.getData();
+						intent = new Intent(requireContext(), UploadActivity.class);
+						intent.setAction(Intent.ACTION_SEND);
+						intent.putExtra(Intent.EXTRA_STREAM, uri);
+
+						startActivity(intent);
+					}
+				}
+				break;
+		}
+	}
+
+	@Override
+	public void onRefresh() {
+		// TODO: fixme
+		FrupicDB db = new FrupicDB(requireContext());
+		if (db.open()) {
+			db.updateFlags(null, Frupic.FLAG_NEW, false);
+			db.close();
+		}
+
+		repository.synchronizeAsync(0, FRUPICS_STEP);
 	}
 
 	@Override
@@ -177,18 +290,18 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		startActivity(intent);
 	}
 
-    private void removeWindow() {
-        if (mShowing) {
-            mShowing = false;
-            mDialogText.setVisibility(View.INVISIBLE);
-        }
-    }
+	private void removeWindow() {
+		if (mShowing) {
+			mShowing = false;
+			mDialogText.setVisibility(View.INVISIBLE);
+		}
+	}
 
-    private void requestRefresh(int base, int count) {
+	private void requestRefresh(int base, int count) {
 		repository.synchronizeAsync(base, count);
 	}
 
-    private OnScrollListener scrollListener = new OnScrollListener() {
+	private OnScrollListener scrollListener = new OnScrollListener() {
 		private int lastScrollState = RecyclerView.SCROLL_STATE_IDLE;
 		private String mPrevDate = "";
 
@@ -207,7 +320,7 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 		}
 
 		@Override
-		public void onScrolled(RecyclerView recyclerView, int dx, int dy){
+		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 			int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
 			int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
 			boolean isStarred = viewModel.getStarred().getValue();
@@ -240,12 +353,12 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenu.ContextMenuInfo menuInfo) {
+									ContextMenu.ContextMenuInfo menuInfo) {
 		MenuInflater inflater = getActivity().getMenuInflater();
 		inflater.inflate(R.menu.grid_contextmenu, menu);
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-		Frupic frupic = new Frupic((Cursor)adapter.getItem((int) info.position));
+		Frupic frupic = new Frupic((Cursor) adapter.getItem((int) info.position));
 
 		menu.setHeaderTitle("#" + frupic.id);
 		menu.findItem(R.id.star).setChecked(frupic.hasFlag(Frupic.FLAG_FAV));
@@ -254,54 +367,54 @@ public class GridFragment extends Fragment implements GridAdapter.OnItemClickLis
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
-				.getMenuInfo();
-		Frupic frupic = new Frupic((Cursor)adapter.getItem((int) info.position));
+			.getMenuInfo();
+		Frupic frupic = new Frupic((Cursor) adapter.getItem((int) info.position));
 		Intent intent;
 
 		switch (item.getItemId()) {
-		case R.id.star:
-			db.updateFlags(frupic, Frupic.FLAG_FAV, !((frupic.flags & Frupic.FLAG_FAV) == Frupic.FLAG_FAV));
-			viewModel.reloadData();
-			return true;
+			case R.id.star:
+				db.updateFlags(frupic, Frupic.FLAG_FAV, !((frupic.flags & Frupic.FLAG_FAV) == Frupic.FLAG_FAV));
+				viewModel.reloadData();
+				return true;
 
-		case R.id.openinbrowser:
-			intent = new Intent("android.intent.action.VIEW", Uri.parse(frupic.getUrl()));
-			startActivity(intent);
-			return true;
+			case R.id.openinbrowser:
+				intent = new Intent("android.intent.action.VIEW", Uri.parse(frupic.getUrl()));
+				startActivity(intent);
+				return true;
 
-		case R.id.details:
-			DetailDialog.create(getContext(), frupic).show();
-			
-			return true;
+			case R.id.details:
+				DetailDialog.create(getContext(), frupic).show();
 
-		case R.id.share_link:
-			intent = new Intent(Intent.ACTION_SEND);
-			intent.setType("text/plain");
-			intent.putExtra(Intent.EXTRA_TEXT, frupic.getUrl());
-			intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.id);
-			startActivity(Intent.createChooser(intent,
+				return true;
+
+			case R.id.share_link:
+				intent = new Intent(Intent.ACTION_SEND);
+				intent.setType("text/plain");
+				intent.putExtra(Intent.EXTRA_TEXT, frupic.getUrl());
+				intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.id);
+				startActivity(Intent.createChooser(intent,
 					getString(R.string.share_link)));
-			return true;
+				return true;
 
-		case R.id.cache_now:
-			/* Make sure, destination directory exists */
-			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
-			
-			DownloadManager dm = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
-			DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
-			req.setVisibleInDownloadsUi(true);
-			
-			req.allowScanningByMediaScanner();
-			req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-			
-			req.setTitle(frupic.getFileName());
-			req.setDescription("Frupic " + frupic.id);
-			req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName());
-			dm.enqueue(req);
-			return true;
+			case R.id.cache_now:
+				/* Make sure, destination directory exists */
+				Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
 
-		default:
-			return super.onContextItemSelected(item);
+				DownloadManager dm = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
+				DownloadManager.Request req = new DownloadManager.Request(Uri.parse(frupic.getFullUrl()));
+				req.setVisibleInDownloadsUi(true);
+
+				req.allowScanningByMediaScanner();
+				req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+				req.setTitle(frupic.getFileName());
+				req.setDescription("Frupic " + frupic.id);
+				req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName());
+				dm.enqueue(req);
+				return true;
+
+			default:
+				return super.onContextItemSelected(item);
 		}
 	}
 }

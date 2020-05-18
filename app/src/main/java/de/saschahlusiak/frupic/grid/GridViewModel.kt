@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,6 +22,9 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
     init {
         (app as App).appComponent.inject(this)
 
+        viewModelScope.launch {
+            repository.synchronize()
+        }
         reloadData()
     }
 
@@ -27,6 +32,10 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
         super.onCleared()
 
         cursor.value?.close()
+
+        GlobalScope.launch(Dispatchers.Main) {
+            repository.markAllAsOld()
+        }
     }
 
     fun toggleStarred() {

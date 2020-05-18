@@ -113,6 +113,19 @@ class FrupicRepository @Inject constructor(
     }
 
     /**
+     * Remove the [Frupic.FLAG_NEW] flag from all Frupics.
+     */
+    @MainThread
+    suspend fun markAllAsOld() {
+        withContext(Dispatchers.IO) {
+            withDB {
+                updateFlags(null, Frupic.FLAG_NEW, false)
+            }
+        }
+        _lastUpdated.value = System.currentTimeMillis()
+    }
+
+    /**
      * Runs the given block in an exclusive DB session.
      */
     private suspend fun <R> withDB(block: FrupicDB.() -> R): R {
