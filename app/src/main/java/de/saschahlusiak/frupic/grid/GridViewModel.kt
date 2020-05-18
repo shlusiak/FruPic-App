@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.grid
 
 import android.app.Application
 import android.database.Cursor
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,6 +16,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class GridViewModel(app: Application) : AndroidViewModel(app) {
+    private val tag = GridViewModel::class.simpleName
+
     val starred = MutableLiveData(false)
     val cursor = MutableLiveData<Cursor>()
     val synchronizing: LiveData<Boolean>
@@ -26,12 +29,15 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
     init {
         (app as App).appComponent.inject(this)
 
+        Log.d(tag, "Initializing")
+
         synchronizing = repository.synchronizing
         lastUpdated = repository.lastUpdated
 
         viewModelScope.launch {
             repository.synchronize()
         }
+
         reloadData()
     }
 
@@ -71,6 +77,8 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun reloadData() {
+        Log.d(tag, "reloadData")
+
         viewModelScope.launch {
             val c = repository.getFrupics(starred.value ?: false)
             cursor.value?.close()
