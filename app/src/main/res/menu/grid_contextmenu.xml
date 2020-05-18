@@ -4,6 +4,7 @@
         android:id="@+id/star"
         android:checkable="true"
         android:title="@string/star_frupic"/>
+
     <item
         android:id="@+id/openinbrowser"
         android:title="@string/openinbrowser"/>
@@ -13,7 +14,7 @@
         android:title="@string/share_link"/>
         
     <item
-        android:id="@+id/cache_now"
+        android:id="@+id/download"
         android:title="@string/download"/>
 
     <item

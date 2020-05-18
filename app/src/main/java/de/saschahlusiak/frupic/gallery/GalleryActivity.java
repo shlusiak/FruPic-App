@@ -250,7 +250,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			DetailDialog.create(this, frupic).show();
 			return true;
 			
-		case R.id.cache_now:
+		case R.id.download:
 			startDownload();
 			return true;
 

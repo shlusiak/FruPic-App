@@ -18,7 +18,7 @@
         android:title="@string/copy_url_to_clipboard" />
     
     <item
-        android:id="@+id/cache_now"
+        android:id="@+id/download"
         android:icon="@android:drawable/ic_menu_save"
         app:showAsAction="ifRoom"
         android:title="@string/download"/>

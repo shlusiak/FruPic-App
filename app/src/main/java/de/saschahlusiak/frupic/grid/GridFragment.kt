@@ -297,8 +297,9 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
                 startActivity(Intent.createChooser(intent, getString(R.string.share_link)))
             }
 
-            R.id.cache_now -> {
+            R.id.download -> {
                 /* Make sure, destination directory exists */
+                // FIXME: ask for permission
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs()
                 val dm = context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
                 val req = DownloadManager.Request(Uri.parse(frupic.fullUrl))
