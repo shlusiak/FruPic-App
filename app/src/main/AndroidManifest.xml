@@ -34,20 +34,23 @@
             android:name=".grid.GridActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionbar">
+            android:theme="@style/AppTheme.Grid">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".gallery.GalleryActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionbar"></activity>
+            android:theme="@style/AppTheme" />
+
         <activity
             android:name=".preferences.FrupicPreferences"
             android:label="@string/preferences"
-            android:theme="@style/Preferences"></activity>
+            android:theme="@style/Preferences" />
+
         <activity
             android:name="de.saschahlusiak.frupic.upload.UploadActivity"
             android:label="@string/upload_to_frupic"
@@ -60,6 +63,7 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".about.AboutActivity"
             android:exported="false"

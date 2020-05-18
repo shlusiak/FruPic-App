@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
         <!--<item name="colorPrimary">@color/colorPrimary</item>-->
         <!--<item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="windowActionBar">true</item>
         <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.Grid">
+        <item name="android:windowBackground">@drawable/splash_background</item>
     </style>
 
     <style name="Preferences" parent="android:Theme.DeviceDefault.Light">
 
-    </style>
-
-    <style name="AppTheme.NoActionbar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>

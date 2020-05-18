@@ -40,17 +40,6 @@ class FrupicRepository @Inject constructor(
         db.open()
     }
 
-    @Deprecated("Remove in favour of suspend function")
-    fun synchronizeAsync(base: Int, limit: Int) {
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                synchronize(base, limit)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     /**
      * Synchronize the most recent Frupics.
      *
