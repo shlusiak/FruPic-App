@@ -3,6 +3,7 @@ package de.saschahlusiak.frupic.grid
 import android.app.Application
 import android.database.Cursor
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import de.saschahlusiak.frupic.app.App
@@ -16,12 +17,17 @@ import javax.inject.Inject
 class GridViewModel(app: Application) : AndroidViewModel(app) {
     val starred = MutableLiveData(false)
     val cursor = MutableLiveData<Cursor>()
+    val synchronizing: LiveData<Boolean>
+    val lastUpdated: LiveData<Long>
 
     @Inject
     lateinit var repository: FrupicRepository
 
     init {
         (app as App).appComponent.inject(this)
+
+        synchronizing = repository.synchronizing
+        lastUpdated = repository.lastUpdated
 
         viewModelScope.launch {
             repository.synchronize()
@@ -46,8 +52,21 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
 
     fun toggleFrupicStarred(frupic: Frupic) {
         viewModelScope.launch {
+            // will update lastUpdated
             repository.setStarred(frupic, !frupic.isStarred)
-            reloadData()
+        }
+    }
+
+    fun doRefresh() {
+        viewModelScope.launch {
+            repository.markAllAsOld()
+            repository.synchronize()
+        }
+    }
+
+    fun doFetch(base: Int, count: Int) {
+        viewModelScope.launch {
+            repository.fetch(base, count)
         }
     }
 

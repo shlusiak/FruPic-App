@@ -17,24 +17,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.about.AboutActivity
 import de.saschahlusiak.frupic.app.App
-import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.detail.DetailDialog
 import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.preferences.FrupicPreferences
 import de.saschahlusiak.frupic.upload.UploadActivity
 import kotlinx.android.synthetic.main.grid_fragment.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListener {
     private val mRemoveWindow = Runnable { removeWindow() }
@@ -47,9 +41,6 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
 
     private lateinit var gridAdapter: GridAdapter
     private lateinit var viewModel: GridViewModel
-
-    @Inject
-    lateinit var repository: FrupicRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,11 +81,11 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
                 getString(R.string.upload)), REQUEST_PICK_PICTURE)
         }
 
-        repository.lastUpdated.observe(viewLifecycleOwner, Observer {
+        viewModel.lastUpdated.observe(viewLifecycleOwner, Observer {
             viewModel.reloadData()
         })
 
-        repository.synchronizing.observe(viewLifecycleOwner, Observer { synchronizing ->
+        viewModel.synchronizing.observe(viewLifecycleOwner, Observer { synchronizing ->
             swipeRefreshLayout.isRefreshing = (synchronizing)
         })
 
@@ -208,10 +199,7 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
     }
 
     override fun onRefresh() {
-        lifecycleScope.launch {
-            repository.markAllAsOld()
-            repository.synchronize()
-        }
+        viewModel.doRefresh()
     }
 
     override fun onFrupicClick(position: Int, frupic: Frupic) {
@@ -241,9 +229,7 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
                     val base = gridAdapter.itemCount - FRUPICS_STEP
                     val count = FRUPICS_STEP + FRUPICS_STEP
 
-                    GlobalScope.launch(Dispatchers.Main) {
-                        repository.fetch(base, count)
-                    }
+                    viewModel.doFetch(base, count)
                 }
             }
         }
@@ -256,9 +242,7 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
                 val base = gridAdapter.itemCount - FRUPICS_STEP
                 val count = FRUPICS_STEP + FRUPICS_STEP
 
-                GlobalScope.launch(Dispatchers.Main) {
-                    repository.fetch(base, count)
-                }
+                viewModel.doFetch(base, count)
             }
             if (mReady) {
                 gridAdapter.getItem(firstVisibleItem)?.let { first ->
