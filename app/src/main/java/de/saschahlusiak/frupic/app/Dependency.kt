@@ -8,6 +8,7 @@ import com.squareup.picasso.Picasso
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import de.saschahlusiak.frupic.gallery.GalleryViewModel
 import de.saschahlusiak.frupic.grid.GridActivity
 import de.saschahlusiak.frupic.grid.GridFragment
 import de.saschahlusiak.frupic.grid.GridViewModel
@@ -34,4 +35,5 @@ interface AppComponent {
     fun inject(activity: GridActivity)
     fun inject(fragment: GridFragment)
     fun inject(viewModel: GridViewModel)
+    fun inject(viewModel: GalleryViewModel)
 }

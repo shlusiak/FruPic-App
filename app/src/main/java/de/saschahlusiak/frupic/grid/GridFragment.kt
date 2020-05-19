@@ -206,7 +206,7 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
         val intent = Intent(context, GalleryActivity::class.java).apply {
             putExtra("id", frupic.id)
             putExtra("position", position)
-            putExtra("navIndex", 0)
+            putExtra("starred", viewModel.starred.value)
         }
         startActivity(intent)
     }

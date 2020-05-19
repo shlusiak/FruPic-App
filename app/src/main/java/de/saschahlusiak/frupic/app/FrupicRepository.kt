@@ -94,10 +94,12 @@ class FrupicRepository @Inject constructor(
         _lastUpdated.value = System.currentTimeMillis()
     }
 
-    suspend fun getFrupics(starred: Boolean = false): Cursor = withContext(Dispatchers.IO) {
-        val mask = if (starred) Frupic.FLAG_FAV else 0
-        return@withContext withDB {
-            getFrupics(null, mask)
+    suspend fun getFrupics(starred: Boolean = false): Cursor {
+        return withContext(Dispatchers.IO) {
+            val mask = if (starred) Frupic.FLAG_FAV else 0
+            return@withContext withDB {
+                getFrupics(null, mask)
+            }
         }
     }
 
