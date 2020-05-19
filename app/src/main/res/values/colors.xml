@@ -4,8 +4,13 @@
     <color name="colorPrimaryDark">#7e6d00</color>
     <color name="colorAccent">@color/brand_yellow</color>
 
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+
 <!--    <color name="brand_yellow">#ffe200</color>-->
     <color name="brand_yellow">#E8D964</color>
-    <color name="launcher_icon_background">#1f1f1f</color>
-    <color name="galleryControlBackground">@android:color/black</color>
+    <color name="splash_background">#272727</color>
+    <color name="launcher_icon_background">@color/splash_background</color>
+
+    <color name="galleryControlBackground">@color/black</color>
 </resources>

@@ -205,6 +205,7 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
     override fun onFrupicClick(position: Int, frupic: Frupic) {
         val intent = Intent(context, GalleryActivity::class.java).apply {
             putExtra("id", frupic.id)
+            putExtra("position", position)
             putExtra("navIndex", 0)
         }
         startActivity(intent)
