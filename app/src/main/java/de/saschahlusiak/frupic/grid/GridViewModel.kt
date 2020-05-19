@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import de.saschahlusiak.frupic.app.App
+import de.saschahlusiak.frupic.app.FrupicManager
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,9 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
 
     @Inject
     lateinit var repository: FrupicRepository
+
+    @Inject
+    lateinit var manager: FrupicManager
 
     init {
         (app as App).appComponent.inject(this)

@@ -8,6 +8,7 @@ import com.squareup.picasso.Picasso
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import de.saschahlusiak.frupic.detail.DetailDialog
 import de.saschahlusiak.frupic.gallery.GalleryViewModel
 import de.saschahlusiak.frupic.grid.GridActivity
 import de.saschahlusiak.frupic.grid.GridFragment

@@ -12,6 +12,7 @@ import de.saschahlusiak.frupic.model.Frupic
 
 class GridAdapter internal constructor(private val listener: OnItemClickListener) : RecyclerView.Adapter<GridAdapter.ViewHolder>() {
     private var cursor: Cursor? = null
+    private val picasso = Picasso.get()
 
     interface OnItemClickListener {
         fun onFrupicClick(position: Int, frupic: Frupic)
@@ -54,7 +55,7 @@ class GridAdapter internal constructor(private val listener: OnItemClickListener
             if (this.frupic == frupic) return
             this.frupic = frupic
 
-            Picasso.get()
+            picasso
                 .load(frupic.thumbUrl)
                 .placeholder(R.drawable.frupic)
                 .into(image)

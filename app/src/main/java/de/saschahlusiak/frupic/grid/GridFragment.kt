@@ -30,7 +30,7 @@ import de.saschahlusiak.frupic.preferences.FrupicPreferences
 import de.saschahlusiak.frupic.upload.UploadActivity
 import kotlinx.android.synthetic.main.grid_fragment.*
 
-class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListener {
+class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListener {
     private val mRemoveWindow = Runnable { removeWindow() }
     private val mHandler = Handler()
     private var mWindowManager: WindowManager? = null
@@ -288,7 +288,7 @@ class GridFragment() : Fragment(), GridAdapter.OnItemClickListener, OnRefreshLis
                 startActivity(intent)
             }
             R.id.details -> {
-                DetailDialog.create(context, frupic).show()
+                DetailDialog.create(requireContext(), viewModel.manager, frupic).show()
             }
             R.id.share_link -> {
                 intent = Intent(Intent.ACTION_SEND)

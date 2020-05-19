@@ -18,14 +18,10 @@ public class FetchFrupicJob extends Job implements OnFetchProgress {
 
 	@Override
 	public JobState run() {
-		try {
-			Log.d(tag, "fetching #" + frupic.id);
-			factory.fetchFrupicImage(frupic, this);
-		}
-		catch (InterruptedException e) {
-			Log.d(tag, "cancelled #" + frupic.id);
-
-			return JobState.JOB_CANCELLED;
+		Log.d(tag, "fetching #" + frupic.id);
+		if (!factory.fetchFrupicImage(frupic, this)) {
+			Log.d(tag, "failed #" + frupic.id);
+			return JobState.JOB_FAILED;
 		}
 		Log.d(tag, "fetched #" + frupic.id);
 

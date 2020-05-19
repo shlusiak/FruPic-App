@@ -12,7 +12,6 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.cache.FileCacheUtils;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.services.FetchFrupicJob;
@@ -72,14 +71,14 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 	}
 	
 	private boolean showFrupic(View view, Frupic frupic) {
-		GifMovieView v = (GifMovieView)view.findViewById(R.id.videoView);
-		SubsamplingScaleImageView i = (SubsamplingScaleImageView)view.findViewById(R.id.imageView);
+		GifMovieView v = view.findViewById(R.id.videoView);
+		SubsamplingScaleImageView i = view.findViewById(R.id.imageView);
 
 		if (showAnimations && frupic.isAnimated()) {
 			v.setVisibility(View.VISIBLE);
 			i.setVisibility(View.GONE);
-			String filename = new FileCacheUtils(context).getFileName(frupic);
-            InputStream stream = null;
+			File file = factory.getCacheFile(frupic);
+            InputStream stream;
 			try {
 				/* Movie calls reset() which the InputStream must support.
 				 * 
@@ -90,7 +89,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 				 * I do not trust BufferedInputStream and because it will probably map the whole file anyway,
 				 * I can just save it in a byte array.
 				 */
-				stream = new FileInputStream(filename);
+				stream = new FileInputStream(file);
 				
 //				stream = new BufferedInputStream(stream);
 //				stream.mark(1);

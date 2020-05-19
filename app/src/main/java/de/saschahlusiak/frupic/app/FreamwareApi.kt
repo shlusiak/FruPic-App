@@ -2,16 +2,17 @@ package de.saschahlusiak.frupic.app
 
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.utils.toList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
+import java.io.*
+import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
+
+typealias OnDownloadProgressListener = (frupic: Frupic, copied: Int, max: Int) -> Unit
 
 /**
  * Wrapper for API calls to https://api.freamware.net
@@ -49,6 +50,69 @@ class FreamwareApi @Inject constructor() {
         return@withContext URL(url).openStream().use { stream ->
             BufferedReader(InputStreamReader(stream)).use {
                 it.readLines().joinToString("\n")
+            }
+        }
+    }
+
+    /**
+     * Downloads the given Frupic image into the given file. Any exception is being thrown up.
+     *
+     * @param frupic the Frupic to fetch
+     * @param target Target file. This should be a temp file and on success should be moved into the final position.
+     * @param progress optional progress listener
+     *
+     * @return true on success, false otherwise
+     */
+    suspend fun downloadFrupic(frupic: Frupic, target: File, listener: OnDownloadProgressListener? = null) {
+        target.delete();
+
+        val url = URL(frupic.fullUrl)
+        val (connection, total) = withContext(Dispatchers.IO) {
+            val connection = url.openConnection() as HttpURLConnection
+            val total = connection.contentLength
+            connection to total
+        }
+
+        coroutineScope {
+            val progress = Channel<Int>(capacity = Channel.CONFLATED)
+
+            launch {
+                for (copied in progress) {
+                    listener?.invoke(frupic, copied, total)
+                }
+            }
+
+            withContext(Dispatchers.IO) {
+                try {
+                    connection.inputStream.use { inputStream ->
+                        FileOutputStream(target).use { outputStream ->
+                            val buffer = ByteArray(8192)
+                            var read: Int
+                            var copied = 0
+
+                            do {
+                                read = inputStream.read(buffer)
+                                if (read <= 0) break
+
+                                outputStream.write(buffer, 0, read)
+                                copied += read
+
+                                progress.send(copied)
+
+                                yield()
+                            } while (true)
+                        }
+                    }
+
+                    true
+                } catch (e: Exception) {
+                    target.delete()
+                    e.printStackTrace()
+                    throw e
+                } finally {
+                    connection.disconnect()
+                    progress.close()
+                }
             }
         }
     }

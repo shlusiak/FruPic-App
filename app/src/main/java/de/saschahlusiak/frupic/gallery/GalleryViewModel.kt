@@ -13,6 +13,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import de.saschahlusiak.frupic.app.App
+import de.saschahlusiak.frupic.app.FrupicManager
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.services.JobManager
@@ -32,6 +33,9 @@ class GalleryViewModel(app: Application): AndroidViewModel(app) {
 
     @Inject
     lateinit var repository: FrupicRepository
+
+    @Inject
+    lateinit var manager: FrupicManager
 
     var position: Int = -1
         set(value) {

@@ -32,8 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.cache.FileCacheUtils;
-import de.saschahlusiak.frupic.db.FrupicDB;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.model.FrupicFactory;
@@ -214,7 +212,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			return true;
 
 		case R.id.details:
-			DetailDialog.create(this, frupic).show();
+			DetailDialog.create(this, viewModel.getManager(), frupic).show();
 			return true;
 			
 		case R.id.download:
@@ -239,7 +237,8 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 
 			/* TODO: If file is not in cache yet, download it first or show message */
 			out = new File(out, frupic.getFileName());
-			if (FrupicFactory.copyImageFile(new FileCacheUtils(this).getFile(frupic), out)) {
+			FrupicFactory factory = new FrupicFactory(this);
+			if (factory.copyImageFile(frupic, out)) {
 				intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("image/?");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));
