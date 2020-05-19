@@ -17,7 +17,7 @@ class FrupicManager @Inject constructor(
     private val api: FreamwareApi
 ) {
     private val tag = FrupicManager::class.simpleName
-    private val cacheDir: File = context.externalCacheDir ?: context.cacheDir
+    private val cacheDir = File(context.externalCacheDir ?: context.cacheDir, "full")
 
     init {
         Log.d(tag, "Initializing...")

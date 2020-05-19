@@ -24,6 +24,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
@@ -31,10 +33,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
+import de.saschahlusiak.frupic.BuildConfig;
 import de.saschahlusiak.frupic.R;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
-import de.saschahlusiak.frupic.model.FrupicFactory;
 
 public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 	private static final String tag = GalleryActivity.class.getSimpleName();
@@ -93,7 +95,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			viewModel.setPosition(getIntent().getIntExtra("position", 0));
 		}
 
-		adapter = new GalleryAdapter(this, prefs.getBoolean("animatedgifs", true));
+		adapter = new GalleryAdapter(this, prefs.getBoolean("animatedgifs", true), viewModel.getManager());
         pager.setAdapter(adapter);
 
 		viewModel.getJobManager().observe(this, jobManager -> {
@@ -228,21 +230,18 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			return true;
 			
 		case R.id.share_picture:
-			File out = getExternalCacheDir();
-			if (out == null) {
-				Toast.makeText(this, R.string.error_no_storage, Toast.LENGTH_SHORT).show();
-				return true;
-			}
-			/* The created external files are deleted in onDestroy() */
+			// TODO: download if not available
+			final File file = viewModel.manager.getFile(frupic);
 
-			/* TODO: If file is not in cache yet, download it first or show message */
-			out = new File(out, frupic.getFileName());
-			FrupicFactory factory = new FrupicFactory(this);
-			if (factory.copyImageFile(frupic, out)) {
-				intent = new Intent(Intent.ACTION_SEND);
-				intent.setType("image/?");
-				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(out));
-				startActivity(Intent.createChooser(intent, getString(R.string.share_picture)));
+			if (file.exists()) {
+				final Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file);
+				intent = ShareCompat.IntentBuilder.from(this)
+					.setType("image/?")
+					.setStream(uri)
+					.setChooserTitle(R.string.share_picture)
+					.createChooserIntent()
+					.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				startActivity(intent);
 			}
 			return true;
 

@@ -12,8 +12,8 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.app.FrupicManager;
 import de.saschahlusiak.frupic.model.Frupic;
-import de.saschahlusiak.frupic.model.FrupicFactory;
 import de.saschahlusiak.frupic.services.FetchFrupicJob;
 import de.saschahlusiak.frupic.services.Job;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
@@ -31,13 +31,15 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
+
 public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 	private final static String tag = GalleryAdapter.class.getSimpleName();
 
 	private GalleryActivity context;
 	private Cursor cursor;
 	private boolean showAnimations;
-	private FrupicFactory factory;
+	private FrupicManager manager;
 	private JobManager jobManager;
 	
 	static class ViewHolder {
@@ -50,10 +52,10 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 		public TextView progressText;
 	}
 
-	public GalleryAdapter(GalleryActivity context, boolean showAnimations) {
+	public GalleryAdapter(GalleryActivity context, boolean showAnimations, FrupicManager manager) {
 		this.context = context;
 		this.showAnimations = showAnimations;
-		this.factory = new FrupicFactory(context);
+		this.manager = manager;
 	}
 	
 	public void setJobManager(JobManager jobManager) {
@@ -77,7 +79,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 		if (showAnimations && frupic.isAnimated()) {
 			v.setVisibility(View.VISIBLE);
 			i.setVisibility(View.GONE);
-			File file = factory.getCacheFile(frupic);
+			File file = manager.getFile(frupic);
             InputStream stream;
 			try {
 				/* Movie calls reset() which the InputStream must support.
@@ -94,8 +96,9 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 //				stream = new BufferedInputStream(stream);
 //				stream.mark(1);
 				
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				byte buf[] = new byte[4096];
+				final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				final byte[] buf = new byte[4096];
+
 				while (stream.read(buf) > 0) {
 					bos.write(buf);
 				}
@@ -106,7 +109,6 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 				v.setStream(stream);
 				return true;
 			} catch (OutOfMemoryError e2) {
-				stream = null;
 				System.gc();
 				Log.e("OutOfMemoryError", "trying to load gif animation as Bitmap instead");
 				/* fall-through to load Bitmap instead*/
@@ -119,7 +121,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 		}
 		
 		/* fall-through, if loading animation failed */
-		File file = factory.getCacheFile(frupic);
+		File file = manager.getFile(frupic);
 		Uri uri = null;
 		if (file.exists()) {
 			uri = Uri.fromFile(file);
@@ -134,8 +136,9 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 		return false;
 	}
 
+	@NotNull
 	@Override
-	public Object instantiateItem(ViewGroup container, int position) {
+	public Object instantiateItem(@NotNull ViewGroup container, int position) {
 		Log.w(tag, "instantiateItem(" + position + ")");
 		cursor.moveToPosition(position);
 
@@ -152,12 +155,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 		context.registerForContextMenu(i);
 		context.registerForContextMenu(v);
 		
-		OnClickListener l = new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				context.toggleControls();
-			}
-		};
+		OnClickListener l = v1 -> context.toggleControls();
 		
 		i.setOnClickListener(l);
 		v.setOnClickListener(l);
@@ -165,9 +163,9 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 		
 		final ViewHolder holder = new ViewHolder();
 		holder.view = view;
-		holder.progressLayout = (ViewGroup) view.findViewById(R.id.progressLayout);
+		holder.progressLayout = view.findViewById(R.id.progressLayout);
 		
-		holder.progress = (ProgressBar)view.findViewById(R.id.progressBar);
+		holder.progress = view.findViewById(R.id.progressBar);
 		holder.progress.setIndeterminate(false);
 		holder.progress.setMax(100);
 		holder.progress.setProgress(0);
@@ -204,7 +202,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 			holder.progressText.setText(R.string.waiting_to_start);
 		
 			if (jobManager != null) {
-				holder.job = jobManager.getFetchJob(frupic, factory);
+				holder.job = jobManager.getFetchJob(frupic, manager);
 				holder.job.addJobListener(this);
 				
 				jobManager.post(holder.job, Priority.PRIORITY_HIGH);
@@ -221,7 +219,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 	}
 	
 	@Override
-	public void destroyItem(ViewGroup container, int position, Object object) {
+	public void destroyItem(@NotNull ViewGroup container, int position, @NotNull Object object) {
 		Log.w(tag, "destroyItem(" + position + ")");
 		
 		ViewHolder holder = (ViewHolder)object;
@@ -233,7 +231,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 	}
 	
 	@Override
-	public int getItemPosition(Object object) {
+	public int getItemPosition(@NotNull Object object) {
 		ViewHolder holder = (ViewHolder)object;
 		if (holder.view == null)
 			return POSITION_NONE;
@@ -248,7 +246,7 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 	}
 
 	@Override
-	public boolean isViewFromObject(View view, Object object) {
+	public boolean isViewFromObject(@NotNull View view, @NotNull Object object) {
 		return view == ((ViewHolder)object).view;
 	}
 
@@ -292,8 +290,8 @@ public class GalleryAdapter extends PagerAdapter implements OnJobListener {
 		} else {
 			holder.job.removeJobListener(this);
 			holder.job = null;
-			SubsamplingScaleImageView i = (SubsamplingScaleImageView) holder.view.findViewById(R.id.imageView);
-			GifMovieView v = (GifMovieView)holder.view.findViewById(R.id.videoView);
+			SubsamplingScaleImageView i = holder.view.findViewById(R.id.imageView);
+			GifMovieView v = holder.view.findViewById(R.id.videoView);
 			
 			holder.progressLayout.setVisibility(View.GONE);
 			
