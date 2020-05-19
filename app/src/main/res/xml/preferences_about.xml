@@ -20,7 +20,7 @@
     </PreferenceScreen>        
     
     <PreferenceScreen
-        android:summary="Copyright (c) by Sascha Hlusiak, 2012-2017."
+        android:summary="@string/copyright"
         android:title="@string/about" >
         <intent android:action="de.saschahlusiak.frupic.SHOW_ABOUT" />
     </PreferenceScreen>

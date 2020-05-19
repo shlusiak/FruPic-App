@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">FruPic</string>
     <string name="about">About...</string>
+    <string name="copyright">Copyright (c) Sascha Hlusiak, 2012-2020.</string>
     <string name="about_frupic">About FruPic App</string>
     <string name="gotowebsite">Open in Browser</string>
     <string name="refresh">Refresh</string>
