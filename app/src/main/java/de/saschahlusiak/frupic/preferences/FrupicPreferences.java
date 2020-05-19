@@ -7,12 +7,19 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.StatsSnapshot;
+
 public class FrupicPreferences extends PreferenceActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+
+		Picasso picasso = Picasso.get();
+		StatsSnapshot stats = picasso.getSnapshot();
+		stats.dump();
 	}
 	
 	@Override
