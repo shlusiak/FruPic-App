@@ -2,24 +2,24 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp" >
+    android:padding="8dp">
 
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
- 
+        android:layout_height="wrap_content">
+
         <LinearLayout
             android:id="@+id/linearLayout1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" 
-            android:orientation="vertical" >
-            
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
             <ImageView
                 android:id="@+id/imageView1"
-                android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:paddingBottom="16dp"
                 android:src="@drawable/frupic" />
 
@@ -42,7 +42,7 @@
                 android:text="mail@saschahlusiak.de"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
-           	<TextView
+            <TextView
                 android:id="@+id/textView31"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,7 +52,8 @@
                 android:linksClickable="true"
                 android:text="https://github.com/shlusiak/FruPic-App"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-           	<TextView
+
+            <TextView
                 android:id="@+id/textView32"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -62,12 +63,13 @@
                 android:linksClickable="true"
                 android:text="https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-           	<Button
+
+            <Button
                 android:id="@+id/ok"
-                android:layout_marginTop="16dp"
                 android:layout_width="124dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginTop="16dp"
                 android:text="@android:string/ok" />
 
         </LinearLayout>
