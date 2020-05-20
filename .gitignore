@@ -6,3 +6,4 @@ gen/
 *.iml
 build/
 google-services.json
+app/proguard-log.txt
