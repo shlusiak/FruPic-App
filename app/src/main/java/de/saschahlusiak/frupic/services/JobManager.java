@@ -1,5 +1,8 @@
 package de.saschahlusiak.frupic.services;
 
+import android.os.Handler;
+import android.util.Log;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -7,17 +10,9 @@ import de.saschahlusiak.frupic.app.FrupicManager;
 import de.saschahlusiak.frupic.model.Frupic;
 import de.saschahlusiak.frupic.services.Job.JobState;
 import de.saschahlusiak.frupic.services.Job.OnJobListener;
-import android.app.Service;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.Handler;
-import android.os.IBinder;
-import android.util.Log;
 
 @Deprecated
-public class JobManager extends Service {
-    private final IBinder mBinder = new JobManagerBinder();
-    
+public class JobManager {
 	static final String INDEX_URL = "https://api.freamware.net/2.0/get.picture";
 	static final String tag = JobManager.class.getSimpleName();
 	
@@ -66,47 +61,39 @@ public class JobManager extends Service {
 					@Override
 					public void run() {
 						job.onJobDone();
-						if (jobsWaiting.isEmpty() && jobsRunning.isEmpty())
-							stopSelf();
 					}
 				});
 			}
 		}
 	}
 
-    public class JobManagerBinder extends Binder {
-        public JobManager getService() {
-            return JobManager.this;
-        }
-    }
+	public JobManager() {
+		handler = new Handler();
+		Log.d(tag, "onCreate");
+		for (int i = 0; i < worker.length; i++) {
+			worker[i] = new JobWorker();
+			worker[i].start();
+		}
+	}
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-    
-    @Override
-    public void onCreate() {
-    	super.onCreate();
-    	handler = new Handler();
-    	Log.d(tag, "onCreate");
-    	for (int i = 0; i < worker.length; i++) {
-    		worker[i] = new JobWorker();
-    		worker[i].start();
-    	}
-    }
-    
-    @Override
-    public void onDestroy() {
+    public void shutdown() {
     	Log.d(tag, "onDestroy");
     	for (int i = 0; i < worker.length; i++) {
-    		worker[i].goDown = true;
-    		worker[i].interrupt();
+    		if (worker[i] != null) {
+				worker[i].goDown = true;
+				worker[i].interrupt();
+				worker[i] = null;
+			}
     	}
-    	super.onDestroy();
     }
-    
-    public synchronized void removeAllJobListener(OnJobListener listener) {
+
+	@Override
+	protected void finalize() throws Throwable {
+		shutdown();
+		super.finalize();
+	}
+
+	public synchronized void removeAllJobListener(OnJobListener listener) {
     	for (Job job: jobsWaiting)
     		job.removeJobListener(listener);
     	for (Job job: jobsRunning)
@@ -134,13 +121,7 @@ public class JobManager extends Service {
     	
     	return j;
     }
-    
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-    	Log.d(tag, "onStartCommand");
-    	return super.onStartCommand(intent, flags, startId);
-    }
-    
+
     public void post(Job job, Job.Priority priority) {
     	if (job.isScheduled())
     		return;

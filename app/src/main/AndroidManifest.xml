@@ -76,7 +76,6 @@
         </activity>
 
         <service android:name=".upload.UploadService" />
-        <service android:name=".services.JobManager" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

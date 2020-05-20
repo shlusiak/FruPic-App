@@ -98,9 +98,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 		adapter = new GalleryAdapter(this, prefs.getBoolean("animatedgifs", true), viewModel.getManager());
         pager.setAdapter(adapter);
 
-		viewModel.getJobManager().observe(this, jobManager -> {
-        	adapter.setJobManager(jobManager);
-		});
+		adapter.setJobManager(viewModel.getJobManager());
 
         viewModel.getCursor().observe(this, cursor -> {
         	adapter.setCursor(cursor);

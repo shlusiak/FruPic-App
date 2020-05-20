@@ -1,12 +1,7 @@
 package de.saschahlusiak.frupic.gallery
 
 import android.app.Application
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.database.Cursor
-import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -23,13 +18,14 @@ import javax.inject.Inject
 class GalleryViewModel(app: Application): AndroidViewModel(app) {
     private val tag = GalleryViewModel::class.simpleName
 
-    @Deprecated("Remove")
-    val jobManager = MutableLiveData<JobManager?>()
     val cursor = MutableLiveData<Cursor>()
     val currentFrupic = MutableLiveData<Frupic>()
     val lastUpdated: LiveData<Long>
 
     var starred: Boolean = false
+
+    @Deprecated("Remove")
+    val jobManager: JobManager
 
     @Inject
     lateinit var repository: FrupicRepository
@@ -50,34 +46,19 @@ class GalleryViewModel(app: Application): AndroidViewModel(app) {
             }
         }
 
-    @Deprecated("Replace with not service")
-    private val serviceConnection = object:ServiceConnection {
-        override fun onServiceDisconnected(name: ComponentName?) {
-            Log.d(tag, "onServiceDisconnected")
-            jobManager.value = null
-        }
-
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            Log.d(tag, "onServiceConnected")
-            jobManager.value  = (service as JobManager.JobManagerBinder).service;
-        }
-    }
-
     init {
         Log.d(tag, "Initializing")
 
         (app as App).appComponent.inject(this)
 
         lastUpdated = repository.lastUpdated
-
-        val intent = Intent(app, JobManager::class.java)
-        app.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+        jobManager = JobManager()
 
         reloadData()
     }
 
     override fun onCleared() {
-        getApplication<App>().unbindService(serviceConnection)
+        jobManager.shutdown()
         cursor.value?.close()
         super.onCleared()
     }
