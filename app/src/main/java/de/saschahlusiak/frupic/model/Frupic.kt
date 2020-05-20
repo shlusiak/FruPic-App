@@ -23,10 +23,6 @@ class Frupic(
     val tags: List<String>
 ) : Serializable {
 
-    @JvmField
-    @Deprecated("Don't use this")
-    var tag: Any? = null
-
     val url = "https://frupic.frubar.net/$id"
     val isAnimated = fullUrl.endsWith(".gif") || fullUrl.endsWith(".GIF")
     val tagsString = tags.joinToString(", ")

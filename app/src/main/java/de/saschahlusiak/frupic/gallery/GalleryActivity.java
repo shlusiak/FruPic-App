@@ -95,10 +95,9 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			viewModel.setPosition(getIntent().getIntExtra("position", 0));
 		}
 
-		adapter = new GalleryAdapter(this, prefs.getBoolean("animatedgifs", true), viewModel.getManager());
+		boolean animateGifs = prefs.getBoolean("animatedgifs", true);
+		adapter = new GalleryAdapter(this, animateGifs, viewModel.getStorage(), viewModel.getDownloadManager());
         pager.setAdapter(adapter);
-
-		adapter.setJobManager(viewModel.getJobManager());
 
         viewModel.getCursor().observe(this, cursor -> {
         	adapter.setCursor(cursor);
@@ -128,13 +127,6 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
     	}
     }
 
-    @Override
-    protected void onDestroy() {
-    	adapter.setJobManager(null);
-
-    	super.onDestroy();
-    }
-	
 	private void updateLabels(Frupic frupic) {
 		String tags;
 		/* TODO: Display information about unavailable frupic */
@@ -212,7 +204,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			return true;
 
 		case R.id.details:
-			DetailDialog.create(this, viewModel.getManager(), frupic).show();
+			DetailDialog.create(this, viewModel.getStorage(), frupic).show();
 			return true;
 			
 		case R.id.download:
@@ -229,7 +221,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			
 		case R.id.share_picture:
 			// TODO: download if not available
-			final File file = viewModel.manager.getFile(frupic);
+			final File file = viewModel.storage.getFile(frupic);
 
 			if (file.exists()) {
 				final Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file);

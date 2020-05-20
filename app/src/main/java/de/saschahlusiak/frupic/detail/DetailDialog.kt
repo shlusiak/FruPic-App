@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.saschahlusiak.frupic.R
-import de.saschahlusiak.frupic.app.FrupicManager
+import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.model.Frupic
 
 class DetailItem(val title: String, val value: String = "") {
@@ -36,11 +36,11 @@ private class Adapter(context: Context, objects: List<DetailItem>) : ArrayAdapte
 
 object DetailDialog {
     @JvmStatic
-    fun create(context: Context, manager: FrupicManager, frupic: Frupic): AlertDialog {
+    fun create(context: Context, storage: FrupicStorage, frupic: Frupic): AlertDialog {
         val ctw = ContextThemeWrapper(context, R.style.AppTheme_Dialog)
         val builder = MaterialAlertDialogBuilder(ctw)
         builder.setTitle("Frupic #" + frupic.id)
-        val f = manager.getFile(frupic)
+        val f = storage.getFile(frupic)
         val size = if (f.exists()) {
             val options = BitmapFactory.Options()
             options.inJustDecodeBounds = true

@@ -8,10 +8,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import de.saschahlusiak.frupic.app.App
-import de.saschahlusiak.frupic.app.FrupicManager
+import de.saschahlusiak.frupic.app.FrupicDownloadManager
+import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.model.Frupic
-import de.saschahlusiak.frupic.services.JobManager
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,14 +24,16 @@ class GalleryViewModel(app: Application): AndroidViewModel(app) {
 
     var starred: Boolean = false
 
-    @Deprecated("Remove")
-    val jobManager: JobManager
+    /**
+     * This is private, so we know only we own it and can call shutdown when we are done.
+     */
+    val downloadManager: FrupicDownloadManager
 
     @Inject
     lateinit var repository: FrupicRepository
 
     @Inject
-    lateinit var manager: FrupicManager
+    lateinit var storage: FrupicStorage
 
     var position: Int = -1
         set(value) {
@@ -52,13 +54,13 @@ class GalleryViewModel(app: Application): AndroidViewModel(app) {
         (app as App).appComponent.inject(this)
 
         lastUpdated = repository.lastUpdated
-        jobManager = JobManager()
+        downloadManager = FrupicDownloadManager(storage, 3)
 
         reloadData()
     }
 
     override fun onCleared() {
-        jobManager.shutdown()
+        downloadManager.shutdown()
         cursor.value?.close()
         super.onCleared()
     }

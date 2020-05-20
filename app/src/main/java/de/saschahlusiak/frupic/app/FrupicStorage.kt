@@ -10,13 +10,13 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 /**
- * Manages download and storage of full Frupics.
+ * Manages download and storage of full Frupics to cache directories.
  */
-class FrupicManager @Inject constructor(
+class FrupicStorage @Inject constructor(
     context: Context,
     private val api: FreamwareApi
 ) {
-    private val tag = FrupicManager::class.simpleName
+    private val tag = FrupicStorage::class.simpleName
     private val cacheDir = File(context.externalCacheDir ?: context.cacheDir, "full")
 
     init {

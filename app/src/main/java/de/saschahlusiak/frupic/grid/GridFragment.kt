@@ -288,7 +288,7 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
                 startActivity(intent)
             }
             R.id.details -> {
-                DetailDialog.create(requireContext(), viewModel.manager, frupic).show()
+                DetailDialog.create(requireContext(), viewModel.storage, frupic).show()
             }
             R.id.share_link -> {
                 intent = Intent(Intent.ACTION_SEND)
