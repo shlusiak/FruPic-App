@@ -1,6 +1,7 @@
 package de.saschahlusiak.frupic.app
 
 import de.saschahlusiak.frupic.model.Frupic
+import de.saschahlusiak.frupic.model.cloudfront
 import de.saschahlusiak.frupic.utils.toList
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -15,7 +16,10 @@ import javax.inject.Inject
 typealias OnDownloadProgressListener = (frupic: Frupic, copied: Int, max: Int) -> Unit
 
 /**
- * Wrapper for API calls to https://api.freamware.net
+ * Wrapper for API calls to https://api.freamware.net or related.
+ *
+ * - [getPicture] retrieve list of pictures (index)
+ * - [downloadFrupic] download the given frupic full picture
  */
 class FreamwareApi @Inject constructor() {
     /**
@@ -59,14 +63,14 @@ class FreamwareApi @Inject constructor() {
      *
      * @param frupic the Frupic to fetch
      * @param target Target file. This should be a temp file and on success should be moved into the final position.
-     * @param progress optional progress listener
+     * @param listener optional progress listener
      *
      * @return true on success, false otherwise
      */
     suspend fun downloadFrupic(frupic: Frupic, target: File, listener: OnDownloadProgressListener? = null) {
         target.delete();
 
-        val url = URL(frupic.fullUrl)
+        val url = URL(frupic.fullUrl.cloudfront)
         val (connection, total) = withContext(Dispatchers.IO) {
             val connection = url.openConnection() as HttpURLConnection
             val total = connection.contentLength

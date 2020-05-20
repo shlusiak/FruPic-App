@@ -13,7 +13,6 @@ import de.saschahlusiak.frupic.services.Job.OnJobListener;
 
 @Deprecated
 public class JobManager {
-	static final String INDEX_URL = "https://api.freamware.net/2.0/get.picture";
 	static final String tag = JobManager.class.getSimpleName();
 	
 	static final int WORKER_THREADS = 20;

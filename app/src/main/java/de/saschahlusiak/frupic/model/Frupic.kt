@@ -6,6 +6,11 @@ import java.io.File
 import java.io.Serializable
 
 /**
+ * Returns a URL with frupic.frubar.net replaced with a cloudfront URL
+ */
+val String.cloudfront get() = this.replace("frupic.frubar.net".toRegex(), "d1ofuc5rnolp9w.cloudfront.net")
+
+/**
  * Model object of a Frupic definition, as read from the database or the API.
  */
 class Frupic(
@@ -37,14 +42,6 @@ class Frupic(
         username = cursor.getString(FrupicDB.USERNAME_INDEX),
         tags = cursor.getString(FrupicDB.TAGS_INDEX)?.split(", ") ?: emptyList()
     )
-
-//    val fullUrl: String
-//        get() = full_url
-//            .replace("frupic.frubar.net".toRegex(), "d1ofuc5rnolp9w.cloudfront.net")
-
-//    val thumbUrl: String
-//        get() = thumb_url
-//            .replace("frupic.frubar.net".toRegex(), "d1ofuc5rnolp9w.cloudfront.net")
 
     @Deprecated("Don't use this")
     fun getFileName(): String {

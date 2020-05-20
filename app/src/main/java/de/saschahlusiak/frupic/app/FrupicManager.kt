@@ -10,7 +10,7 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 /**
- * Manages downloads of fully downloaded Frupics.
+ * Manages download and storage of full Frupics.
  */
 class FrupicManager @Inject constructor(
     context: Context,

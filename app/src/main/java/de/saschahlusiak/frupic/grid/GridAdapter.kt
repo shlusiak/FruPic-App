@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.model.Frupic
+import de.saschahlusiak.frupic.model.cloudfront
 
 class GridAdapter internal constructor(private val listener: OnItemClickListener) : RecyclerView.Adapter<GridAdapter.ViewHolder>() {
     private var cursor: Cursor? = null
@@ -56,7 +57,7 @@ class GridAdapter internal constructor(private val listener: OnItemClickListener
             this.frupic = frupic
 
             picasso
-                .load(frupic.thumbUrl)
+                .load(frupic.thumbUrl.cloudfront)
                 .placeholder(R.drawable.frupic)
                 .into(image)
         }
