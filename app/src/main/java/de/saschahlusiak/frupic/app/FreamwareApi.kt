@@ -174,7 +174,7 @@ class FreamwareApi @Inject constructor() {
         val footer = lineEnd + twoHyphens + boundary + twoHyphens + lineEnd
         val size = imageData.size
 
-        Log.d(tag, "Connecting for upload")
+        Log.d(tag, "Connecting to ${UPLOAD_PICTURE_ENDPOINT} for upload")
         val connection = withContext(Dispatchers.IO) {
             val conn = URL(UPLOAD_PICTURE_ENDPOINT).openConnection() as HttpURLConnection
             conn.doInput = true
@@ -188,7 +188,8 @@ class FreamwareApi @Inject constructor() {
             header += "Content-Disposition: form-data;name='file';filename='$filename'$lineEnd$lineEnd"
 
             conn.setFixedLengthStreamingMode(header.length + footer.length + imageData.size)
-            conn.connect()
+
+            Log.d(tag, "Connected")
 
             return@withContext conn
         }
@@ -206,6 +207,7 @@ class FreamwareApi @Inject constructor() {
             launch(Dispatchers.IO) {
                 Log.d(tag, "Uploading image")
                 Log.d(tag, "Headers: $header")
+
                 try {
                     val dataStream = ByteArrayInputStream(imageData)
                     val data = ByteArray(16384)
@@ -220,29 +222,28 @@ class FreamwareApi @Inject constructor() {
                             dos.write(data, 0, nRead)
                             written += nRead
                             dos.flush()
+                            progress.send(written)
                             yield()
                         }
 
                         dos.writeBytes(footer)
                         dos.close()
+
+                        // read response
+                        Log.d(tag, "response = ${connection.responseCode}: {${connection.responseMessage}")
+
+                        val lines = connection.inputStream.use { input ->
+                            BufferedReader(InputStreamReader(input)).use { reader ->
+                                reader.readLines()
+                            }
+                        }
+
+                        Log.d(tag, "Server responded with: $lines")
                     }
                 } finally {
                     progress.close()
                     connection.disconnect()
                 }
-            }
-
-            // read response
-            launch(Dispatchers.IO) {
-                // listening to the Server Response
-                // Log.d(TAG, "listening to the server");
-                val lines = connection.inputStream.use { input ->
-                    BufferedReader(InputStreamReader(input)).use { reader ->
-                        reader.readLines()
-                    }
-                }
-
-                Log.d(tag, "Server responded with: $lines")
             }
         }
     }
