@@ -20,6 +20,7 @@ class UploadActivity : AppCompatActivity(), View.OnClickListener {
             finish()
             return
         }
+
         imageUri = if (Intent.ACTION_SEND == intent.action) {
             val uri = intent.extras?.get(Intent.EXTRA_STREAM) as? Uri
             uri?.let { listOf(it) } ?: emptyList()
@@ -29,6 +30,8 @@ class UploadActivity : AppCompatActivity(), View.OnClickListener {
             finish()
             return
         }
+
+        // TODO: we need to copy the content away before be dismiss the activity, in case permission is revoked!
 
         setContentView(R.layout.upload_activity)
 
@@ -82,7 +85,7 @@ class UploadActivity : AppCompatActivity(), View.OnClickListener {
             intent.putExtra("scale", image_resize_checkbox.isChecked)
             intent.putExtra("username", username)
             intent.putExtra("tags", tags)
-            intent.putExtra("filename", uri)
+            intent.putExtra("filename", uri.lastPathSegment)
             intent.putExtra("uri", uri)
             startService(intent)
         }

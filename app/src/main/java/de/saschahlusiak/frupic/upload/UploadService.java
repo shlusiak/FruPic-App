@@ -1,50 +1,57 @@
 package de.saschahlusiak.frupic.upload;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import de.saschahlusiak.frupic.R;
-import de.saschahlusiak.frupic.grid.GridActivity;
-import android.annotation.TargetApi;
 import android.app.IntentService;
-import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.inject.Inject;
+
+import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.app.App;
+import de.saschahlusiak.frupic.app.FreamwareApi;
+import de.saschahlusiak.frupic.app.FrupicRepository;
+import de.saschahlusiak.frupic.grid.GridActivity;
+
 public class UploadService extends IntentService {
 	private static final String tag = UploadService.class.getSimpleName();
 	private final static int nId = 1; /* must be a unique notification id */
 	
-	private final String FruPicApi = "https://api.freamware.net/2.0/upload.picture";
+	private final String CHANNEL_UPLOAD = "upload";
 	
 	/* when scaling down, make largest side as small but bigger than these bounds */
 	private final static int destWidth = 1024;
 	private final static int destHeight = 1024;
 
-	
+	@Inject
+	protected FreamwareApi api;
+
+	@Inject
+	protected FrupicRepository repository;
+
 	int current, max, failed;
 	
-	Notification.Builder builder;
-	NotificationManager mNotificationManager;
+	NotificationCompat.Builder builder;
+	NotificationManagerCompat mNotificationManager;
 			
 	public UploadService() {
 		super("UploadService");
@@ -53,16 +60,22 @@ public class UploadService extends IntentService {
 	@Override
 	public void onCreate() {
 		Log.d(tag, "onCreate");
+
+		((App)getApplicationContext()).appComponent.inject(this);
 		
-		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		builder = new Notification.Builder(this);
-		
+		mNotificationManager = NotificationManagerCompat.from(this);
+		builder = new NotificationCompat.Builder(this, CHANNEL_UPLOAD);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			createChannel();
+		}
+
 		max = 0;
 		current = 0;
 		failed = 0;
 		
 		updateNotification(true, 0.0f);
-				
+
 		super.onCreate();
 	}
 	
@@ -70,12 +83,17 @@ public class UploadService extends IntentService {
 	public void onDestroy() {
 		Log.d(tag, "onDestroy");
 		updateNotification(false, 0.0f);
+		repository.synchronizeAsync(0, 100);
 		super.onDestroy();
 	}
-	
-	
-	
-	byte[] getImageData(Uri param, boolean scale) {
+
+	@RequiresApi(api = Build.VERSION_CODES.O)
+	private void createChannel() {
+		NotificationChannel channel = new NotificationChannel(CHANNEL_UPLOAD, "Upload", NotificationManager.IMPORTANCE_LOW);
+		mNotificationManager.createNotificationChannel(channel);
+	}
+
+	private byte[] getImageData(Uri param, boolean scale) {
 		InputStream is = null;
 		
 		int orientation = 0;
@@ -171,118 +189,14 @@ public class UploadService extends IntentService {
 		}
 	}
 
-
-	String uploadImage(byte[] imageData, String username, String tags) {
-		HttpURLConnection conn = null;
-		DataOutputStream dos = null;
-		DataInputStream dis;
-
-		String lineEnd = "\r\n";
-		String twoHyphens = "--";
-		String boundary = "ForeverFrubarIWantToBe";
-
-		try {
-			URL url = new URL(FruPicApi);
-			conn = (HttpURLConnection) url.openConnection();
-			conn.setDoInput(true);
-			conn.setDoOutput(true);
-
-			conn.setUseCaches(false);
-			conn.setRequestMethod("POST");
-
-			conn.setRequestProperty("Connection", "Keep-Alive");
-			conn.setRequestProperty("Content-Type",
-					"multipart/form-data;boundary=" + boundary);
-			
-			
-			// Tags
-			String header = lineEnd + twoHyphens + boundary + lineEnd +
-							"Content-Disposition: form-data;name='tags';" +
-							lineEnd + lineEnd + tags + ";" + lineEnd +
-							lineEnd + twoHyphens + boundary + lineEnd;
-			if (!username.equals("")) {
-				header += lineEnd + twoHyphens + boundary + lineEnd;
-				header += "Content-Disposition: form-data;name='username';";
-				header += lineEnd + lineEnd + username + ";" + lineEnd +
-						  lineEnd + twoHyphens + boundary + lineEnd;
-			}
-			header += "Content-Disposition: form-data;" + "name='file';" +
-					  "filename='frup0rn.png'" + lineEnd + lineEnd;
-			
-			String footer = lineEnd + twoHyphens + boundary + twoHyphens + lineEnd;
-			
-			conn.setFixedLengthStreamingMode(header.length() + footer.length() + imageData.length);
-			
-
-			OutputStream os = conn.getOutputStream();
-			
-			dos = new DataOutputStream(os);
-
-			dos.writeBytes(header);
-
-			InputStream is = new ByteArrayInputStream(imageData);
-			int size = imageData.length;
-			int nRead;
-			byte data[] = new byte[16384];
-
-			int written = 0;
-			while ((nRead = is.read(data, 0, data.length)) != -1) {
-				dos.write(data, 0, nRead);
-				written += nRead;
-				dos.flush();
-				os.flush();
-				
-				/* TODO: support cancel */
-				/* if (isCancelled()) {
-					dos.close();
-					conn.disconnect();
-					return null;
-				} */
-				updateNotification(true, (float)written / (float)size);
-			}
-
-			// Log.d(TAG, "FINISHED sending the image");
-
-			// send multipart form data necesssary after file data...
-			dos.writeBytes(footer);
-
-			dos.flush();
-			dos.close();
-		} catch (IOException ioe) {
-			conn.disconnect();
-			ioe.printStackTrace();
-			return getString(R.string.cannot_connect);
-		}
-
-		// listening to the Server Response
-		// Log.d(TAG, "listening to the server");
-		try {
-			dis = new DataInputStream(conn.getInputStream());
-
-			String str = "";
-			String output = "";
-
-			while ((str = dis.readLine()) != null) {
-				output = output + str;
-				// Log.d(TAG, output);
-
-				// save the url to the image
-				// frupicURL = output;
-				// Log.d(TAG, "the image url is: "+FruPic.imageURL);
-			}
-			dis.close();
-		} catch (IOException ioex) {
-			ioex.printStackTrace();
-			return getString(R.string.error_reading_response);
-			// Log.e(TAG, "Exception" , ioex);
-		}
-//		Log.i(tag, "Upload successful: " + frupicURL);
-
-		return null;
+	private String uploadImage(byte[] imageData, String username, String tags) {
+		return api.uploadImageSync(imageData, username, tags, (written, size) -> {
+			Log.d(tag, "Progress: " + written + "(" + size + ")");
+			updateNotification(true, (float)written / (float)size);
+			return null;
+		});
 	}
-	
-	
-	
+
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Log.d(tag, "onHandleIntent");
@@ -316,18 +230,18 @@ public class UploadService extends IntentService {
 		current++;
 	}
 	
-	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	synchronized void updateNotification(boolean ongoing, float progress) {
 		builder.setContentTitle(getString(R.string.upload_notification_title));
+		builder.setColor(getColor(R.color.brand_yellow));
 		if (ongoing) {
 			builder.setSmallIcon(R.drawable.frupic_notification_wait);
 			builder.setContentText(getString(R.string.upload_notification_progress, current + 1, max));
-			if (Build.VERSION.SDK_INT >= 14 && max > 0) {
+			if (max > 0) {
 				float perc = (((float)current + progress) / (float)max);
 				builder.setProgress(100, (int)(perc * 100.0f), false);
 			}
 			builder.setAutoCancel(false);
-			builder.setOngoing(ongoing);
+			builder.setOngoing(true);
 			/* TODO: provide intent to see progress dialog and support for cancel */
 		} else {
 			if (failed == 0) {
@@ -341,17 +255,17 @@ public class UploadService extends IntentService {
 				builder.setSmallIcon(R.drawable.frupic_notification_failed);
 				builder.setContentText(getString(R.string.upload_notification_failed, max - failed, failed));
 			}
-			if (Build.VERSION.SDK_INT >= 14)
-				builder.setProgress(0, 0, false);
+			builder.setProgress(0, 0, false);
 			builder.setAutoCancel(true);
 			builder.setOngoing(false);
 		}
+
 		/* TODO: set progress dialog intent when ongoing */
 		Intent intent = new Intent(this, GridActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(pendingIntent);
 		
-		mNotificationManager.notify(nId, builder.getNotification());
+		mNotificationManager.notify(nId, builder.build());
 	}
 
 	@Override

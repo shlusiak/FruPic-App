@@ -40,6 +40,14 @@ class FrupicRepository @Inject constructor(
         db.open()
     }
 
+    @Deprecated("Replace with coroutine")
+    @MainThread
+    fun synchronizeAsync(base: Int, limit: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            synchronize(base, limit)
+        }
+    }
+
     /**
      * Synchronize the most recent Frupics.
      *

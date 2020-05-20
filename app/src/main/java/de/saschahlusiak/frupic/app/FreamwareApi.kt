@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.app
 
+import android.util.Log
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.model.cloudfront
 import de.saschahlusiak.frupic.utils.toList
@@ -13,15 +14,18 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
 
-typealias OnDownloadProgressListener = (frupic: Frupic, copied: Int, max: Int) -> Unit
+typealias OnProgressListener = (copied: Int, max: Int) -> Unit
 
 /**
  * Wrapper for API calls to https://api.freamware.net or related.
  *
  * - [getPicture] retrieve list of pictures (index)
  * - [downloadFrupic] download the given frupic full picture
+ * - [uploadImage] upload image data
  */
 class FreamwareApi @Inject constructor() {
+    private val tag = FreamwareApi::class.simpleName
+
     /**
      * Fetches the list of available Frupics for the given window.
      *
@@ -29,7 +33,7 @@ class FreamwareApi @Inject constructor() {
      */
     @Throws(JSONException::class)
     suspend fun getPicture(offset: Int, limit: Int): List<Frupic> {
-        val query = "${INDEX_URL}?offset=$offset&limit=$limit"
+        val query = "${GET_PICTURE_ENDPOINT}?offset=$offset&limit=$limit"
         val json = get(query)
         return JSONArray(json).toList<JSONObject>().map { jo ->
             Frupic(
@@ -67,8 +71,8 @@ class FreamwareApi @Inject constructor() {
      *
      * @return true on success, false otherwise
      */
-    suspend fun downloadFrupic(frupic: Frupic, target: File, listener: OnDownloadProgressListener? = null) {
-        target.delete();
+    suspend fun downloadFrupic(frupic: Frupic, target: File, listener: OnProgressListener? = null) {
+        target.delete()
 
         val url = URL(frupic.fullUrl.cloudfront)
         val (connection, total) = withContext(Dispatchers.IO) {
@@ -82,7 +86,7 @@ class FreamwareApi @Inject constructor() {
 
             launch {
                 for (copied in progress) {
-                    listener?.invoke(frupic, copied, total)
+                    listener?.invoke(copied, total)
                 }
             }
 
@@ -121,7 +125,131 @@ class FreamwareApi @Inject constructor() {
         }
     }
 
+    @Deprecated("Replace")
+    fun uploadImageSync(imageData: ByteArray, username: String, tags: String, listener: OnProgressListener?): String? {
+        if (false) {
+            // FOR DEBUG
+            return runBlocking {
+                launch {
+                    delay(1000)
+                    (1..100).forEach {
+                        listener?.invoke(it, 100)
+                        delay(100)
+                    }
+                }
+                null
+            }
+        }
+
+        return runBlocking {
+            try {
+                uploadImage(imageData, username, tags, listener)
+                null
+            }
+            catch (e: Exception) {
+                e.printStackTrace()
+                e.message
+            }
+        }
+    }
+
+    suspend fun uploadImage(imageData: ByteArray, username: String, tags: String, listener: OnProgressListener?) {
+        val lineEnd = "\r\n"
+        val twoHyphens = "--"
+        val boundary = "ForeverFrubarIWantToBe"
+
+        // Tags
+        var header = lineEnd + twoHyphens + boundary + lineEnd +
+            "Content-Disposition: form-data;name='tags';" +
+            lineEnd + lineEnd + tags + ";" + lineEnd +
+            lineEnd + twoHyphens + boundary + lineEnd
+
+        if (username != "") {
+            header += lineEnd + twoHyphens + boundary + lineEnd
+            header += "Content-Disposition: form-data;name='username';"
+            header += lineEnd + lineEnd + username + ";" + lineEnd +
+                lineEnd + twoHyphens + boundary + lineEnd
+        }
+        val filename = "frup0rn.png"
+        val footer = lineEnd + twoHyphens + boundary + twoHyphens + lineEnd
+        val size = imageData.size
+
+        Log.d(tag, "Connecting for upload")
+        val connection = withContext(Dispatchers.IO) {
+            val conn = URL(UPLOAD_PICTURE_ENDPOINT).openConnection() as HttpURLConnection
+            conn.doInput = true
+            conn.doOutput = true
+            conn.useCaches = false
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Connection", "Keep-Alive")
+            conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=$boundary")
+
+
+            header += "Content-Disposition: form-data;name='file';filename='$filename'$lineEnd$lineEnd"
+
+            conn.setFixedLengthStreamingMode(header.length + footer.length + imageData.size)
+            conn.connect()
+
+            return@withContext conn
+        }
+
+        coroutineScope {
+            val progress = Channel<Int>(capacity = Channel.CONFLATED)
+
+            launch {
+                for (copied in progress) {
+                    listener?.invoke(copied, size)
+                }
+            }
+
+            // send
+            launch(Dispatchers.IO) {
+                Log.d(tag, "Uploading image")
+                Log.d(tag, "Headers: $header")
+                try {
+                    val dataStream = ByteArrayInputStream(imageData)
+                    val data = ByteArray(16384)
+                    var nRead: Int
+                    var written = 0
+
+                    connection.outputStream.use { output ->
+                        val dos = DataOutputStream(output)
+                        dos.writeBytes(header)
+
+                        while (dataStream.read(data, 0, data.size).also { nRead = it } != -1) {
+                            dos.write(data, 0, nRead)
+                            written += nRead
+                            dos.flush()
+                            yield()
+                        }
+
+                        dos.writeBytes(footer)
+                        dos.close()
+                    }
+                } finally {
+                    progress.close()
+                    connection.disconnect()
+                }
+            }
+
+            // read response
+            launch(Dispatchers.IO) {
+                // listening to the Server Response
+                // Log.d(TAG, "listening to the server");
+                val lines = connection.inputStream.use { input ->
+                    BufferedReader(InputStreamReader(input)).use { reader ->
+                        reader.readLines()
+                    }
+                }
+
+                Log.d(tag, "Server responded with: $lines")
+            }
+        }
+    }
+
+
     companion object {
-        private const val INDEX_URL = "https://api.freamware.net/2.0/get.picture"
+        private const val GET_PICTURE_ENDPOINT = "https://api.freamware.net/2.0/get.picture"
+        private const val UPLOAD_PICTURE_ENDPOINT = "https://api.freamware.net/2.0/upload.picture"
     }
 }

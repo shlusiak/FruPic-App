@@ -57,7 +57,7 @@ class FrupicStorage @Inject constructor(
      * @param listener progress listener
      * @return target file
      */
-    suspend fun download(frupic: Frupic, listener: OnDownloadProgressListener?): File {
+    suspend fun download(frupic: Frupic, listener: OnProgressListener?): File {
         val target = getFile(frupic)
         val tempFile = getTempFile(frupic)
 

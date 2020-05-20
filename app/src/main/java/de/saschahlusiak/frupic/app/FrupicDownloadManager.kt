@@ -52,7 +52,7 @@ class FrupicDownloadManager @Inject constructor(
 
         Log.d(tag, "Starting job #${frupic.id}")
         try {
-            val file = store.download(frupic) { _, copied, max ->
+            val file = store.download(frupic) { copied, max ->
                 job.progress.value = copied to max
             }
             Log.d(tag, "Job #${frupic.id} success, downloaded to ${file.absolutePath}")
@@ -100,7 +100,8 @@ class FrupicDownloadManager @Inject constructor(
     }
 
     private fun cancelAllJobs() {
-        for (frupic in allJobs.keys) cancel(frupic)
+        val keys = allJobs.keys.toList()
+        for (frupic in keys) cancel(frupic)
     }
 
     fun shutdown() {

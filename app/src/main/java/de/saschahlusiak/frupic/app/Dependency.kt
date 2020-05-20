@@ -13,6 +13,7 @@ import de.saschahlusiak.frupic.gallery.GalleryViewModel
 import de.saschahlusiak.frupic.grid.GridActivity
 import de.saschahlusiak.frupic.grid.GridFragment
 import de.saschahlusiak.frupic.grid.GridViewModel
+import de.saschahlusiak.frupic.upload.UploadService
 import javax.inject.Singleton
 
 @Module
@@ -37,4 +38,5 @@ interface AppComponent {
     fun inject(fragment: GridFragment)
     fun inject(viewModel: GridViewModel)
     fun inject(viewModel: GalleryViewModel)
+    fun inject(service: UploadService)
 }
