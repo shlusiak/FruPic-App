@@ -31,6 +31,7 @@ import de.saschahlusiak.frupic.app.App;
 import de.saschahlusiak.frupic.app.FreamwareApi;
 import de.saschahlusiak.frupic.app.FrupicRepository;
 import de.saschahlusiak.frupic.grid.GridActivity;
+import kotlinx.coroutines.GlobalScope;
 
 public class UploadService extends IntentService {
 	private static final String tag = UploadService.class.getSimpleName();
@@ -97,7 +98,7 @@ public class UploadService extends IntentService {
 		InputStream is = null;
 		
 		int orientation = 0;
-		/* first get the orientation for the image, neccessary when scaling the image,
+		/* first get the orientation for the image, necessary when scaling the image,
 		 * so the orientation is preserved */
 		try {
 			Cursor cursor = getContentResolver().query(
@@ -130,7 +131,7 @@ public class UploadService extends IntentService {
 			byte[] imageData= buffer.toByteArray();
 			buffer.close();
 			
-			if (scale == false)
+			if (!scale)
 				return imageData;
 
 			/* this will get the original image size in px */
@@ -208,7 +209,7 @@ public class UploadService extends IntentService {
 		boolean scale = intent.getBooleanExtra("scale", true);
 		updateNotification(true, 0.0f);
 		
-		imageData = getImageData((Uri)intent.getParcelableExtra("uri"), scale);
+		imageData = getImageData(intent.getParcelableExtra("uri"), scale);
 		/* TODO: handle error gracefully */
 		if (imageData == null) {
 			failed++;
