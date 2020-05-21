@@ -43,7 +43,8 @@ class FrupicStorage @Inject constructor(
         tmpDir.mkdirs()
         var tmpFile: File
         do {
-            tmpFile = File(tmpDir, frupic.filename + "_" + repeat(10) { Random.nextInt(10) })
+            val suffix = Array(10) { Random.nextInt(10).toString() }.joinToString()
+            tmpFile = File(tmpDir, frupic.filename + "_" + suffix)
         } while (tmpFile.exists())
         return tmpFile
     }
