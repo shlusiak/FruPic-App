@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
+import com.google.firebase.analytics.FirebaseAnalytics
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.about.AboutActivity
 import de.saschahlusiak.frupic.app.App
@@ -41,6 +42,7 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
 
     private lateinit var gridAdapter: GridAdapter
     private lateinit var viewModel: GridViewModel
+    private lateinit var analytics: FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,8 +79,7 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
         upload.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
-            startActivityForResult(Intent.createChooser(intent,
-                getString(R.string.upload)), REQUEST_PICK_PICTURE)
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.upload)), REQUEST_PICK_PICTURE)
         }
 
         viewModel.lastUpdated.observe(viewLifecycleOwner, Observer {
@@ -281,16 +282,20 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
         val intent: Intent
         when (item.itemId) {
             R.id.star -> {
+                analytics.logEvent("frupic_star", null)
                 viewModel.toggleFrupicStarred(frupic)
             }
             R.id.openinbrowser -> {
+                analytics.logEvent("frupic_open_in_browser", null)
                 intent = Intent("android.intent.action.VIEW", Uri.parse(frupic.url))
                 startActivity(intent)
             }
             R.id.details -> {
+                analytics.logEvent("frupic_details", null)
                 DetailDialog.create(requireContext(), viewModel.storage, frupic).show()
             }
             R.id.share_link -> {
+                analytics.logEvent("frupic_share_link", null)
                 intent = Intent(Intent.ACTION_SEND)
                 intent.type = "text/plain"
                 intent.putExtra(Intent.EXTRA_TEXT, frupic.url)
@@ -299,6 +304,7 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
             }
 
             R.id.download -> {
+                analytics.logEvent("frupic_download", null)
                 /* Make sure, destination directory exists */
                 // FIXME: ask for permission
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs()

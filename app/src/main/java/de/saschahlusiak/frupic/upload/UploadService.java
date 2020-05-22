@@ -11,11 +11,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,6 +49,9 @@ public class UploadService extends IntentService {
 
 	@Inject
 	protected FrupicRepository repository;
+
+	@Inject
+	protected FirebaseAnalytics analytics;
 
 	int current, max, failed;
 
@@ -208,6 +214,9 @@ public class UploadService extends IntentService {
 		/* TODO: handle error gracefully */
 		if (imageData == null) {
 			failed++;
+			Bundle bundle = new Bundle();
+			bundle.putString("error", "No image data");
+			analytics.logEvent("upload_error", bundle);
 			return;
 		}
 
@@ -217,14 +226,17 @@ public class UploadService extends IntentService {
 		file.delete();
 
 		if (error != null) {
+			Bundle bundle = new Bundle();
+			bundle.putString("error", error);
+			analytics.logEvent("upload_error", bundle);
 			Log.e(tag, "error: " + error);
 			failed++;
 			/* TODO: handle error gracefully */
 		} else {
+			analytics.logEvent("upload_success", null);
 			Log.i(tag, "Upload successful: " + filename);
 		}
 
-		updateNotification(true, 1.0f);
 		current++;
 	}
 

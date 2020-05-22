@@ -29,12 +29,17 @@ import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
 import de.saschahlusiak.frupic.BuildConfig;
 import de.saschahlusiak.frupic.R;
+import de.saschahlusiak.frupic.app.App;
 import de.saschahlusiak.frupic.detail.DetailDialog;
 import de.saschahlusiak.frupic.model.Frupic;
 
@@ -49,9 +54,14 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 	
 	private GalleryViewModel viewModel;
 
+	@Inject
+	protected FirebaseAnalytics analytics;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+		((App)getApplication()).appComponent.inject(this);
 
 		setContentView(R.layout.gallery_activity);
 
@@ -199,19 +209,23 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			return true;
 			
 		case R.id.openinbrowser:
+			analytics.logEvent("frupic_open_in_browser", null);
 			intent = new Intent(Intent.ACTION_VIEW, Uri.parse(frupic.getUrl()));
 			startActivity(intent);
 			return true;
 
 		case R.id.details:
+			analytics.logEvent("frupic_details", null);
 			DetailDialog.create(this, viewModel.getStorage(), frupic).show();
 			return true;
 			
 		case R.id.download:
+			analytics.logEvent("frupic_download", null);
 			startDownload();
 			return true;
 
 		case R.id.share_link:
+			analytics.logEvent("frupic_share_link", null);
 			intent = new Intent(Intent.ACTION_SEND);
 			intent.setType("text/plain");
 			intent.putExtra(Intent.EXTRA_TEXT, frupic.getUrl());
@@ -224,6 +238,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			final File file = viewModel.storage.getFile(frupic);
 
 			if (file.exists()) {
+				analytics.logEvent("frupic_share", null);
 				final Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file);
 				intent = ShareCompat.IntentBuilder.from(this)
 					.setType("image/?")
@@ -236,6 +251,7 @@ public class GalleryActivity extends AppCompatActivity implements ViewPager.OnPa
 			return true;
 
 		case R.id.star:
+			analytics.logEvent("frupic_star", null);
 			viewModel.toggleFrupicStarred(frupic);
 			updateLabels(frupic);
 			return true;

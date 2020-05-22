@@ -9,6 +9,7 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import de.saschahlusiak.frupic.detail.DetailDialog
+import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.gallery.GalleryViewModel
 import de.saschahlusiak.frupic.grid.GridActivity
 import de.saschahlusiak.frupic.grid.GridFragment
@@ -36,6 +37,7 @@ class AppModule(private val app: App) {
 @Singleton
 interface AppComponent {
     fun inject(activity: GridActivity)
+    fun inject(activity: GalleryActivity)
     fun inject(fragment: GridFragment)
     fun inject(viewModel: GridViewModel)
     fun inject(viewModel: GalleryViewModel)
