@@ -7,7 +7,6 @@ import android.provider.MediaStore
 import android.util.Log
 import de.saschahlusiak.frupic.upload.UploadService
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.Serializable

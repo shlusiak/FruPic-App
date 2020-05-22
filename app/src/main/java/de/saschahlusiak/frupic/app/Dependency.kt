@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.picasso.Picasso
 import dagger.Component
 import dagger.Module
@@ -31,6 +32,9 @@ class AppModule(private val app: App) {
 
     @Provides
     fun getFirebaseAnalytics(context: Context) = FirebaseAnalytics.getInstance(context)
+
+    @Provides
+    fun getFirebaseCrashlytics(context: Context) = FirebaseCrashlytics.getInstance()
 }
 
 @Component(modules = [AppModule::class])

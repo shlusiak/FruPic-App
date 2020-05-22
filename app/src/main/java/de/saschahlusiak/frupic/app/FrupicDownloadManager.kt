@@ -2,6 +2,8 @@ package de.saschahlusiak.frupic.app
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -24,11 +26,14 @@ class DownloadJob(
 
 class FrupicDownloadManager @Inject constructor(
     private val store: FrupicStorage,
-    concurrentDownloads: Int
+    private val crashlytics: FirebaseCrashlytics,
+    private val analytics: FirebaseAnalytics
 ) {
     private val scope = CoroutineScope(Dispatchers.Main)
     private val allJobs: MutableMap<Frupic, DownloadJob> = synchronizedMap(mutableMapOf<Frupic, DownloadJob>())
     private val channel = Channel<DownloadJob>()
+
+    private val concurrentDownloads = 3
 
     init {
         repeat(concurrentDownloads) {
@@ -64,7 +69,10 @@ class FrupicDownloadManager @Inject constructor(
             job.result.value = Result.Cancelled()
         }
         catch (e: Exception) {
+            crashlytics.recordException(e)
             e.printStackTrace()
+            analytics.logEvent("frupic_download_failed", null)
+
             Log.d(tag, "Job #${frupic.id} failed")
             job.result.value = Result.Failed()
         }
@@ -106,6 +114,7 @@ class FrupicDownloadManager @Inject constructor(
 
     fun shutdown() {
         cancelAllJobs()
+        // this instance is now invalid
         scope.cancel()
     }
 

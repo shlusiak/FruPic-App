@@ -7,6 +7,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicStorage
@@ -15,7 +17,7 @@ import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class GalleryViewModel(app: Application): AndroidViewModel(app) {
+class GalleryViewModel(app: Application) : AndroidViewModel(app) {
     private val tag = GalleryViewModel::class.simpleName
 
     val cursor = MutableLiveData<Cursor>()
@@ -24,16 +26,20 @@ class GalleryViewModel(app: Application): AndroidViewModel(app) {
 
     var starred: Boolean = false
 
-    /**
-     * This is private, so we know only we own it and can call shutdown when we are done.
-     */
-    val downloadManager: FrupicDownloadManager
+    @Inject
+    lateinit var downloadManager: FrupicDownloadManager
 
     @Inject
     lateinit var repository: FrupicRepository
 
     @Inject
     lateinit var storage: FrupicStorage
+
+    @Inject
+    lateinit var crashlytics: FirebaseCrashlytics
+
+    @Inject
+    lateinit var analytics: FirebaseAnalytics
 
     var position: Int = -1
         set(value) {
@@ -54,7 +60,6 @@ class GalleryViewModel(app: Application): AndroidViewModel(app) {
         (app as App).appComponent.inject(this)
 
         lastUpdated = repository.lastUpdated
-        downloadManager = FrupicDownloadManager(storage, 3)
 
         reloadData()
     }
