@@ -4,19 +4,24 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore.Images.Media
-import android.util.Log
 import android.view.View
+import android.view.Window
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
+import com.squareup.picasso.Picasso
 import de.saschahlusiak.frupic.R
+import de.saschahlusiak.frupic.app.App
+import de.saschahlusiak.frupic.app.UploadImage
+import de.saschahlusiak.frupic.app.UploadManager
 import kotlinx.android.synthetic.main.upload_activity.*
 import kotlinx.coroutines.*
+import java.io.File
+import javax.inject.Inject
 
-class UploadActivity : AppCompatActivity(), View.OnClickListener {
+class UploadActivity : AppCompatActivity(R.layout.upload_activity), View.OnClickListener {
 
     private val viewModel: UploadActivityViewModel by viewModels {
         object : ViewModelProvider.Factory {
@@ -28,6 +33,8 @@ class UploadActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+
         super.onCreate(savedInstanceState)
 
         if (intent == null) {
@@ -35,10 +42,22 @@ class UploadActivity : AppCompatActivity(), View.OnClickListener {
             return
         }
 
-        setContentView(R.layout.upload_activity)
-
-        viewModel.labelText.observe(this, Observer { url.text = it })
+        viewModel.filenameText.observe(this, Observer { filename.text = it })
         viewModel.okEnabled.observe(this, Observer { upload.isEnabled = it })
+        viewModel.preview.observe(this, Observer { file ->
+            Picasso.get()
+                .load(file)
+                .fit()
+                .centerInside()
+                .into(preview)
+        })
+        viewModel.inProgress.observe(this, Observer { inProgress ->
+            progress.visibility = if (inProgress) View.VISIBLE else View.GONE
+            title_label.visibility = if (inProgress) View.INVISIBLE else View.VISIBLE
+        })
+        viewModel.size.observe(this, Observer { totalSize ->
+            fileSize.text = "${totalSize / 1024} kB"
+        })
 
         closeButton.setOnClickListener { finish() }
         upload.setOnClickListener(this)
@@ -79,15 +98,24 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
     /**
      * The source Uris
      */
-    private val sources: List<Uri>
+    private var images = emptyList<UploadImage>()
 
-    val labelText = MutableLiveData<String>(null)
+    val filenameText = MutableLiveData<String>(null)
     val okEnabled = MutableLiveData(false)
+    val inProgress = MutableLiveData(true)
+    val preview = MutableLiveData<File>()
+    val size = MutableLiveData<Int>()
 
+    private var hasSubmitted = false
     private val resized = CompletableDeferred<Boolean>()
 
+    @Inject
+    lateinit var manager: UploadManager
+
     init {
-        sources = when (intent.action) {
+        (app as App).appComponent.inject(this)
+
+        val sources = when (intent.action) {
             Intent.ACTION_SEND -> {
                 val uri = intent.extras?.get(Intent.EXTRA_STREAM) as? Uri
                 uri?.let { listOf(it) } ?: emptyList()
@@ -101,16 +129,20 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
 
         viewModelScope.launch {
             okEnabled.value = false
-            labelText.value = context.getString(R.string.please_wait)
+            inProgress.value = true
+            filenameText.value = null
 
             // copy all images from the source to a cache directory
-            copyImages(sources)
+            images = manager.prepareForUpload(sources)
 
-            // pre-emtively resize all pictures
+            preview.value = images.firstOrNull()?.file
+
+            // pre-emptively resize all pictures
             doResize()
             resized.complete(true)
 
             updateLabels()
+            inProgress.value = false
             okEnabled.value = true
         }
     }
@@ -131,61 +163,32 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
 
     }
 
-    private suspend fun copyImages(sources: List<Uri>) {
-
-    }
-
-    private suspend fun updateLabels() {
-        labelText.value = if (sources.size == 1) {
-            val filename = getFileName(sources[0])
-            context.getString(R.string.upload_file_name, filename)
+    private fun updateLabels() {
+        filenameText.value = if (images.size == 1) {
+            "\"${images[0].name}\""
         } else {
-            context.getString(R.string.upload_file_names, sources.size)
+            context.getString(R.string.files, images.size)
         }
 
-
+        val sizeTotal = if (resizeImages) {
+            0
+        } else {
+            images.sumBy { it.size.toInt() }
+        }
+        size.value = sizeTotal
     }
 
-    private suspend fun getFileName(uri: Uri): String = withContext(Dispatchers.Default) {
-        var fileName: String? = null
-
-        when (uri.scheme) {
-            "file" -> {
-                fileName = uri.lastPathSegment
-            }
-
-            "content" -> {
-                context.contentResolver.query(
-                    uri,
-                    arrayOf(Media.DISPLAY_NAME),
-                    null,
-                    null,
-                    null
-                )?.let { cursor ->
-                    val columnIndex = cursor.getColumnIndexOrThrow(Media.DISPLAY_NAME)
-                    if (cursor.moveToFirst()) {
-                        fileName = cursor.getString(columnIndex)
-                    }
-                    cursor.close()
-                }
+    override fun onCleared() {
+        super.onCleared()
+        if (!hasSubmitted) {
+            images.forEach {
+                it.cleanup()
             }
         }
-
-        fileName ?: "[Unknown]"
     }
 
     fun submitToService(username: String, tags: String) {
-        for (uri in sources) {
-            Log.d(tag, "Submitting to service: $uri")
-            val intent = Intent(context, UploadService::class.java)
-
-            intent.putExtra("scale", resizeImages)
-            intent.putExtra("username", username)
-            intent.putExtra("tags", tags)
-            intent.putExtra("filename", uri.lastPathSegment)
-            intent.putExtra("uri", uri)
-
-            context.startService(intent)
-        }
+        hasSubmitted = true
+        manager.submit(images, resizeImages, username, tags)
     }
 }

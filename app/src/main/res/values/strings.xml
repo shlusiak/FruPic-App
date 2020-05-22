@@ -28,7 +28,7 @@
     <string name="unseen">New</string>
     <string name="starred">Starred</string>
 
-    <string name="please_wait">Please wait</string>
+    <string name="please_wait">Please wait...</string>
     <string name="fetching_image_message">Fetching %1$s</string>
     <string name="download">Download</string>
     <string name="error_no_storage">External storage not available</string>
@@ -41,19 +41,13 @@
     <string name="cannot_connect">Cannot establish connection</string>
     <string name="error_reading_response">Error reading response</string>
         
-    <string name="drawer_open">Open navigation drawer</string>
-    <string name="drawer_close">Close navigation drawer</string>
-    
     <string name="refresh_service_count_text">%1$d new frupics</string>
-    
-        
+
     <string name="upload_to_frupic">FruPic</string>
-    <string name="upload_posted_by_label">Username:</string>
-    <string name="upload_posted_by_hint">Anonymous</string>
-    <string name="upload_tags_label">Tags:</string>
+    <string name="upload_posted_by_label">Username</string>
     <string name="upload_tags_hint">tag1,tag2,tag3</string>
-    <string name="upload_file_name">Upload \"%1$s\" to FruPic?</string>
-    <string name="upload_file_names">Upload %1$d files to FruPic?</string>
+    <string name="upload_title">Upload to FruPic?</string>
+    <string name="files">%1$d images</string>
 
     <string name="upload_notification_title">Uploading to FruPic</string>
     <string name="upload_notification_title_finished">Upload finished</string>

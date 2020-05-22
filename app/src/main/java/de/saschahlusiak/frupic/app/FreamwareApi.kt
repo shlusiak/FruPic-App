@@ -134,7 +134,7 @@ class FreamwareApi @Inject constructor() {
                     delay(1000)
                     (1..100).forEach {
                         listener?.invoke(it, 100)
-                        delay(100)
+                        delay(20)
                     }
                 }
                 null

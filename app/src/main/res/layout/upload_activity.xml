@@ -1,110 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:animateLayoutChanges="true"
+    android:padding="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+
+    <TextView
+        android:id="@+id/title_label"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingBottom="16dp">
+        android:gravity="left"
+        android:text="@string/upload_title"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:textColorPrimary"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/preview"
+        app:layout_constraintBottom_toTopOf="@id/filename"
+        app:layout_constraintTop_toTopOf="@id/preview" />
 
-        <TextView
-            android:id="@+id/url"
-            android:layout_width="0dp"
+    <TextView
+        android:id="@+id/filename"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:text="@string/files"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:textColorSecondary"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/preview"
+        app:layout_constraintBottom_toBottomOf="@id/preview"
+        app:layout_constraintTop_toBottomOf="@id/title_label" />
+
+    <ImageView
+        android:id="@+id/preview"
+        android:layout_width="90dp"
+        android:layout_height="70dp"
+        android:contentDescription=""
+        android:scaleType="fitCenter"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/username_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxBackgroundMode="outline"
+        android:layout_marginRight="6dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/tags_container"
+        app:layout_constraintTop_toBottomOf="@id/preview">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/username"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_horizontal"
-            android:text="@string/upload_file_name"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:hint="@string/upload_posted_by_label"
+            android:imeOptions="actionNext"
+            android:maxLines="1"
+            android:singleLine="true">
 
-        <ImageView
-            android:layout_width="wrap_content"
+            <requestFocus />
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tags_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxBackgroundMode="outline"
+        android:layout_marginLeft="6dp"
+        app:layout_constraintLeft_toRightOf="@id/username_container"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/username_container">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tags"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/frupic"
-            android:contentDescription="" />
-    </LinearLayout>
+            android:hint="@string/upload_tags_hint"
+            android:imeOptions="actionDone"
+            android:maxLines="1"
+            android:singleLine="true">
 
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="@string/upload_posted_by_label"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <EditText
-                android:id="@+id/username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:hint="@string/upload_posted_by_hint"
-                android:singleLine="true">
-
-                <requestFocus />
-            </EditText>
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="@string/upload_tags_label"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <EditText
-                android:id="@+id/tags"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:hint="@string/upload_tags_hint"
-                android:singleLine="true" />
-
-        </TableRow>
-
-    </TableLayout>
+            <requestFocus />
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <CheckBox
         android:id="@+id/image_resize_checkbox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:text="@string/image_resize_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tags_container" />
+
+    <TextView
+        android:id="@+id/fileSize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/image_resize_label" />
+        android:layout_gravity="center_horizontal"
+        android:textColor="?android:textColorTertiary"
+        app:layout_constraintBaseline_toBaselineOf="@id/image_resize_checkbox"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:text="123 kb" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <Button
+        android:id="@android:id/closeButton"
+        style="?borderlessButtonStyle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="4dp">
+        android:layout_margin="4dp"
+        android:minWidth="120dp"
+        android:text="@android:string/cancel"
+        app:layout_constraintRight_toLeftOf="@id/upload"
+        app:layout_constraintTop_toBottomOf="@id/image_resize_checkbox" />
 
-        <Button
-            android:id="@android:id/closeButton"
-            style="?borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="0.5"
-            android:text="@android:string/cancel" />
+    <Button
+        android:id="@+id/upload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:minWidth="120dp"
+        android:text="@android:string/ok"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image_resize_checkbox" />
 
-        <Button
-            android:id="@+id/upload"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="0.5"
-            android:text="@android:string/ok" />
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

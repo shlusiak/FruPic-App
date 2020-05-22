@@ -33,7 +33,7 @@
     <string name="unseen">Neu</string>
     <string name="starred">Favoriten</string>
 
-    <string name="please_wait">Bitte warten</string>
+    <string name="please_wait">Bitte warten...</string>
     <string name="fetching_image_message">Lade %1$s</string>
     <string name="download">Download</string>
     <string name="error_no_storage">Externer Speicher nicht verfügbar</string>
@@ -44,17 +44,12 @@
     <string name="cannot_connect">Verbindung kann nicht hergestellt werden</string>
     <string name="error_reading_response">Fehler beim Lesen der Serverantwort</string>
     
-    <string name="drawer_open">Navigationsleiste öffnen</string>
-    <string name="drawer_close">Navigationsleiste schließen</string>
-        
     <string name="upload_to_frupic">FruPic</string>
-    <string name="upload_posted_by_label">Benutzername:</string>
-    <string name="upload_posted_by_hint">Anonymous</string>
-    <string name="upload_tags_label">Tags:</string>
+    <string name="upload_posted_by_label">Benutzername</string>
     <string name="upload_tags_hint">tag1,tag2,tag3</string>
-    <string name="upload_file_name">Bild \"%1$s\" nach FruPic hochladen?</string>
-    <string name="upload_file_names">%1$d Bilder nach FruPic hochladen?</string>
-    
+    <string name="upload_title">Bilder zu FruPic hochladen?</string>
+    <string name="files">%1$d Bilder</string>
+
     <string name="upload_notification_title">Zu FruPic hochladen</string>
     <string name="upload_notification_title_finished">Hochladen abgeschlossen</string>
     <string name="upload_notification_progress">%1$d von %2$d Bilder wird hochgeladen</string>
