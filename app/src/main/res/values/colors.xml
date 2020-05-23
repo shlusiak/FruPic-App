@@ -8,8 +8,8 @@
     <color name="white">#ffffff</color>
 
     <color name="brand_yellow_bright">#ffe200</color>
-    <color name="brand_yellow">#E8D964</color>
-    <color name="splash_background">#272727</color>
+    <color name="brand_yellow">#EAD954</color>
+    <color name="splash_background">#1F1F1F</color>
     <color name="launcher_icon_background">@color/splash_background</color>
 
     <color name="galleryControlBackground">@color/black</color>
