@@ -103,20 +103,23 @@
 
     <CheckBox
         android:id="@+id/image_resize_checkbox"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="@string/image_resize_label"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tags_container" />
 
     <TextView
         android:id="@+id/fileSize"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:textColor="?android:textColorTertiary"
+        android:gravity="right"
         app:layout_constraintBaseline_toBaselineOf="@id/image_resize_checkbox"
+        app:layout_constraintLeft_toLeftOf="@id/tags_container"
         app:layout_constraintRight_toRightOf="parent"
         tools:text="123 kb" />
 

@@ -14,7 +14,7 @@ import androidx.preference.PreferenceManager
 import com.squareup.picasso.Picasso
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.App
-import de.saschahlusiak.frupic.app.UploadImage
+import de.saschahlusiak.frupic.app.UploadJob
 import de.saschahlusiak.frupic.app.UploadManager
 import kotlinx.android.synthetic.main.upload_activity.*
 import kotlinx.coroutines.*
@@ -55,8 +55,8 @@ class UploadActivity : AppCompatActivity(R.layout.upload_activity), View.OnClick
             progress.visibility = if (inProgress) View.VISIBLE else View.GONE
             title_label.visibility = if (inProgress) View.INVISIBLE else View.VISIBLE
         })
-        viewModel.size.observe(this, Observer { totalSize ->
-            fileSize.text = "${totalSize / 1024} kB"
+        viewModel.sizeLabel.observe(this, Observer { value ->
+            fileSize.text = value
         })
 
         closeButton.setOnClickListener { finish() }
@@ -81,10 +81,12 @@ class UploadActivity : AppCompatActivity(R.layout.upload_activity), View.OnClick
             .putString("username", username)
             .apply()
 
-        viewModel.submitToService(username, tags)
+        viewModel.viewModelScope.launch {
+            viewModel.submitToService(username, tags)
 
-        Toast.makeText(this, R.string.uploading_toast, Toast.LENGTH_LONG).show()
-        finish()
+            Toast.makeText(this@UploadActivity, R.string.uploading_toast, Toast.LENGTH_LONG).show()
+            finish()
+        }
     }
 }
 
@@ -98,16 +100,15 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
     /**
      * The source Uris
      */
-    private var images = emptyList<UploadImage>()
+    private var images = emptyList<UploadJob>()
 
     val filenameText = MutableLiveData<String>(null)
     val okEnabled = MutableLiveData(false)
     val inProgress = MutableLiveData(true)
     val preview = MutableLiveData<File>()
-    val size = MutableLiveData<Int>()
+    val sizeLabel = MutableLiveData<String>()
 
     private var hasSubmitted = false
-    private val resized = CompletableDeferred<Boolean>()
 
     @Inject
     lateinit var manager: UploadManager
@@ -135,11 +136,10 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
             // copy all images from the source to a cache directory
             images = manager.prepareForUpload(sources)
 
-            preview.value = images.firstOrNull()?.file
+            preview.value = images.firstOrNull()?.original?.file
 
             // pre-emptively resize all pictures
             doResize()
-            resized.complete(true)
 
             updateLabels()
             inProgress.value = false
@@ -151,7 +151,6 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
         this.resizeImages = resize
 
         viewModelScope.launch {
-            resized.await()
             updateLabels()
         }
     }
@@ -160,35 +159,48 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
         // TODO: resize source images and update labels
 
 //        delay(2000)
-
     }
 
-    private fun updateLabels() {
+    private suspend fun updateLabels() {
         filenameText.value = if (images.size == 1) {
             "\"${images[0].name}\""
         } else {
             context.getString(R.string.files, images.size)
         }
 
-        val sizeTotal = if (resizeImages) {
-            0
-        } else {
-            images.sumBy { it.size.toInt() }
+        val sizeTotal = images.sumBy {
+            if (resizeImages)
+                it.resized.await()?.size?.toInt() ?: 0
+            else
+                it.original.size.toInt()
         }
-        size.value = sizeTotal
+
+        var result = "${sizeTotal / 1024} kB"
+        if (images.size == 1) {
+            val first = images.first()
+            val image = if (resizeImages) first.resized.await() ?: first.original else first.original
+            result += " (${image.width}x${image.height})"
+        }
+
+        sizeLabel.value = result
     }
 
     override fun onCleared() {
         super.onCleared()
         if (!hasSubmitted) {
             images.forEach {
-                it.cleanup()
+                GlobalScope.launch {
+                    it.delete()
+                }
             }
         }
     }
 
-    fun submitToService(username: String, tags: String) {
+    suspend fun submitToService(username: String, tags: String) {
         hasSubmitted = true
-        manager.submit(images, resizeImages, username, tags)
+        val images = this.images.map {
+            if (resizeImages) it.resized.await() ?: it.original else it.original
+        }
+        manager.submit(images, username, tags)
     }
 }

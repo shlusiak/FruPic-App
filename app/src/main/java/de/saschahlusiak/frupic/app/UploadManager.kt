@@ -2,27 +2,45 @@ package de.saschahlusiak.frupic.app
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import de.saschahlusiak.frupic.upload.UploadService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.Serializable
 import java.util.*
 import javax.inject.Inject
+import kotlin.math.abs
+import kotlin.math.floor
+import kotlin.math.ln
+import kotlin.math.pow
 
-data class UploadImage(
-    val orientation: Int,
+data class UploadJob(
     val name: String,
-    val size: Long,
-    val path: String
-): Serializable {
-    val file get() = File(path)
+    val original: Image,
+    val resized: Deferred<Image?>
+) {
+    class Image(
+        val path: String,
+        val size: Long,
+        val width: Int,
+        val height: Int
+    ): Serializable {
+        val file get() = File(path)
 
-    fun cleanup() {
-        file.delete()
+        fun delete() {
+            file.delete()
+        }
+    }
+
+    suspend fun delete() {
+        original.delete()
+        resized.await()?.delete()
     }
 }
 
@@ -36,13 +54,22 @@ class UploadManager @Inject constructor(
         tempDir.mkdirs()
     }
 
-    suspend fun prepareForUpload(uris: List<Uri>): List<UploadImage> {
+    /**
+     * Copies the list of Uris into internal storage and creates resized versions of it.
+     * 
+     * The returned [UploadJob.Image] instances are not owned by the UploadManager and need to be cleaned up
+     * by the caller if not submitted.
+     *
+     * @see [UploadJob.Image.delete]
+     * @see submit
+     */
+    suspend fun prepareForUpload(uris: List<Uri>): List<UploadJob> {
         return withContext(Dispatchers.Default) {
-            uris.map { prepareFile(it) }
+            uris.mapNotNull { prepareForUpload(it) }
         }
     }
 
-    private fun prepareFile(uri: Uri): UploadImage {
+    private fun prepareForUpload(uri: Uri): UploadJob? {
         var orientation = 0
         var name = uri.lastPathSegment
         Log.d(tag, "Copying ${uri.path}")
@@ -75,31 +102,109 @@ class UploadManager @Inject constructor(
 
         val tempFile = File(tempDir, UUID.randomUUID().toString())
 
-        val size = context.contentResolver.openInputStream(uri)?.use { input ->
+        context.contentResolver.openInputStream(uri)?.use { input ->
             tempFile.outputStream().use { output ->
                 input.copyTo(output)
             }
         }
 
-        return UploadImage(orientation, name ?: "[Unknown]", size ?: 0, tempFile.absolutePath)
+        val options = BitmapFactory.Options()
+        var b = BitmapFactory.decodeFile(tempFile.absolutePath, options) ?: return null
+        if (orientation != 0) {
+            // we have to rotate the input image and rewrite the file
+            val matrix = Matrix()
+            matrix.preRotate(orientation.toFloat())
+            b = Bitmap.createBitmap(b, 0, 0, b.width, b.height, matrix, true)
+
+            tempFile.outputStream().use { output ->
+                b.compress(CompressFormat.JPEG, 90, output)
+            }
+        }
+
+        val size = tempFile.length()
+        val original = UploadJob.Image(tempFile.absolutePath, size, options.outWidth, options.outHeight)
+
+        val resized = GlobalScope.async {
+            val result = resize(original, quality = 90)
+            result ?: return@async null
+            // if scaled image is > 1M, resize again with lower quality
+            if (result.size > 1024*1024) {
+                result.delete()
+                resize(original, quality = 75)
+            } else {
+                result
+            }
+        }
+
+        return UploadJob(
+            name = name ?: "[Unknown]",
+            original = original,
+            resized = resized
+        )
     }
 
     /**
      * Sends the given jobs to the [UploadService].
      */
-    fun submit(images: List<UploadImage>, resize: Boolean, username: String, tags: String) {
+    fun submit(images: List<UploadJob.Image>, username: String, tags: String) {
         for (image in images) {
             Log.d(tag, "Submitting to service: ${image.path}")
             val intent = Intent(context, UploadService::class.java)
 
-            intent.putExtra("scale", resize)
             intent.putExtra("username", username)
             intent.putExtra("tags", tags)
-            intent.putExtra("filename", image.name)
-            intent.putExtra("orientation", image.orientation)
             intent.putExtra("path", image.path)
 
             context.startService(intent)
         }
+    }
+
+    /**
+     * Resizes given input file and saves result into output file
+     *
+     * @param input input file. Must exist
+     * @param minDimension the longest edge will be at least this big
+     *
+     * @return Resized instance
+     */
+    private suspend fun resize(input: UploadJob.Image, minDimension: Int = 1024, quality: Int = 90): UploadJob.Image? = withContext(Dispatchers.IO) {
+        /* this will get the original image size in px */
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        BitmapFactory.decodeFile(input.path, options)
+
+        options.inSampleSize = 1
+
+        /* scale image down to the smallest power of 2 that will fit into the desired dimensions */
+        if (options.outHeight * options.outWidth * 2 >= 16384) {
+            val scaleByHeight = abs(options.outHeight - minDimension) >= abs(options.outWidth - minDimension)
+
+            val sampleSize = if (scaleByHeight)
+                options.outHeight.toFloat() / minDimension.toFloat()
+            else
+                options.outWidth.toFloat() / minDimension.toFloat()
+
+            options.inSampleSize = 2.0.pow(floor(ln(sampleSize) / ln(2.0f).toDouble())).toInt()
+
+            Log.d(tag, "Original(${options.outWidth}x${options.outHeight} -> inSampleSize = ${options.inSampleSize}")
+        }
+
+        options.inJustDecodeBounds = false
+
+        /* get a scaled version of our original image */
+        val b = BitmapFactory.decodeFile(input.path, options) ?: return@withContext null
+
+        val file = File(tempDir, UUID.randomUUID().toString())
+        file.outputStream().use { stream ->
+            b.compress(CompressFormat.JPEG, quality, stream)
+        }
+
+        return@withContext UploadJob.Image(
+            path = file.absolutePath,
+            size = file.length(),
+            width = options.outWidth,
+            height = options.outHeight
+        )
     }
 }

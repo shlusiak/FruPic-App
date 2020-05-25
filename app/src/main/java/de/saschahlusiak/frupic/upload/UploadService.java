@@ -5,11 +5,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
-import android.graphics.Matrix;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -102,9 +97,8 @@ public class UploadService extends IntentService {
 		mNotificationManager.createNotificationChannel(channel);
 	}
 
-	private byte[] getImageData(File file, int orientation, boolean scale) {
+	private byte[] getImageData(File file) {
 		InputStream is = null;
-
 
 		try {
 			is = new FileInputStream(file);
@@ -123,53 +117,7 @@ public class UploadService extends IntentService {
 			byte[] imageData = buffer.toByteArray();
 			buffer.close();
 
-			if (!scale)
-				return imageData;
-
-			/* this will get the original image size in px */
-			Options options = new Options();
-			options.inJustDecodeBounds = true;
-			options.inInputShareable = true;
-			options.inPurgeable = true;
-			BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
-
-			options.inSampleSize = 1;
-
-			/* scale image down to the smallest power of 2 that will fit into the desired dimensions */
-			boolean scaleByHeight = Math.abs(options.outHeight - destHeight) >= Math.abs(options.outWidth - destWidth);
-			if (options.outHeight * options.outWidth * 2 >= 16384) {
-				double sampleSize = scaleByHeight ? (float) options.outHeight / (float) destHeight : (float) options.outWidth / (float) destWidth;
-				options.inSampleSize = (int) Math.pow(2.0d, Math.floor(Math.log(sampleSize) / Math.log(2.0d)));
-				Log.i(tag, "img (" + options.outWidth + "x" + options.outHeight + "), sample " + options.inSampleSize);
-			}
-
-			options.inJustDecodeBounds = false;
-			options.inInputShareable = true;
-			options.inPurgeable = true;
-
-			/* get a scaled version of our original image */
-			Bitmap b = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
-			if (b == null)
-				return null;
-
-			/* If original image has orientation information (Exif), rotate our scaled image, which has
-			 * otherwise lost the orientation
-			 */
-			if (orientation != 0) {
-				Matrix matrix = new Matrix();
-				matrix.preRotate(orientation);
-				b = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
-			}
-
-			/* and get a buffer agaion from our new image */
-			buffer = new ByteArrayOutputStream();
-			if (b.compress(CompressFormat.JPEG, 90, buffer) == true) {
-				imageData = buffer.toByteArray();
-				buffer.close();
-				return imageData;
-			} else {
-				return null;
-			}
+			return imageData;
 		} catch (Exception e) {
 			e.printStackTrace();
 			try {
@@ -202,15 +150,12 @@ public class UploadService extends IntentService {
 		final byte[] imageData;
 		final String userName = intent.getStringExtra("username");
 		final String tags = intent.getStringExtra("tags");
-		final String filename = intent.getStringExtra("filename");
-		final boolean scale = intent.getBooleanExtra("scale", true);
-		final int orientation = intent.getIntExtra("orientation", 0);
 		final String path = intent.getStringExtra("path");
 		final File file = new File(path);
 
 		updateNotification(true, 0.0f);
 
-		imageData = getImageData(file, orientation, scale);
+		imageData = getImageData(file);
 		/* TODO: handle error gracefully */
 		if (imageData == null) {
 			failed++;
@@ -234,7 +179,7 @@ public class UploadService extends IntentService {
 			/* TODO: handle error gracefully */
 		} else {
 			analytics.logEvent("upload_success", null);
-			Log.i(tag, "Upload successful: " + filename);
+			Log.i(tag, "Upload successful: " + path);
 		}
 
 		current++;

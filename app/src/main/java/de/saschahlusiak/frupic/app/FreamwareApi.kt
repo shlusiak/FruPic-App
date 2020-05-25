@@ -1,6 +1,7 @@
 package de.saschahlusiak.frupic.app
 
 import android.util.Log
+import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.model.cloudfront
 import de.saschahlusiak.frupic.utils.toList
@@ -127,7 +128,8 @@ class FreamwareApi @Inject constructor() {
 
     @Deprecated("Replace")
     fun uploadImageSync(imageData: ByteArray, username: String, tags: String, listener: OnProgressListener?): String? {
-        if (false) {
+        // TODO: for DEBUG
+        if (true && BuildConfig.DEBUG) {
             // FOR DEBUG
             return runBlocking {
                 launch {
