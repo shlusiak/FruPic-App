@@ -1,7 +1,9 @@
 package de.saschahlusiak.frupic.gallery
 
+import android.Manifest
 import android.app.DownloadManager
 import android.content.*
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
@@ -17,6 +19,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ShareCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
@@ -128,8 +131,27 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        when (requestCode) {
+            RC_WRITE_EXTERNAL_STORAGE_PERMISSION -> if (grantResults.isNotEmpty() && PackageManager.PERMISSION_GRANTED == grantResults[0]) {
+                Log.i(tag, "permission granted")
+                val frupic = viewModel.currentFrupic.value ?: return
+                startDownload(frupic)
+            }
+        }
+    }
+
     private fun startDownload(frupic: Frupic) {
-        // FIXME ask for permission
+        val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+        // we only need the permission if we are downloading the attachment, not when storing in internal storage
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), RC_WRITE_EXTERNAL_STORAGE_PERMISSION)
+            return
+        }
+
+        val filename = frupic.filename
+
         /* Make sure, destination directory exists */
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs()
         val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -137,11 +159,11 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
         req.setVisibleInDownloadsUi(true)
         req.allowScanningByMediaScanner()
         req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-        req.setTitle(frupic.getFileName())
+        req.setTitle(filename)
         req.setDescription("Frupic " + frupic.id)
-        req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName())
+        req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
         dm.enqueue(req)
-        Toast.makeText(this, getString(R.string.fetching_image_message, frupic.getFileName()), Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.fetching_image_message, filename), Toast.LENGTH_SHORT).show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -223,5 +245,6 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
 
     companion object {
         private val tag = GalleryActivity::class.java.simpleName
+        private const val RC_WRITE_EXTERNAL_STORAGE_PERMISSION = 10001
     }
 }

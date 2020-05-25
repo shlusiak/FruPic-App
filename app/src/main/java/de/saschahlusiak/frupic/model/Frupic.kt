@@ -29,6 +29,8 @@ class Frupic(
 
     val isStarred get() = (flags and FLAG_FAV) != 0
 
+    val filename by lazy { File(fullUrl).name }
+
     constructor(cursor: Cursor) : this(
         id = cursor.getInt(FrupicDB.ID_INDEX),
         flags = cursor.getInt(FrupicDB.FLAGS_INDEX),
@@ -38,11 +40,6 @@ class Frupic(
         username = cursor.getString(FrupicDB.USERNAME_INDEX),
         tags = cursor.getString(FrupicDB.TAGS_INDEX)?.split(", ") ?: emptyList()
     )
-
-    @Deprecated("Don't use this")
-    fun getFileName(): String {
-        return File(fullUrl).name
-    }
 
     fun hasFlag(flag: Int) = (flags and flag) != 0
 
