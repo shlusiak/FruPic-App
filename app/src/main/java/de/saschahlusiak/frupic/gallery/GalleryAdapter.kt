@@ -90,6 +90,7 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
             if (existing != null) return existing
 
             progressText.setText(R.string.waiting_to_start)
+            // TODO: replace with vector drawable
             stopButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
 
             return DownloadJob(frupic).also {

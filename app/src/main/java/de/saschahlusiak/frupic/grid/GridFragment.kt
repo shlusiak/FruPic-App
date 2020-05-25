@@ -27,7 +27,7 @@ import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.detail.DetailDialog
 import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.model.Frupic
-import de.saschahlusiak.frupic.preferences.FrupicPreferences
+import de.saschahlusiak.frupic.preferences.FrupicPreferencesActivity
 import de.saschahlusiak.frupic.upload.UploadActivity
 import kotlinx.android.synthetic.main.grid_fragment.*
 
@@ -164,7 +164,7 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
                 return true
             }
             R.id.preferences -> {
-                intent = Intent(requireContext(), FrupicPreferences::class.java)
+                intent = Intent(requireContext(), FrupicPreferencesActivity::class.java)
                 startActivity(intent)
                 return true
             }

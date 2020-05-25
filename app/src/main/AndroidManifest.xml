@@ -47,9 +47,9 @@
             android:theme="@style/AppTheme" />
 
         <activity
-            android:name=".preferences.FrupicPreferences"
+            android:name=".preferences.FrupicPreferencesActivity"
             android:label="@string/preferences"
-            android:theme="@style/Preferences" />
+            android:theme="@style/AppTheme.Preferences" />
 
         <activity
             android:name="de.saschahlusiak.frupic.upload.UploadActivity"

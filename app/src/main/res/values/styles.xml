@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorPrimary">@color/colorAccent</item>
@@ -12,11 +13,9 @@
         <item name="android:windowBackground">@drawable/splash_background</item>
     </style>
 
-    <style name="Preferences" parent="android:Theme.DeviceDefault.Light">
+    <style name="AppTheme.Preferences">
 
     </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.Dialog" parent="Theme.MaterialComponents.Dialog.Alert">
         <item name="colorAccent">@color/colorAccent</item>

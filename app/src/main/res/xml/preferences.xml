@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:key="first_preferencescreen">
+
+    <PreferenceCategory
+        android:title="@string/preferences_display"
+        app:iconSpaceReserved="false">
+
+        <CheckBoxPreference
+            android:defaultValue="1"
+            android:key="animatedgifs"
+            android:persistent="true"
+            android:summary="@string/preferences_show_animated_gifs_summary"
+            android:title="@string/preferences_show_animated_gifs"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/preferences_upload"
+        app:iconSpaceReserved="false">
+        <EditTextPreference
+            android:key="username"
+            android:summary="@string/preferences_upload_username_summary"
+            android:title="@string/preferences_upload_username"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/about"
+        app:iconSpaceReserved="false">
+
+        <PreferenceScreen
+            android:summary="@string/gotowebsite"
+            android:title="http://frupic.frubar.net..."
+            app:iconSpaceReserved="false">
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://frupic.frubar.net" />
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:summary="@string/frupic_in_the_market_long"
+            android:title="@string/frupic_in_the_market"
+            app:iconSpaceReserved="false">
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="market://details?id=de.saschahlusiak.frupic" />
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:summary="@string/copyright"
+            android:title="@string/about"
+            app:iconSpaceReserved="false">
+            <intent android:action="de.saschahlusiak.frupic.SHOW_ABOUT" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+</PreferenceScreen>
