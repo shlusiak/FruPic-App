@@ -14,7 +14,7 @@ import androidx.preference.PreferenceManager
 import com.squareup.picasso.Picasso
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.App
-import de.saschahlusiak.frupic.app.UploadJob
+import de.saschahlusiak.frupic.app.PreparedImage
 import de.saschahlusiak.frupic.app.UploadManager
 import kotlinx.android.synthetic.main.upload_activity.*
 import kotlinx.coroutines.*
@@ -100,7 +100,7 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
     /**
      * The source Uris
      */
-    private var images = emptyList<UploadJob>()
+    private var images = emptyList<PreparedImage>()
 
     val filenameText = MutableLiveData<String>(null)
     val okEnabled = MutableLiveData(false)

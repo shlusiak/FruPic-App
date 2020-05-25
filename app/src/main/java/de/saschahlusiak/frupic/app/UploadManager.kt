@@ -20,7 +20,7 @@ import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
 
-data class UploadJob(
+data class PreparedImage(
     val name: String,
     val original: Image,
     val resized: Deferred<Image?>
@@ -44,6 +44,16 @@ data class UploadJob(
     }
 }
 
+data class UploadJob(
+    val username: String,
+    val tags: String,
+    val file: File
+) {
+    fun delete() {
+        file.delete()
+    }
+}
+
 class UploadManager @Inject constructor(
     val context: Context
 ) {
@@ -57,19 +67,19 @@ class UploadManager @Inject constructor(
     /**
      * Copies the list of Uris into internal storage and creates resized versions of it.
      * 
-     * The returned [UploadJob.Image] instances are not owned by the UploadManager and need to be cleaned up
+     * The returned [PreparedImage.Image] instances are not owned by the UploadManager and need to be cleaned up
      * by the caller if not submitted.
      *
-     * @see [UploadJob.Image.delete]
+     * @see [PreparedImage.Image.delete]
      * @see submit
      */
-    suspend fun prepareForUpload(uris: List<Uri>): List<UploadJob> {
+    suspend fun prepareForUpload(uris: List<Uri>): List<PreparedImage> {
         return withContext(Dispatchers.Default) {
             uris.mapNotNull { prepareForUpload(it) }
         }
     }
 
-    private fun prepareForUpload(uri: Uri): UploadJob? {
+    private fun prepareForUpload(uri: Uri): PreparedImage? {
         var orientation = 0
         var name = uri.lastPathSegment
         Log.d(tag, "Copying ${uri.path}")
@@ -122,7 +132,7 @@ class UploadManager @Inject constructor(
         }
 
         val size = tempFile.length()
-        val original = UploadJob.Image(tempFile.absolutePath, size, options.outWidth, options.outHeight)
+        val original = PreparedImage.Image(tempFile.absolutePath, size, options.outWidth, options.outHeight)
 
         val resized = GlobalScope.async {
             val result = resize(original, quality = 90)
@@ -136,7 +146,7 @@ class UploadManager @Inject constructor(
             }
         }
 
-        return UploadJob(
+        return PreparedImage(
             name = name ?: "[Unknown]",
             original = original,
             resized = resized
@@ -146,7 +156,7 @@ class UploadManager @Inject constructor(
     /**
      * Sends the given jobs to the [UploadService].
      */
-    fun submit(images: List<UploadJob.Image>, username: String, tags: String) {
+    fun submit(images: List<PreparedImage.Image>, username: String, tags: String) {
         for (image in images) {
             Log.d(tag, "Submitting to service: ${image.path}")
             val intent = Intent(context, UploadService::class.java)
@@ -167,7 +177,7 @@ class UploadManager @Inject constructor(
      *
      * @return Resized instance
      */
-    private suspend fun resize(input: UploadJob.Image, minDimension: Int = 1024, quality: Int = 90): UploadJob.Image? = withContext(Dispatchers.IO) {
+    private suspend fun resize(input: PreparedImage.Image, minDimension: Int = 1024, quality: Int = 90): PreparedImage.Image? = withContext(Dispatchers.IO) {
         /* this will get the original image size in px */
         val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
@@ -200,7 +210,7 @@ class UploadManager @Inject constructor(
             b.compress(CompressFormat.JPEG, quality, stream)
         }
 
-        return@withContext UploadJob.Image(
+        return@withContext PreparedImage.Image(
             path = file.absolutePath,
             size = file.length(),
             width = options.outWidth,

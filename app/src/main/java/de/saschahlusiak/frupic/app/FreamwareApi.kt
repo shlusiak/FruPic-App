@@ -126,36 +126,20 @@ class FreamwareApi @Inject constructor() {
         }
     }
 
-    @Deprecated("Replace")
-    fun uploadImageSync(imageData: ByteArray, username: String, tags: String, listener: OnProgressListener?): String? {
-        // TODO: for DEBUG
-        if (true && BuildConfig.DEBUG) {
+    suspend fun uploadImage(source: InputStream, username: String, tags: String, listener: OnProgressListener?) {
+        val imageData = source.use { it.readBytes() }
+
+        if (false && BuildConfig.DEBUG) {
             // FOR DEBUG
-            return runBlocking {
-                launch {
-                    delay(1000)
-                    (1..100).forEach {
-                        listener?.invoke(it, 100)
-                        delay(20)
-                    }
-                }
-                null
+            Log.w(tag, "FAKE UPLOAD!!! NOT SENDING TO FRUPIC!!")
+            delay(1000)
+            (1..100).forEach {
+                listener?.invoke(it, 100)
+                delay(50)
             }
+            return
         }
 
-        return runBlocking {
-            try {
-                uploadImage(imageData, username, tags, listener)
-                null
-            }
-            catch (e: Exception) {
-                e.printStackTrace()
-                e.message
-            }
-        }
-    }
-
-    suspend fun uploadImage(imageData: ByteArray, username: String, tags: String, listener: OnProgressListener?) {
         val lineEnd = "\r\n"
         val twoHyphens = "--"
         val boundary = "ForeverFrubarIWantToBe"
