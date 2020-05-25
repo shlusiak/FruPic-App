@@ -5,18 +5,17 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
 public class FrupicDB {
-	Context context;
-	SQLiteDatabase db;
-	FrupicDBOpenHandler dbHelper;
 	private static final String tag = FrupicDB.class.getSimpleName();
 
+	private Context context;
+	private SQLiteDatabase db;
+	private FrupicDBOpenHandler dbHelper;
 
 	public static final String TABLE = "frupics";
 	public static final String ID_ID = "_id";					/* 0 */

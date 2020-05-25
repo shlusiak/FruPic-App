@@ -130,7 +130,7 @@ class FreamwareApi @Inject constructor() {
         val imageData = source.use { it.readBytes() }
 
         if (false && BuildConfig.DEBUG) {
-            // FOR DEBUG
+            // TODO: FOR DEBUG
             Log.w(tag, "FAKE UPLOAD!!! NOT SENDING TO FRUPIC!!")
             delay(1000)
             (1..100).forEach {
