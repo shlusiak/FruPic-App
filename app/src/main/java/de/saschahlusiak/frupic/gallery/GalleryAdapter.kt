@@ -182,10 +182,6 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
         val v = view.findViewById<View>(R.id.videoView) as GifMovieView
         i.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
 
-        // TODO: context menu on image view seems to be broken
-        activity.registerForContextMenu(view)
-        activity.registerForContextMenu(i)
-        activity.registerForContextMenu(v)
         val l = View.OnClickListener { activity.toggleControls() }
         i.setOnClickListener(l)
         v.setOnClickListener(l)

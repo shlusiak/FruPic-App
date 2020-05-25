@@ -302,22 +302,6 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
                 intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.id)
                 startActivity(Intent.createChooser(intent, getString(R.string.share_link)))
             }
-
-            R.id.download -> {
-                analytics.logEvent("frupic_download", null)
-                /* Make sure, destination directory exists */
-                // FIXME: ask for permission
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs()
-                val dm = context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                val req = DownloadManager.Request(Uri.parse(frupic.fullUrl))
-                req.setVisibleInDownloadsUi(true)
-                req.allowScanningByMediaScanner()
-                req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                req.setTitle(frupic.getFileName())
-                req.setDescription("Frupic " + frupic.id)
-                req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, frupic.getFileName())
-                dm.enqueue(req)
-            }
         }
     }
 
