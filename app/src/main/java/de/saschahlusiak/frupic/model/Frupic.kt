@@ -2,6 +2,8 @@ package de.saschahlusiak.frupic.model
 
 import android.database.Cursor
 import de.saschahlusiak.frupic.db.FrupicDB
+import de.saschahlusiak.frupic.utils.getInt
+import de.saschahlusiak.frupic.utils.getString
 import java.io.File
 import java.io.Serializable
 
@@ -32,13 +34,13 @@ class Frupic(
     val filename by lazy { File(fullUrl).name }
 
     constructor(cursor: Cursor) : this(
-        id = cursor.getInt(FrupicDB.ID_INDEX),
-        flags = cursor.getInt(FrupicDB.FLAGS_INDEX),
-        fullUrl = cursor.getString(FrupicDB.FULLURL_INDEX),
-        thumbUrl = cursor.getString(FrupicDB.THUMBURL_INDEX),
-        date = cursor.getString(FrupicDB.DATE_INDEX),
-        username = cursor.getString(FrupicDB.USERNAME_INDEX),
-        tags = cursor.getString(FrupicDB.TAGS_INDEX)?.split(", ") ?: emptyList()
+        id = cursor.getInt(FrupicDB.ID_ID),
+        flags = cursor.getInt(FrupicDB.FLAGS_ID),
+        fullUrl = cursor.getString(FrupicDB.FULLURL_ID),
+        thumbUrl = cursor.getString(FrupicDB.THUMBURL_ID),
+        date = cursor.getString(FrupicDB.DATE_ID),
+        username = cursor.getString(FrupicDB.USERNAME_ID),
+        tags = cursor.getString(FrupicDB.TAGS_ID)?.split(", ") ?: emptyList()
     )
 
     fun hasFlag(flag: Int) = (flags and flag) != 0

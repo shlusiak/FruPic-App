@@ -8,8 +8,6 @@ import androidx.lifecycle.MutableLiveData
 import de.saschahlusiak.frupic.db.FrupicDB
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -36,16 +34,8 @@ class FrupicRepository @Inject constructor(
 
     init {
         Log.d(tag, "Initializing ${FrupicRepository::class.simpleName}")
-        // FIXME: make this idempotent
+        // FIXME: there is no close. :(
         db.open()
-    }
-
-    @Deprecated("Replace with coroutine")
-    @MainThread
-    fun synchronizeAsync(base: Int, limit: Int) {
-        GlobalScope.launch(Dispatchers.Main) {
-            synchronize(base, limit)
-        }
     }
 
     /**

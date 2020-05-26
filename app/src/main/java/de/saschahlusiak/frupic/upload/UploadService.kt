@@ -25,7 +25,6 @@ import javax.inject.Inject
 class UploadService : IntentService("UploadService") {
     private val tag = UploadService::class.java.simpleName
 
-
 	@Inject
     lateinit var api: FreamwareApi
 
