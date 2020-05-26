@@ -1,6 +1,5 @@
 package de.saschahlusiak.frupic.gallery
 
-import android.database.Cursor
 import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,7 +20,7 @@ import java.io.*
 import java.util.*
 
 class GalleryAdapter(private val activity: GalleryActivity, private val showAnimations: Boolean, private val storage: FrupicStorage, private val downloadManager: FrupicDownloadManager) : PagerAdapter() {
-    private var cursor: Cursor? = null
+    private var items = emptyList<Frupic>()
 
     inner class ViewHolder(
         val containerView: View,
@@ -107,8 +106,8 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
         }
     }
 
-    fun setCursor(cursor: Cursor) {
-        this.cursor = cursor
+    fun setItems(items: List<Frupic>) {
+        this.items = items
         notifyDataSetChanged()
     }
 
@@ -172,11 +171,8 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val cursor = cursor ?: return Unit
-
         Log.w(tag, "instantiateItem($position)")
-        cursor.moveToPosition(position)
-        val frupic = Frupic(cursor)
+        val frupic = items[position]
         val view = LayoutInflater.from(activity).inflate(R.layout.gallery_item, container, false)
         val i = view.findViewById<View>(R.id.imageView) as SubsamplingScaleImageView
         val v = view.findViewById<View>(R.id.videoView) as GifMovieView
@@ -201,22 +197,16 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
         container.removeView(holder.containerView)
     }
 
-    override fun getItemPosition(`object`: Any): Int {
-        val holder = `object` as ViewHolder
+    override fun getItemPosition(o: Any): Int {
+        val holder = o as ViewHolder
         val frupic = holder.frupic
-        val cursor = cursor ?: return POSITION_NONE
-        cursor.moveToFirst()
-        var position = 0
-        while (!cursor.isAfterLast) {
-            if (Frupic(cursor) == frupic) return position
-            position++
-            cursor.moveToNext()
-        }
+        val position = items.indexOf(frupic)
+        if (position >= 0) return position
         return POSITION_NONE
     }
 
     override fun getCount(): Int {
-        return cursor?.count ?: 0
+        return items.size
     }
 
     override fun isViewFromObject(view: View, `object`: Any): Boolean {

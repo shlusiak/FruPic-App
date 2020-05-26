@@ -1,18 +1,20 @@
 package de.saschahlusiak.frupic.grid
 
-import android.database.Cursor
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.model.cloudfront
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class GridAdapter internal constructor(private val listener: OnItemClickListener) : RecyclerView.Adapter<GridAdapter.ViewHolder>() {
-    private var cursor: Cursor? = null
+    private var items = emptyList<Frupic>()
     private val picasso = Picasso.get()
 
     interface OnItemClickListener {
@@ -74,17 +76,36 @@ class GridAdapter internal constructor(private val listener: OnItemClickListener
     }
 
     override fun getItemCount(): Int {
-        return cursor?.count ?: 0
+        return items.size
     }
 
     fun getItem(position: Int): Frupic? {
-        val cursor = cursor ?: return null
-        cursor.moveToPosition(position)
-        return Frupic(cursor)
+        return if (position in items.indices)
+            items[position]
+        else
+            null
     }
 
-    fun setCursor(cursor: Cursor) {
-        this.cursor = cursor
-        notifyDataSetChanged()
+    fun setItems(newItems: List<Frupic>) {
+        // both cursors are open, so we can calculate a diff on both of them
+        val oldItems = this.items
+
+        val diffCallback = object : DiffUtil.Callback() {
+            override fun getOldListSize() = oldItems.size
+            override fun getNewListSize() = newItems.size
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return oldItems[oldItemPosition].id == newItems[newItemPosition].id
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return oldItems[oldItemPosition] == newItems[newItemPosition]
+            }
+        }
+
+        val result = DiffUtil.calculateDiff(diffCallback)
+
+        this.items = newItems
+        result.dispatchUpdatesTo(this)
     }
 }

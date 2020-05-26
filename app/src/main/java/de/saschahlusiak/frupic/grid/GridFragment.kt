@@ -1,13 +1,11 @@
 package de.saschahlusiak.frupic.grid
 
 import android.app.Activity
-import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.util.TypedValue
 import android.view.*
@@ -30,6 +28,7 @@ import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.preferences.FrupicPreferencesActivity
 import de.saschahlusiak.frupic.upload.UploadActivity
 import kotlinx.android.synthetic.main.grid_fragment.*
+import javax.inject.Inject
 
 class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListener {
     private val mRemoveWindow = Runnable { removeWindow() }
@@ -38,11 +37,14 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
     private var mDialogText: TextView? = null
     private var mShowing = false
     private var mReady = false
+
     private lateinit var gridLayoutManager: GridLayoutManager
 
     private lateinit var gridAdapter: GridAdapter
     private lateinit var viewModel: GridViewModel
-    private lateinit var analytics: FirebaseAnalytics
+
+    @Inject
+    lateinit var analytics: FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,8 +92,8 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
             swipeRefreshLayout.isRefreshing = (synchronizing)
         })
 
-        viewModel.cursor.observe(viewLifecycleOwner, Observer { cursor ->
-            gridAdapter.setCursor(cursor)
+        viewModel.items.observe(viewLifecycleOwner, Observer { items ->
+            gridAdapter.setItems(items)
         })
 
         viewModel.starred.observe(viewLifecycleOwner, Observer { _ ->
@@ -225,27 +227,15 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             lastScrollState = newState
             if (newState == RecyclerView.SCROLL_STATE_IDLE && (viewModel.starred.value != true)) {
-                val firstVisibleItem = gridLayoutManager.findFirstVisibleItemPosition()
                 val lastVisibleItem = gridLayoutManager.findLastVisibleItemPosition()
-                if (lastVisibleItem > gridAdapter.itemCount - FRUPICS_STEP) {
-                    val base = gridAdapter.itemCount - FRUPICS_STEP
-                    val count = FRUPICS_STEP + FRUPICS_STEP
-
-                    viewModel.doFetch(base, count)
-                }
+                viewModel.ensureLoaded(lastVisibleItem)
             }
         }
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             val firstVisibleItem = gridLayoutManager.findFirstVisibleItemPosition()
             val lastVisibleItem = gridLayoutManager.findLastVisibleItemPosition()
-            val isStarred = (viewModel.starred.value == true)
-            if (!isStarred && (lastVisibleItem > gridAdapter.itemCount - FRUPICS_STEP) && (lastVisibleItem > 0)) {
-                val base = gridAdapter.itemCount - FRUPICS_STEP
-                val count = FRUPICS_STEP + FRUPICS_STEP
-
-                viewModel.doFetch(base, count)
-            }
+            viewModel.ensureLoaded(lastVisibleItem)
             if (mReady) {
                 gridAdapter.getItem(firstVisibleItem)?.let { first ->
                     // Cut out YYYY-MM-DD
@@ -260,7 +250,6 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
                         mHandler.postDelayed(mRemoveWindow, 1500)
                     }
                     mPrevDate = date
-
                 }
             }
         }
@@ -307,7 +296,6 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
 
     companion object {
         private val tag = GridFragment::class.java.simpleName
-        private val REQUEST_PICK_PICTURE = 1
-        private val FRUPICS_STEP = 100
+        private const val REQUEST_PICK_PICTURE = 1
     }
 }

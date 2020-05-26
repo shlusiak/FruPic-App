@@ -1,7 +1,6 @@
 package de.saschahlusiak.frupic.gallery
 
 import android.app.Application
-import android.database.Cursor
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -20,7 +19,7 @@ import javax.inject.Inject
 class GalleryViewModel(app: Application) : AndroidViewModel(app) {
     private val tag = GalleryViewModel::class.simpleName
 
-    val cursor = MutableLiveData<Cursor>()
+    val items = MutableLiveData<List<Frupic>>()
     val currentFrupic = MutableLiveData<Frupic>()
     val lastUpdated: LiveData<Long>
 
@@ -43,12 +42,11 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
 
     var position: Int = -1
         set(value) {
-            Log.d(tag, "Position = " + value)
+            Log.d(tag, "Position = $value")
             field = value
-            cursor.value?.let { cursor ->
-                if (cursor.moveToPosition(value)) {
-                    val frupic = Frupic(cursor)
-                    currentFrupic.value = frupic
+            items.value?.let { items ->
+                if (value in items.indices) {
+                    currentFrupic.value = items[value]
                     // TODO: mark as seen
                 }
             }
@@ -66,19 +64,16 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
 
     override fun onCleared() {
         downloadManager.shutdown()
-        cursor.value?.close()
         super.onCleared()
     }
 
     fun reloadData() {
         viewModelScope.launch {
-            val c = repository.getFrupics(starred)
-            cursor.value?.close()
-            cursor.value = c
+            val items = repository.getFrupics(starred)
+            this@GalleryViewModel.items.value = items
 
-            if (c.moveToPosition(position)) {
-                val frupic = Frupic(c)
-                currentFrupic.value = frupic
+            if (position in items.indices) {
+                currentFrupic.value = items[position]
                 // TODO: mark as seen
             }
         }
