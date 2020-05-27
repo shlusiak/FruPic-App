@@ -199,7 +199,7 @@ class UploadService : IntentService("UploadService") {
             builder.setOngoing(false)
         }
 
-        /* TODO: set progress dialog intent when ongoing */
+        // TODO: set progress dialog intent when ongoing
         builder.setContentIntent(pendingIntent)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }

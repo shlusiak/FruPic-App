@@ -25,7 +25,7 @@ class DownloadJob(
 }
 
 class FrupicDownloadManager @Inject constructor(
-    private val store: FrupicStorage,
+    private val storage: FrupicStorage,
     private val crashlytics: FirebaseCrashlytics,
     private val analytics: FirebaseAnalytics
 ) {
@@ -57,7 +57,7 @@ class FrupicDownloadManager @Inject constructor(
 
         Log.d(tag, "Starting job #${frupic.id}")
         try {
-            val file = store.download(frupic) { copied, max ->
+            val file = storage.download(frupic) { copied, max ->
                 job.progress.value = copied to max
             }
             Log.d(tag, "Job #${frupic.id} success, downloaded to ${file.absolutePath}")
@@ -116,6 +116,8 @@ class FrupicDownloadManager @Inject constructor(
         cancelAllJobs()
         // this instance is now invalid
         scope.cancel()
+
+        storage.scheduleCacheExpiry()
     }
 
     companion object {

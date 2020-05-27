@@ -188,8 +188,8 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
     override fun onCleared() {
         super.onCleared()
         if (!hasSubmitted) {
-            images.forEach {
-                GlobalScope.launch {
+            GlobalScope.launch {
+                images.forEach {
                     it.delete()
                 }
             }
@@ -199,7 +199,17 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
     suspend fun submitToService(username: String, tags: String) {
         hasSubmitted = true
         val images = this.images.map {
-            if (resizeImages) it.resized.await() ?: it.original else it.original
+            val resized = it.resized.await()
+            val original = it.original
+            // whatever we are *not* submitting, we need to clean up here
+            // TODO: this should probably live in the UploadManager instead
+            if (resizeImages && resized != null) {
+                original.delete()
+                resized
+            } else {
+                resized?.delete()
+                it.original
+            }
         }
         manager.submit(images, username, tags)
     }

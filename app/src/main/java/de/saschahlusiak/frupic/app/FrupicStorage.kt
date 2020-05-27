@@ -2,27 +2,35 @@ package de.saschahlusiak.frupic.app
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.WorkerThread
+import com.squareup.picasso.Picasso
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.random.Random
 
 /**
  * Manages download and storage of full Frupics to cache directories.
  */
+@Singleton
 class FrupicStorage @Inject constructor(
     context: Context,
-    private val api: FreamwareApi
+    private val api: FreamwareApi,
+    private val picasso: Picasso
 ) {
     private val tag = FrupicStorage::class.simpleName
     private val cacheDir = File(context.externalCacheDir ?: context.cacheDir, "full")
+    private val tmpDir = File(cacheDir, "tmp")
 
     init {
         Log.d(tag, "Initializing...")
 
         cacheDir.mkdirs()
+        tmpDir.mkdirs()
     }
 
     /**
@@ -37,8 +45,6 @@ class FrupicStorage @Inject constructor(
      * @return a new temp file to download this Frupic to
      */
     private fun getTempFile(frupic: Frupic): File {
-        val tmpDir = File(cacheDir, "tmp")
-        tmpDir.mkdirs()
         var tmpFile: File
         do {
             val suffix = Array(10) { Random.nextInt(10).toString() }.joinToString()
@@ -65,20 +71,70 @@ class FrupicStorage @Inject constructor(
         api.downloadFrupic(frupic, tempFile, listener)
         target.delete()
         tempFile.renameTo(target)
+
+        dumpCacheSize()
         return target
     }
 
     /**
-     * Copy the file for the given Frupic to the given destination.
+     * Expires old files to reach target cache size
      *
-     * Any exception will bubble up.
-     *
-     * @param frupic the frupic to copy. Must be downloaded already.
-     * @param target target file to copy to.
+     * @param targetSizeInMb the target cache size on disk in megabytes
      */
-    suspend fun copy(frupic: Frupic, target: File) {
-        withContext(Dispatchers.IO) {
-            getFile(frupic).copyTo(target, overwrite = true)
+    @WorkerThread
+    fun maintainCacheSize(targetSizeInMb: Int = 128) {
+        val targetSize = targetSizeInMb * 1024 * 1024
+
+        // dump picasso stats, just for good measure
+        val stats = picasso.snapshot
+        stats.dump()
+
+        // we are not meant to have any tmpFiles at all
+        var freed = 0L
+        var deleted = 0
+        tmpDir.listFiles()?.forEach { file ->
+            Log.d(tag, "Deleting tmpFile ${file.name} (${file.length()} bytes)")
+            freed += file.length()
+            deleted++
+
+            file.delete()
+        }
+
+        // all files in cache, sorted by most recent last
+        val cacheFiles = cacheDir.listFiles()?.sortedBy { it.lastModified() }?.toMutableList() ?: mutableListOf()
+        fun List<File>.totalSize() = sumBy { it.length().toInt() }
+
+        dumpCacheSize()
+
+        while (cacheFiles.totalSize() > targetSize) {
+            val file = cacheFiles[0]
+            Log.d(tag, "Removing ${file.name} (${file.length() / 1024} kb)")
+
+            deleted++
+            freed += file.length()
+            cacheFiles.remove(file)
+
+            file.delete()
+        }
+
+        dumpCacheSize()
+        Log.d(tag, "Cache expiry done, files removed: $deleted (${freed / 1024} kb)")
+    }
+
+    private fun dumpCacheSize() {
+        val cacheFiles = cacheDir.listFiles()?.sortedBy { it.lastModified() }?.toMutableList() ?: mutableListOf()
+        val totalSize = cacheFiles.sumBy { it.length().toInt() }
+        Log.d(tag, "Cache size: ${cacheFiles.size} files, ${totalSize / 1024} kb")
+    }
+
+    /**
+     * Schedule a run of [maintainCacheSize] in the background, at any convenient time
+     */
+    fun scheduleCacheExpiry() {
+        Log.d(tag, "Scheduling cache expiry")
+        // TODO: use JobManager to schedule this when device is idle rather than invoking it right now
+        GlobalScope.launch(Dispatchers.IO) {
+            maintainCacheSize()
         }
     }
 }
