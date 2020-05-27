@@ -35,6 +35,7 @@ private class Adapter(context: Context, objects: List<DetailItem>) : ArrayAdapte
 }
 
 object DetailDialog {
+    @JvmStatic
     fun create(context: Context, storage: FrupicStorage, frupic: Frupic): AlertDialog {
         val ctw = ContextThemeWrapper(context, R.style.AppTheme_Dialog)
         val builder = MaterialAlertDialogBuilder(ctw)

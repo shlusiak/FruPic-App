@@ -1,6 +1,7 @@
 package de.saschahlusiak.frupic.grid
 
 import android.app.Application
+import android.database.Cursor
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -19,7 +20,7 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
     private val tag = GridViewModel::class.simpleName
 
     val starred = MutableLiveData(false)
-    val items = MutableLiveData<List<Frupic>>()
+    val cursor = MutableLiveData<Cursor>()
     val synchronizing: LiveData<Boolean>
     val lastUpdated: LiveData<Long>
 
@@ -28,11 +29,6 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
 
     @Inject
     lateinit var storage: FrupicStorage
-
-    /**
-     * Number of Frupics we load from the DB. Will slidingly increase as we scroll down.
-     */
-    private var limit = 1
 
     init {
         (app as App).appComponent.inject(this)
@@ -51,6 +47,8 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
 
     override fun onCleared() {
         super.onCleared()
+
+        cursor.value?.close()
 
         GlobalScope.launch(Dispatchers.Main) {
             repository.markAllAsOld()
@@ -76,52 +74,19 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /**
-     * Ensures we have enough frupics loaded from the last visible item position. Will either load from DB or from API.
-     *
-     * @param lastVisibleItem the position of the last visible item, to determine what needs to be loaded ahead
-     */
-    fun ensureLoaded(lastVisibleItem: Int) {
-        val stepSize = 200
-
-        // if starred, we don't load anything, we should have them all in memory already
-        val starred = starred.value ?: false
-        if (starred) return
-
-        // the number of Frupics we have in memory
-
-        // make sure the target is steps, so we don't reload continuously while scrolling
-        val target = (lastVisibleItem / stepSize + 2) * stepSize
-
-        // nothing to do if we have this many Frupics loaded already
-        if (limit >= target) return
-
-        // else go to database
+    fun doFetch(base: Int, count: Int) {
         viewModelScope.launch {
-            limit = target
-            Log.d(tag, "Loading from database (limit = $limit)")
-            val list = repository.getFrupics(starred, limit)
-            items.value = list
-            val loaded = list.size
-            // if we have enough, all good
-            if (loaded >= target) return@launch
-
-            // else go to API and fetch
-            val offset = loaded
-            val count = target - loaded
-            Log.d(tag, "Fetching from API (offset = $offset, count = $count)")
-
-            repository.fetch(offset, count)
+            repository.fetch(base, count)
         }
     }
 
     fun reloadData() {
-        Log.d(tag, "reloadData(limit = $limit)")
+        Log.d(tag, "reloadData")
 
         viewModelScope.launch {
-            val starred = starred.value ?: false
-            val limit = if (starred) null else limit
-            items.value = repository.getFrupics(starred, limit)
+            val c = repository.getFrupics(starred.value ?: false)
+            cursor.value?.close()
+            cursor.value = c
         }
     }
 }

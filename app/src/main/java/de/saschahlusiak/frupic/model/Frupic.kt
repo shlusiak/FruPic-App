@@ -10,17 +10,14 @@ import java.io.Serializable
 /**
  * Returns a URL with frupic.frubar.net replaced with a cloudfront URL
  */
-val String.cloudfront get() = this
-    .replace("frupic.frubar.net".toRegex(), "d1ofuc5rnolp9w.cloudfront.net")
-    .replace("http://", "https://")
-
+val String.cloudfront get() = this.replace("frupic.frubar.net".toRegex(), "d1ofuc5rnolp9w.cloudfront.net")
 
 /**
  * Model object of a Frupic definition, as read from the database or the API.
  */
 class Frupic(
-    val id: Int,
-    var flags: Int,
+    @JvmField val id: Int,
+    @JvmField var flags: Int,
     val fullUrl: String,
     val thumbUrl: String,
     val date: String?,
@@ -29,12 +26,12 @@ class Frupic(
 ) : Serializable {
 
     val url = "https://frupic.frubar.net/$id"
-    val isAnimated by lazy { fullUrl.endsWith(".gif") || fullUrl.endsWith(".GIF") }
-    val tagsString by lazy { tags.joinToString(", ") }
+    val isAnimated = fullUrl.endsWith(".gif") || fullUrl.endsWith(".GIF")
+    val tagsString = tags.joinToString(", ")
 
     val isStarred get() = (flags and FLAG_FAV) != 0
 
-    val filename: String by lazy { File(fullUrl).name }
+    val filename by lazy { File(fullUrl).name }
 
     constructor(cursor: Cursor) : this(
         id = cursor.getInt(FrupicDB.ID_ID),
@@ -48,7 +45,7 @@ class Frupic(
 
     fun hasFlag(flag: Int) = (flags and flag) != 0
 
-    override fun equals(other: Any?) = (other is Frupic) && (other.id == id) && (other.flags == flags)
+    override fun equals(other: Any?) = (other is Frupic) && other.id == id
 
     override fun hashCode() = id
 

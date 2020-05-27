@@ -1,10 +1,10 @@
 package de.saschahlusiak.frupic.app
 
+import android.database.Cursor
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import de.saschahlusiak.frupic.db.FrupicDB
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
@@ -20,8 +20,7 @@ import kotlin.system.measureTimeMillis
 @Singleton
 class FrupicRepository @Inject constructor(
     private val api: FreamwareApi,
-    private val db: FrupicDB,
-    private val crashlytics: FirebaseCrashlytics
+    private val db: FrupicDB
 ) {
     private val _synchronizing = MutableLiveData(false)
     private val _lastUpdated = MutableLiveData(0L)
@@ -75,14 +74,7 @@ class FrupicRepository @Inject constructor(
         Log.d(tag, "Fetching $limit Frupics")
 
         val start = System.currentTimeMillis()
-        val result = try {
-            api.getPicture(offset, limit)
-        }
-        catch (e: Exception) {
-            e.printStackTrace()
-            crashlytics.recordException(e)
-            return
-        }
+        val result = api.getPicture(offset, limit)
 
         val duration = System.currentTimeMillis() - start
         Log.d(tag, "Fetched ${result.size} Frupics in $duration ms")
@@ -100,11 +92,11 @@ class FrupicRepository @Inject constructor(
         _lastUpdated.value = System.currentTimeMillis()
     }
 
-    suspend fun getFrupics(starred: Boolean = false, limit: Int? = null): List<Frupic> {
+    suspend fun getFrupics(starred: Boolean = false): Cursor {
         return withContext(Dispatchers.IO) {
             val mask = if (starred) Frupic.FLAG_FAV else 0
             return@withContext withDB {
-                getFrupics(null, mask, limit)
+                getFrupics(null, mask)
             }
         }
     }

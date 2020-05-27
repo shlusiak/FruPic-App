@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.DownloadManager
 import android.content.*
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -79,8 +80,8 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
         adapter = GalleryAdapter(this, animateGifs, viewModel.storage, viewModel.downloadManager)
         viewPager.adapter = adapter
 
-        viewModel.items.observe(this, Observer { items ->
-            adapter?.setItems(items)
+        viewModel.cursor.observe(this, Observer { cursor: Cursor ->
+            adapter?.setCursor(cursor)
             viewPager.setCurrentItem(viewModel.position, false)
         })
 

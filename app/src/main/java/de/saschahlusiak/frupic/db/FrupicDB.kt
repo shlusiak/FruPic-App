@@ -2,11 +2,10 @@ package de.saschahlusiak.frupic.db
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.util.Log
 import de.saschahlusiak.frupic.model.Frupic
 import javax.inject.Inject
-import kotlin.system.measureTimeMillis
 
 class FrupicDB @Inject constructor(context: Context) {
     private var db: SQLiteDatabase? = null
@@ -72,32 +71,17 @@ class FrupicDB @Inject constructor(context: Context) {
         return true
     }
 
-    fun getFrupics(username: String?, flagmask: Int, limit: Int?): List<Frupic> {
+    fun getFrupics(username: String?, flagmask: Int): Cursor {
         val db = requireNotNull(db) { "DB is not open" }
         var where = ""
         if (username != null) where += "$USERNAME_ID=$username"
         if (where != "") where += " AND "
         where += "($FLAGS_ID&$flagmask) = $flagmask"
 
-        val start = System.currentTimeMillis()
-        return db.query(TABLE, null, where, null, null, null, "$ID_ID DESC", null).use { cursor ->
-            sequence {
-                cursor.moveToFirst()
-                var count = 0
-                while (!cursor.isAfterLast && (limit == null || count < limit)) {
-                    yield(Frupic(cursor))
-                    cursor.moveToNext()
-                    count++
-                }
-            }.toList()
-        }.also {
-            val ms = System.currentTimeMillis() - start
-            Log.d(tag, "Loaded ${it.size} in $ms ms")
-        }
+        return db.query(TABLE, null, where, null, null, null, "$ID_ID DESC", null)
     }
 
     companion object {
-        private val tag = FrupicDB::class.java.simpleName
         const val TABLE = "frupics"
         const val ID_ID = "_id"
         const val FULLURL_ID = "fullurl"
