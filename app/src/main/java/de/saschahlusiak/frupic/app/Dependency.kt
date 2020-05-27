@@ -9,7 +9,6 @@ import com.squareup.picasso.Picasso
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import de.saschahlusiak.frupic.detail.DetailDialog
 import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.gallery.GalleryViewModel
 import de.saschahlusiak.frupic.grid.GridActivity
@@ -34,7 +33,7 @@ class AppModule(private val app: App) {
     fun getFirebaseAnalytics(context: Context) = FirebaseAnalytics.getInstance(context)
 
     @Provides
-    fun getFirebaseCrashlytics(context: Context) = FirebaseCrashlytics.getInstance()
+    fun getFirebaseCrashlytics() = FirebaseCrashlytics.getInstance()
 }
 
 @Component(modules = [AppModule::class])

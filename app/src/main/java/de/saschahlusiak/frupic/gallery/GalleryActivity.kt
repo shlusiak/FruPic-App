@@ -27,7 +27,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.App
-import de.saschahlusiak.frupic.detail.DetailDialog.create
+import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.android.synthetic.main.gallery_activity.*
 import javax.inject.Inject
@@ -86,7 +86,7 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
         })
 
         viewModel.currentFrupic.observe(this, Observer { frupic: Frupic -> updateLabels(frupic) })
-        viewModel.lastUpdated.observe(this, Observer { updated: Long? -> viewModel.reloadData() })
+        viewModel.lastUpdated.observe(this, Observer { viewModel.reloadData() })
     }
 
     /**
@@ -182,7 +182,7 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
             }
             R.id.details -> {
                 analytics.logEvent("frupic_details", null)
-                create(this, viewModel.storage, frupic).show()
+                createDetailDialog(this, viewModel.storage, frupic).show()
                 true
             }
             R.id.download -> {

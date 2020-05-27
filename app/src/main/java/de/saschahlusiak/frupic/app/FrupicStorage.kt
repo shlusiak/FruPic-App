@@ -25,8 +25,6 @@ class FrupicStorage @Inject constructor(
         cacheDir.mkdirs()
     }
 
-    private val Frupic.filename: String get() = File(fullUrl).name
-
     /**
      * Return the [File] where to find the Frupic if downloaded. May not exist.
      * @return file for Frupic once downloaded. May not exist.

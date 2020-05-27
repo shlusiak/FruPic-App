@@ -16,8 +16,8 @@ val String.cloudfront get() = this.replace("frupic.frubar.net".toRegex(), "d1ofu
  * Model object of a Frupic definition, as read from the database or the API.
  */
 class Frupic(
-    @JvmField val id: Int,
-    @JvmField var flags: Int,
+    val id: Int,
+    var flags: Int,
     val fullUrl: String,
     val thumbUrl: String,
     val date: String?,

@@ -1,13 +1,11 @@
 package de.saschahlusiak.frupic.grid
 
 import android.app.Activity
-import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.util.TypedValue
 import android.view.*
@@ -24,7 +22,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.about.AboutActivity
 import de.saschahlusiak.frupic.app.App
-import de.saschahlusiak.frupic.detail.DetailDialog
+import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.preferences.FrupicPreferencesActivity
@@ -292,7 +290,7 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
             }
             R.id.details -> {
                 analytics.logEvent("frupic_details", null)
-                DetailDialog.create(requireContext(), viewModel.storage, frupic).show()
+                createDetailDialog(requireContext(), viewModel.storage, frupic).show()
             }
             R.id.share_link -> {
                 analytics.logEvent("frupic_share_link", null)
