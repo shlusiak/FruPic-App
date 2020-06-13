@@ -13,8 +13,8 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
@@ -28,6 +28,7 @@ import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.preferences.FrupicPreferencesActivity
 import de.saschahlusiak.frupic.upload.UploadActivity
 import kotlinx.android.synthetic.main.grid_fragment.*
+import javax.inject.Inject
 
 class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListener {
     private val mRemoveWindow = Runnable { removeWindow() }
@@ -39,13 +40,13 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
     private lateinit var gridLayoutManager: GridLayoutManager
 
     private lateinit var gridAdapter: GridAdapter
-    private lateinit var viewModel: GridViewModel
-    private lateinit var analytics: FirebaseAnalytics
+    private val viewModel: GridViewModel by viewModels()
+
+    @Inject
+    lateinit var analytics: FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel = ViewModelProvider(this).get(GridViewModel::class.java)
 
         val app = requireContext().applicationContext as App
         app.appComponent.inject(this)
