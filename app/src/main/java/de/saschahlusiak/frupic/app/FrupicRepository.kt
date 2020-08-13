@@ -110,13 +110,13 @@ class FrupicRepository @Inject constructor(
     }
 
     /**
-     * Remove the [Frupic.FLAG_NEW] flag from all Frupics.
+     * Remove the given flag (e.g. [Frupic.FLAG_NEW]) from all Frupics.
      */
     @MainThread
-    suspend fun markAllAsSeen() {
+    suspend fun removeFlags(flag: Int) {
         withContext(Dispatchers.IO) {
             withDB {
-                updateFlags(null, Frupic.FLAG_NEW, false)
+                updateFlags(null, flag, false)
             }
             updateBadgeCount()
         }
@@ -134,15 +134,15 @@ class FrupicRepository @Inject constructor(
     }
 
     private suspend fun updateBadgeCount() {
-        val count = getNewFrupicCount()
+        val count = getFrupicCount(Frupic.FLAG_NEW)
         Log.d(tag, "Updating unread badge to $count")
         ShortcutBadger.applyCount(context, count)
     }
 
-    suspend fun getNewFrupicCount(): Int {
+    suspend fun getFrupicCount(mask: Int): Int {
         return withContext(Dispatchers.IO) {
             withDB {
-                getFrupics(null, Frupic.FLAG_NEW)
+                getFrupics(null, mask)
             }
         }.use { it.count }
     }

@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.grid.GridActivity
+import de.saschahlusiak.frupic.model.Frupic
 import javax.inject.Inject
 
 class NotificationManager @Inject constructor(
@@ -33,23 +34,38 @@ class NotificationManager @Inject constructor(
     }
 
     suspend fun updateUnseenNotification() {
-        val count = repository.getNewFrupicCount()
-        Log.d(tag, "Updating notification for $count unseen frupics")
+        // This are all FruPics that are "new", i.e. have been fetched after the user has last opened the app
+        // They are cleared when the app is launched or finished
+        val new = repository.getFrupicCount(Frupic.FLAG_NEW)
 
-        if (count == 0) {
+        // These are the FruPics the user has not been notified about
+        // I.e. FruPics remain NEW but once a notification has been shown they are SEEN
+        // We clear this flag once a notification is shown, so notifications are not repeated
+        val unseen = repository.getFrupicCount(Frupic.FLAG_NEW or Frupic.FLAG_NEED_NOTIFICATION)
+        Log.d(tag, "Updating notification for $new unseen frupics")
+
+        if (new == 0) {
             clearUnseenNotification()
             return
         }
+
+        if (unseen == 0) {
+            // We have already notified about all new frupics
+            return
+        }
+
+        // Clearing this flag means we will not trigger notifications again for this frupic (but still include it in the count)
+        repository.removeFlags(Frupic.FLAG_NEED_NOTIFICATION)
 
         val intent = Intent(context, GridActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_UNSEEN).apply {
             color = context.getColor(R.color.brand_yellow_bright)
-            setContentTitle(context.getString(R.string.refresh_service_count_text, count))
+            setContentTitle(context.getString(R.string.refresh_service_count_text, new))
             setContentText(context.getString(R.string.refresh_service_title))
             setSmallIcon(R.drawable.frupic_notification_new)
-            setNumber(count)
+            setNumber(new)
             setAutoCancel(true)
             setOngoing(false)
 

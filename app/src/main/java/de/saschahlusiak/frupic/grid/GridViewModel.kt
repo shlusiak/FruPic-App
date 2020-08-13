@@ -55,7 +55,7 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
         cursor.value?.close()
 
         GlobalScope.launch(Dispatchers.Main) {
-            repository.markAllAsSeen()
+            repository.removeFlags(Frupic.FLAG_NEW)
             notificationManager.clearUnseenNotification()
         }
     }
@@ -74,7 +74,7 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
 
     fun doRefresh() {
         viewModelScope.launch {
-            repository.markAllAsSeen()
+            repository.removeFlags(Frupic.FLAG_NEW)
             repository.synchronize()
         }
     }

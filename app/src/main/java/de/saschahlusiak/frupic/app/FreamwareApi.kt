@@ -36,10 +36,11 @@ class FreamwareApi @Inject constructor() {
     suspend fun getPicture(offset: Int, limit: Int): List<Frupic> {
         val query = "${GET_PICTURE_ENDPOINT}?offset=$offset&limit=$limit"
         val json = get(query)
+
         return JSONArray(json).toList<JSONObject>().map { jo ->
             Frupic(
                 jo.getInt("id"),
-                Frupic.FLAG_NEW or Frupic.FLAG_UNSEEN,
+                Frupic.FLAG_NEW or Frupic.FLAG_NEED_NOTIFICATION,
                 jo.getString("url"),
                 jo.getString("thumb_url"),
                 jo.getString("date"),

@@ -55,6 +55,6 @@ class Frupic(
         private const val serialVersionUID = 12345L
         const val FLAG_NEW = 0x01
         const val FLAG_FAV = 0x02
-        const val FLAG_UNSEEN = 0x04
+        const val FLAG_NEED_NOTIFICATION = 0x04
     }
 }
