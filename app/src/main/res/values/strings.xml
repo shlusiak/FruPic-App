@@ -75,8 +75,8 @@
     <string name="preferences_upload_username">Username</string>
     <string name="preferences_upload_username_summary">Username used for uploading</string>
 
-    <string name="preferences_refresh_summary">Notify about new FruPics</string>
-    <string name="preferences_refresh">Notifications</string>
+    <string name="preferences_refresh_summary">Show notifications about new unseen FruPics</string>
+    <string name="preferences_refresh">Check for new FruPics</string>
 
     <string-array name="cache_labels">
         <item>1 MB</item>

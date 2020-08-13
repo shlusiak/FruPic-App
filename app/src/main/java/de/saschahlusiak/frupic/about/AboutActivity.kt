@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.R
 import kotlinx.android.synthetic.main.about_activity.*
 
@@ -17,6 +18,7 @@ class AboutActivity : AppCompatActivity(R.layout.about_activity) {
             window.attributes = params
         }
 
+        version.text = BuildConfig.VERSION_NAME
         ok.setOnClickListener { finish() }
     }
 }
