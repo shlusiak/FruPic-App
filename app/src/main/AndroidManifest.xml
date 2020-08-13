@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="de.saschahlusiak.frupic"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -17,10 +19,11 @@
 
     <application
         android:name=".app.App"
+        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:allowBackup="true">
+        tools:ignore="AllowBackup">
 
         <meta-data
             android:name="google_analytics_adid_collection_enabled"
@@ -75,7 +78,16 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".upload.UploadService" />
+        <service
+            android:name=".upload.UploadService" />
+
+        <service
+            android:name=".app.job.CleanupJob"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".app.job.SynchronizeJob"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

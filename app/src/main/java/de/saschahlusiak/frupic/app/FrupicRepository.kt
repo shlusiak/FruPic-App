@@ -41,20 +41,24 @@ class FrupicRepository @Inject constructor(
     /**
      * Synchronize the most recent Frupics.
      *
-     * Will set the [synchronizing] status while running and handle errors transparently.
+     * Will set the [synchronizing] status while running and catch errors transparently.
+     *
+     * @return true on success, false if failed
      */
     @MainThread
-    suspend fun synchronize(base: Int = 0, limit: Int = 100) {
+    suspend fun synchronize(base: Int = 0, limit: Int = 100): Boolean {
         // skip if already synchronizing
         if (_synchronizing.value == true)
-            return
+            return true
 
         _synchronizing.value = true
 
         try {
             fetch(base, limit)
+            return true
         } catch (e: Exception) {
             e.printStackTrace()
+            return false
         } finally {
             _synchronizing.value = false
         }

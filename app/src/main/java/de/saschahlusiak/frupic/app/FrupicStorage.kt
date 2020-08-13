@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.WorkerThread
 import com.squareup.picasso.Picasso
+import de.saschahlusiak.frupic.app.job.CleanupJob
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -18,7 +19,7 @@ import kotlin.random.Random
  */
 @Singleton
 class FrupicStorage @Inject constructor(
-    context: Context,
+    private val context: Context,
     private val api: FreamwareApi,
     private val picasso: Picasso
 ) {
@@ -132,6 +133,7 @@ class FrupicStorage @Inject constructor(
      */
     fun scheduleCacheExpiry() {
         Log.d(tag, "Scheduling cache expiry")
+        CleanupJob.schedule(context)
         // TODO: use JobManager to schedule this when device is idle rather than invoking it right now
         GlobalScope.launch(Dispatchers.IO) {
             maintainCacheSize()

@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.FrupicRepository
+import de.saschahlusiak.frupic.app.job.SynchronizeJob
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

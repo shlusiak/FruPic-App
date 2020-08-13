@@ -22,6 +22,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.about.AboutActivity
 import de.saschahlusiak.frupic.app.App
+import de.saschahlusiak.frupic.app.job.SynchronizeJob
 import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.model.Frupic
@@ -30,7 +31,7 @@ import de.saschahlusiak.frupic.upload.UploadActivity
 import kotlinx.android.synthetic.main.grid_fragment.*
 import javax.inject.Inject
 
-class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListener {
+class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickListener, OnRefreshListener {
     private val mRemoveWindow = Runnable { removeWindow() }
     private val mHandler = Handler()
     private var mWindowManager: WindowManager? = null
@@ -54,10 +55,6 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
         mWindowManager = requireContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
         setHasOptionsMenu(true)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.grid_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -98,11 +95,6 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
         })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.grid_optionsmenu, menu)
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
@@ -133,14 +125,23 @@ class GridFragment : Fragment(), GridAdapter.OnItemClickListener, OnRefreshListe
     }
 
     override fun onResume() {
-        mReady = true
         super.onResume()
+        mReady = true
+
+        // Schedule automatically refreshing frupics
+        // TODO: add option to turn this on/off
+        SynchronizeJob.schedule(requireContext())
     }
 
     override fun onPause() {
-        super.onPause()
         removeWindow()
         mReady = false
+        super.onPause()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.grid_optionsmenu, menu)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

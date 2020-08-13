@@ -9,9 +9,10 @@ import com.squareup.picasso.Picasso
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import de.saschahlusiak.frupic.app.job.CleanupJob
+import de.saschahlusiak.frupic.app.job.SynchronizeJob
 import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.gallery.GalleryViewModel
-import de.saschahlusiak.frupic.grid.GridActivity
 import de.saschahlusiak.frupic.grid.GridFragment
 import de.saschahlusiak.frupic.grid.GridViewModel
 import de.saschahlusiak.frupic.upload.UploadActivityViewModel
@@ -44,5 +45,9 @@ interface AppComponent {
     fun inject(viewModel: GridViewModel)
     fun inject(viewModel: GalleryViewModel)
     fun inject(viewModel: UploadActivityViewModel)
+
     fun inject(service: UploadService)
+
+    fun inject(job: SynchronizeJob)
+    fun inject(job: CleanupJob)
 }

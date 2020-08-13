@@ -53,7 +53,8 @@ class GifMovieView @JvmOverloads constructor(context: Context?, attr: AttributeS
         movie.setTime(relTime)
         movie.draw(canvas, -movie.width() / 2.0f, -movie.height() / 2.0f)
 
-        /* limit animations to 20fps */this.postInvalidateDelayed(1000 / 20.toLong())
+        /* limit animations to 20fps */
+        this.postInvalidateDelayed(1000 / 20.toLong())
     }
 
     companion object {
