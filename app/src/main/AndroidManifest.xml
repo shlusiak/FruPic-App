@@ -81,17 +81,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".about.AboutActivity"
-            android:exported="false"
-            android:label="@string/about_frupic"
-            android:theme="@style/AppTheme.Dialog">
-            <intent-filter>
-                <action android:name="de.saschahlusiak.frupic.SHOW_ABOUT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <service
             android:name=".upload.UploadService" />
 

@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.google.firebase.analytics.FirebaseAnalytics
 import de.saschahlusiak.frupic.R
-import de.saschahlusiak.frupic.about.AboutActivity
+import de.saschahlusiak.frupic.about.AboutFragment
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.NotificationManager
 import de.saschahlusiak.frupic.app.job.SynchronizeJob
@@ -201,8 +201,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
                 return true
             }
             R.id.about -> {
-                intent = Intent(requireContext(), AboutActivity::class.java)
-                startActivity(intent)
+                AboutFragment().show(parentFragmentManager, null)
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
