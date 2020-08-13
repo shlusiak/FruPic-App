@@ -75,7 +75,6 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
         }
         viewPager.addOnPageChangeListener(this)
 
-
         val animateGifs = prefs.getBoolean("animatedgifs", true)
         adapter = GalleryAdapter(this, animateGifs, viewModel.storage, viewModel.downloadManager)
         viewPager.adapter = adapter

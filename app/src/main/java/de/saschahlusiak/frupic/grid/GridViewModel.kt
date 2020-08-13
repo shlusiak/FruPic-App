@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.FrupicRepository
+import de.saschahlusiak.frupic.app.NotificationManager
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -29,6 +30,9 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
 
     @Inject
     lateinit var storage: FrupicStorage
+
+    @Inject
+    lateinit var notificationManager: NotificationManager
 
     init {
         (app as App).appComponent.inject(this)
@@ -52,6 +56,7 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
 
         GlobalScope.launch(Dispatchers.Main) {
             repository.markAllAsSeen()
+            notificationManager.clearUnseenNotification()
         }
     }
 

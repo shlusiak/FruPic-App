@@ -86,7 +86,7 @@ class UploadService : IntentService("UploadService") {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private fun createChannel() {
-        val channel = NotificationChannel(CHANNEL_UPLOAD, "Upload", NotificationManager.IMPORTANCE_LOW)
+        val channel = NotificationChannel(CHANNEL_UPLOAD, getString(R.string.channel_name_upload), NotificationManager.IMPORTANCE_LOW)
         notificationManager.createNotificationChannel(channel)
     }
 

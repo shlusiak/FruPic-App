@@ -7,10 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import de.saschahlusiak.frupic.R
 import kotlinx.android.synthetic.main.about_activity.*
 
-class AboutActivity : AppCompatActivity() {
+class AboutActivity : AppCompatActivity(R.layout.about_activity) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.about_activity)
 
         if (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK != Configuration.SCREENLAYOUT_SIZE_XLARGE) {
             val params = window.attributes

@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
@@ -22,6 +23,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.about.AboutActivity
 import de.saschahlusiak.frupic.app.App
+import de.saschahlusiak.frupic.app.NotificationManager
 import de.saschahlusiak.frupic.app.job.SynchronizeJob
 import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.gallery.GalleryActivity
@@ -45,6 +47,9 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
 
     @Inject
     lateinit var analytics: FirebaseAnalytics
+
+    @Inject
+    lateinit var notificationManager: NotificationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,13 +135,28 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
         super.onDestroy()
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        // stop while we are visible, will schedule in onStop
+        SynchronizeJob.unschedule(requireContext())
+    }
+
+    override fun onStop() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+
+        if (prefs.getBoolean("background_notifications", true)) {
+            SynchronizeJob.schedule(requireContext())
+        }
+
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
         mReady = true
 
-        // Schedule automatically refreshing frupics
-        // TODO: add option to turn this on/off
-        SynchronizeJob.schedule(requireContext())
+        notificationManager.clearUnseenNotification()
     }
 
     override fun onPause() {

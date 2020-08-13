@@ -44,7 +44,7 @@ data class PreparedImage(
     }
 }
 
-data class UploadJob(
+internal data class UploadJob(
     val username: String,
     val tags: String,
     val file: File

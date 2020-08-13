@@ -9,6 +9,14 @@
 
         <CheckBoxPreference
             android:defaultValue="1"
+            android:key="background_notifications"
+            android:persistent="true"
+            android:summary="@string/preferences_refresh_summary"
+            android:title="@string/preferences_refresh"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="1"
             android:key="animatedgifs"
             android:persistent="true"
             android:summary="@string/preferences_show_animated_gifs_summary"

@@ -2,15 +2,19 @@
 <resources>
 
     <string name="app_name">FruPic</string>
-    <string name="about">Über...</string>
+    <string name="about">Über…</string>
     <string name="about_frupic">Über FruPic App</string>
     <string name="gotowebsite">In Browser öffnen</string>
     <string name="refresh">Aktualisieren</string>
     <string name="details">Details</string>
     <string name="openinbrowser">In Browser öffnen</string>
-    <string name="frupic_in_the_market">FruPic App in Google Play...</string>
-    <string name="frupic_in_the_market_long">FruPic App in Google Play zeigen</string>    
-        
+    <string name="frupic_in_the_market">FruPic App in Google Play…</string>
+    <string name="frupic_in_the_market_long">FruPic App in Google Play zeigen</string>
+
+    <string name="channel_name_upload">Upload</string>
+    <string name="channel_name_unseen">Neue FruPics</string>
+
+
     <string name="details_posted_by">Geposted von:</string>
     <string name="details_tags">Tags:</string>
     <string name="details_date">Datum:</string>
@@ -20,11 +24,12 @@
     <string name="copied_to_clipboard">Text in Zwischenablage kopiert </string>
     
     <string name="refresh_service_count_text">%1$d neue FruPics</string>
-    
-    
+    <string name="refresh_service_title">Du hast ungesehene FruPics</string>
+
+
     <string name="gallery_posted_by">%1$s</string>
     
-    <string name="waiting_to_start">In Warteschlange...</string>
+    <string name="waiting_to_start">In Warteschlange…</string>
     
     <string name="star_frupic">Favorit</string>
     <string name="mark_as_seen">Alle gesehen</string>
@@ -33,7 +38,7 @@
     <string name="unseen">Neu</string>
     <string name="starred">Favoriten</string>
 
-    <string name="please_wait">Bitte warten...</string>
+    <string name="please_wait">Bitte warten…</string>
     <string name="fetching_image_message">Lade %1$s</string>
     <string name="download">Download</string>
     <string name="error_no_storage">Externer Speicher nicht verfügbar</string>
@@ -71,7 +76,10 @@
     <string name="preferences_upload">Hochladen</string>
     <string name="preferences_upload_username">Benutzername</string>
     <string name="preferences_upload_username_summary">Standardname für Hochladen</string>
-        
+
+    <string name="preferences_refresh_summary">Benachrichtigung bei neuen FruPics anzeigen</string>
+    <string name="preferences_refresh">Benachrichtigungen</string>
+
     <string-array name="cache_labels">
         <item>1 MB</item>
         <item>4 MB</item>

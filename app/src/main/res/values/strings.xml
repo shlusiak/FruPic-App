@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FruPic</string>
-    <string name="about">About...</string>
-    <string name="copyright">Copyright (c) Sascha Hlusiak, 2012-2020.</string>
+    <string name="about">About…</string>
+    <string name="copyright" translatable="false">Copyright © Sascha Hlusiak, 2012–2020.</string>
     <string name="about_frupic">About FruPic App</string>
     <string name="gotowebsite">Open in Browser</string>
     <string name="refresh">Refresh</string>
     <string name="details">Details</string>
     <string name="openinbrowser">Open in Browser</string>
-    <string name="frupic_in_the_market">FruPic App in Google Play...</string>
+    <string name="frupic_in_the_market">FruPic App in Google Play…</string>
     <string name="frupic_in_the_market_long">Show FruPic App in Google Play</string>
-    
+
+    <string name="channel_name_upload">Uplaod</string>
+    <string name="channel_name_unseen">New FruPics</string>
+
     <string name="details_posted_by">Posted by:</string>
     <string name="details_tags">Tags:</string>
     <string name="details_date">Date:</string>
@@ -28,20 +31,21 @@
     <string name="unseen">New</string>
     <string name="starred">Starred</string>
 
-    <string name="please_wait">Please wait...</string>
+    <string name="please_wait">Please wait…</string>
     <string name="fetching_image_message">Fetching %1$s</string>
     <string name="download">Download</string>
     <string name="error_no_storage">External storage not available</string>
        
-    <string name="waiting_to_start">scheduled...</string>
+    <string name="waiting_to_start">scheduled…</string>
 
     <string name="upload">Upload</string>
     <string name="uploading_toast">Upload in progess</string>
     <string name="cancelled">Cancelled</string>
     <string name="cannot_connect">Cannot establish connection</string>
     <string name="error_reading_response">Error reading response</string>
-        
-    <string name="refresh_service_count_text">%1$d new frupics</string>
+
+    <string name="refresh_service_count_text">%1$d new FruPics</string>
+    <string name="refresh_service_title">You have unseen FruPics</string>
 
     <string name="upload_to_frupic">FruPic</string>
     <string name="upload_posted_by_label">Username</string>
@@ -70,7 +74,10 @@
     <string name="preferences_upload">Uploading</string>
     <string name="preferences_upload_username">Username</string>
     <string name="preferences_upload_username_summary">Username used for uploading</string>
-    
+
+    <string name="preferences_refresh_summary">Notify about new FruPics</string>
+    <string name="preferences_refresh">Notifications</string>
+
     <string-array name="cache_labels">
         <item>1 MB</item>
         <item>4 MB</item>

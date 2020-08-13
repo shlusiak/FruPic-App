@@ -136,7 +136,7 @@ class FrupicRepository @Inject constructor(
     private suspend fun updateBadgeCount() {
         val count = getNewFrupicCount()
         Log.d(tag, "Updating unread badge to $count")
-        ShortcutBadger.applyCountOrThrow(context, count)
+        ShortcutBadger.applyCount(context, count)
     }
 
     suspend fun getNewFrupicCount(): Int {
