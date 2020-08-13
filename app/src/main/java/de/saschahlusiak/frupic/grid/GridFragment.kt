@@ -62,6 +62,19 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
 
         swipeRefreshLayout.setOnRefreshListener(this)
 
+        mDialogText = layoutInflater.inflate(R.layout.grid_list_position, null) as TextView
+        mDialogText?.visibility = View.INVISIBLE
+        mHandler.post {
+            mReady = true
+            val lp = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION, (
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE),
+                PixelFormat.TRANSLUCENT)
+            mWindowManager?.addView(mDialogText, lp)
+        }
+
         val columnWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 88f, resources.displayMetrics).toInt()
         gridLayoutManager = GridAutofitLayoutManager(view.context, columnWidth, GridLayoutManager.VERTICAL, false)
 
@@ -95,31 +108,24 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
         })
     }
 
+    override fun onDestroyView() {
+        if (mDialogText != null) {
+            mWindowManager?.removeView(mDialogText)
+            mDialogText = null
+        }
+        mReady = false
+
+        super.onDestroyView()
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        mDialogText = inflater.inflate(R.layout.grid_list_position, null) as TextView
-        mDialogText?.visibility = View.INVISIBLE
-        mHandler.post {
-            mReady = true
-            val lp = WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION, (
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE),
-                PixelFormat.TRANSLUCENT)
-            mWindowManager?.addView(mDialogText, lp)
-        }
 
         val activity = activity as AppCompatActivity?
         activity?.setSupportActionBar(toolbar)
     }
 
     override fun onDestroy() {
-        if (mDialogText != null) {
-            mWindowManager?.removeView(mDialogText)
-        }
         mReady = false
         super.onDestroy()
     }

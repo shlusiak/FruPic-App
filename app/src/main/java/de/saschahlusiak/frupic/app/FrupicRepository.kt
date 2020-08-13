@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.app
 
+import android.content.Context
 import android.database.Cursor
 import android.util.Log
 import androidx.annotation.MainThread
@@ -11,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import me.leolin.shortcutbadger.ShortcutBadger
 import org.json.JSONException
 import java.io.IOException
 import javax.inject.Inject
@@ -19,6 +21,7 @@ import kotlin.system.measureTimeMillis
 
 @Singleton
 class FrupicRepository @Inject constructor(
+    private val context: Context,
     private val api: FreamwareApi,
     private val db: FrupicDB
 ) {
@@ -53,12 +56,12 @@ class FrupicRepository @Inject constructor(
 
         _synchronizing.value = true
 
-        try {
+        return try {
             fetch(base, limit)
-            return true
+            true
         } catch (e: Exception) {
             e.printStackTrace()
-            return false
+            false
         } finally {
             _synchronizing.value = false
         }
@@ -84,10 +87,11 @@ class FrupicRepository @Inject constructor(
         Log.d(tag, "Fetched ${result.size} Frupics in $duration ms")
 
         measureTimeMillis {
-            withContext(Dispatchers.Default) {
+            withContext(Dispatchers.IO) {
                 withDB {
                     addFrupics(result)
                 }
+                updateBadgeCount()
             }
         }.also {
             Log.d(tag, "Stored ${result.size} Frupics in db in $it ms")
@@ -109,11 +113,12 @@ class FrupicRepository @Inject constructor(
      * Remove the [Frupic.FLAG_NEW] flag from all Frupics.
      */
     @MainThread
-    suspend fun markAllAsOld() {
+    suspend fun markAllAsSeen() {
         withContext(Dispatchers.IO) {
             withDB {
                 updateFlags(null, Frupic.FLAG_NEW, false)
             }
+            updateBadgeCount()
         }
         _lastUpdated.value = System.currentTimeMillis()
     }
@@ -128,12 +133,26 @@ class FrupicRepository @Inject constructor(
         _lastUpdated.value = System.currentTimeMillis()
     }
 
+    private suspend fun updateBadgeCount() {
+        val count = getNewFrupicCount()
+        Log.d(tag, "Updating unread badge to $count")
+        ShortcutBadger.applyCountOrThrow(context, count)
+    }
+
+    suspend fun getNewFrupicCount(): Int {
+        return withContext(Dispatchers.IO) {
+            withDB {
+                getFrupics(null, Frupic.FLAG_NEW)
+            }
+        }.use { it.count }
+    }
+
     /**
      * Runs the given block in an exclusive DB session.
      */
     private suspend fun <R> withDB(block: FrupicDB.() -> R): R {
-        dbLock.withLock {
-            return block(db)
+        return dbLock.withLock {
+            block(db)
         }
     }
 

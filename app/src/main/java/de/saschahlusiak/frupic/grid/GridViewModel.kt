@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.FrupicRepository
-import de.saschahlusiak.frupic.app.job.SynchronizeJob
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -52,7 +51,7 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
         cursor.value?.close()
 
         GlobalScope.launch(Dispatchers.Main) {
-            repository.markAllAsOld()
+            repository.markAllAsSeen()
         }
     }
 
@@ -70,7 +69,7 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
 
     fun doRefresh() {
         viewModelScope.launch {
-            repository.markAllAsOld()
+            repository.markAllAsSeen()
             repository.synchronize()
         }
     }

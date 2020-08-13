@@ -33,7 +33,6 @@ class SynchronizeJob : JobService() {
             if (repository.synchronize()) {
                 // TODO: update badge count
                 // TODO: show notification
-
             }
             jobFinished(params, false)
         }
