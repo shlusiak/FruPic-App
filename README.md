@@ -1,21 +1,52 @@
-FruPic-App
-==========
+<p align="center"><a href="https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic" target="_blank"><img src="stuff/frupic_huge.png" width="150"></a></p> 
+<h2 align="center"><b>FruPic-App</b></h2>
+<h4 align="center">Android App for <a href="http://frupic.frubar.net">http://frupic.frubar.net</a></h4>
+  
+<p align="center">
+    <a href="https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic" target="_blank">
+        <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="100"/>
+    </a>
+</p> 
+  
+<hr>
+<p align="center">
+  <a href="#description">Description</a> &bull; <a href="#donate">Donate</a> &bull; <a href="#license">License</a>
+</p>
+<p align="center">
+  <a href="http://www.saschahlusiak.de">Website</a> &bull; <a href="http://www.saschahlusiak.de/category/general/">Blog</a>
+</p>
+<hr>
 
-FruPic App for Android, a neat frontend for
-  http://frupic.frubar.net
+## Description
 
-Contains sources to compile the APK.
-Minimum API level to compile: 11
+Simple front end to show and download images from <a href="http://frupic.frubar.net">http://frupic.frubar.net</a>.
 
-Needs libraries:
-- ActionBarSherlock: http://actionbarsherlock.com/usage.html
-- Android Support Library (included)
+- Show overview of all images in a grid
+- Show full screen version of Frupic
+- Get notifications about newly uploaded Frupics
+- Upload images directly from gallery or app
+- Download and share images.
+- Star your favourite Frupics.
 
+## Donate
 
-WARNING: you need to manually set up ActionBarSherlock in order to compile!
+<table>
+  <tr>
+    <td><a href="bitcoin:bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl?amount=0.0002"><img src="https://bitcoin.org/img/icons/logotop.svg" alt="Bitcoin" width="80px"></a></td>
+    <td><a href="bitcoin:bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl?amount=0.0002"><img src="stuff/bitcoin_qr_code.png" alt="Bitcoin QR code" width="130px"></a></td>
+    <td><samp><a href="https://www.blockchain.com/btc/address/bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl">bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl</a></samp></td>
+  </tr>
+</table>
 
+## License
 
-You find official binaries in Google Play:
+FruPic for Android is Free Software: You can use, study share and improve it at your
+will. Specifically you can redistribute and/or modify it under the terms of the
+[GNU General Public License](https://www.gnu.org/licenses/gpl.html) as
+published by the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
 
-https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic
+FruPic-App is Copyright (c) by Sascha Hlusiak, 2012-2020.
 
+Email: apps@saschahlusiak.de
+GitHub: https://github.com/shlusiak/FruPicApp
