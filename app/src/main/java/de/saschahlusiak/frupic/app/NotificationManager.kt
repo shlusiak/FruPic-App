@@ -38,16 +38,16 @@ class NotificationManager @Inject constructor(
         // They are cleared when the app is launched or finished
         val new = repository.getFrupicCount(Frupic.FLAG_NEW)
 
+        if (new == 0) {
+            clearUnseenNotification()
+            return
+        }
+
         // These are the FruPics the user has not been notified about
         // I.e. FruPics remain NEW but once a notification has been shown they are SEEN
         // We clear this flag once a notification is shown, so notifications are not repeated
         val unseen = repository.getFrupicCount(Frupic.FLAG_NEW or Frupic.FLAG_NEED_NOTIFICATION)
         Log.d(tag, "Updating notification for $new unseen frupics")
-
-        if (new == 0) {
-            clearUnseenNotification()
-            return
-        }
 
         if (unseen == 0) {
             // We have already notified about all new frupics

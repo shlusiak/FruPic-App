@@ -1,5 +1,7 @@
 package de.saschahlusiak.frupic.about
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,5 +26,19 @@ class AboutFragment : AppCompatDialogFragment() {
 
         version.text = BuildConfig.VERSION_NAME
         ok.setOnClickListener { dismiss() }
+        bitcoin_link.setOnClickListener { onBitcoinClick() }
+    }
+
+    private fun onBitcoinClick() {
+        val wallet = "bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl"
+
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:$wallet"))
+            startActivity(intent)
+        }
+        catch (e: Exception) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.blockchain.com/btc/address/$wallet"))
+            startActivity(intent)
+        }
     }
 }

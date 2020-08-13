@@ -28,10 +28,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="?android:textColorSecondary"
             android:singleLine="true"
             android:text="@string/copyright"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:textColorSecondary" />
 
         <TextView
             android:layout_width="match_parent"
@@ -61,6 +61,16 @@
             android:linksClickable="true"
             android:text="https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic"
             android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/bitcoin_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="?selectableItemBackground"
+            android:text="btc:bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl"
+            android:textIsSelectable="true"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/ok"
