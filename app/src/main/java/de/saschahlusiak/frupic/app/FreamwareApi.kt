@@ -40,7 +40,7 @@ class FreamwareApi @Inject constructor() {
         return JSONArray(json).toList<JSONObject>().map { jo ->
             Frupic(
                 jo.getInt("id"),
-                Frupic.FLAG_NEW or Frupic.FLAG_NEED_NOTIFICATION,
+                Frupic.FLAG_NEW,
                 jo.getString("url"),
                 jo.getString("thumb_url"),
                 jo.getString("date"),

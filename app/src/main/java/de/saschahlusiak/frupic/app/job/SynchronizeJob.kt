@@ -10,6 +10,7 @@ import android.util.Log
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.app.NotificationManager
+import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.*
 import javax.inject.Inject
 
@@ -34,9 +35,18 @@ class SynchronizeJob : JobService() {
 
     override fun onStartJob(params: JobParameters): Boolean {
         scope.launch {
-            if (repository.synchronize()) {
-                // Only after the scheduled run do we want to show notifications
-                notificationManager.updateUnseenNotification()
+            val before = repository.getFrupicCount(Frupic.FLAG_NEW)
+            if (!repository.synchronize()) {
+                jobFinished(params, true)
+                return@launch
+            }
+
+            val after = repository.getFrupicCount(Frupic.FLAG_NEW)
+
+            if (after == 0) {
+                notificationManager.clearUnseenNotification()
+            } else if (after != before) {
+                notificationManager.updateUnseenNotification(after)
             }
             jobFinished(params, false)
         }
@@ -51,7 +61,7 @@ class SynchronizeJob : JobService() {
     companion object {
         private val tag = SynchronizeJob::class.simpleName
         private const val JOB_ID = 2
-        private const val INTERVAL_HOURS = 6
+        private const val INTERVAL_HOURS = 4
         private const val INTERVAL_MILLIS = INTERVAL_HOURS * 60 * 60 * 1000L
 
         /**
