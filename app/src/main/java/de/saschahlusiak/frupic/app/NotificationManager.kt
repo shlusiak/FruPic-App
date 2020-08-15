@@ -43,7 +43,7 @@ class NotificationManager @Inject constructor(
             color = context.getColor(R.color.brand_yellow_bright)
             setContentTitle(context.getString(R.string.refresh_service_count_text, newFrupics))
             setContentText(context.getString(R.string.refresh_service_title))
-            setSmallIcon(R.drawable.frupic_notification_new)
+            setSmallIcon(R.drawable.frupic_notification)
             setNumber(newFrupics)
             setAutoCancel(true)
             setOngoing(false)

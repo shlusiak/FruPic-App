@@ -174,7 +174,7 @@ class UploadService : IntentService("UploadService") {
         builder.setContentTitle(getString(R.string.upload_notification_title))
         builder.color = getColor(R.color.brand_yellow_bright)
         if (ongoing) {
-            builder.setSmallIcon(R.drawable.frupic_notification_wait)
+            builder.setSmallIcon(R.drawable.frupic_notification)
             builder.setContentText(getString(R.string.upload_notification_progress, current + 1, max))
             if (max > 0) {
                 val percent = (current.toFloat() + progress) / max.toFloat()
@@ -186,12 +186,12 @@ class UploadService : IntentService("UploadService") {
         } else {
             if (failed == 0) {
                 builder.setContentTitle(getString(R.string.upload_notification_title_finished))
-                builder.setSmallIcon(R.drawable.frupic_notification_success)
+                builder.setSmallIcon(R.drawable.frupic_notification)
                 builder.setContentText(getString(R.string.upload_notification_success, max))
                 builder.setTicker(getString(R.string.upload_notification_success, max))
             } else {
                 builder.setContentTitle(getString(R.string.upload_notification_title_finished))
-                /* TODO: set icon for failed uploads */builder.setSmallIcon(R.drawable.frupic_notification_failed)
+                /* TODO: set icon for failed uploads */builder.setSmallIcon(R.drawable.frupic_notification)
                 builder.setContentText(getString(R.string.upload_notification_failed, max - failed, failed))
             }
             builder.setProgress(0, 0, false)
