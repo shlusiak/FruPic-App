@@ -9,6 +9,7 @@ import android.graphics.Matrix
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import dagger.Reusable
 import de.saschahlusiak.frupic.upload.UploadService
 import kotlinx.coroutines.*
 import java.io.File
@@ -54,6 +55,7 @@ internal data class UploadJob(
     }
 }
 
+@Reusable
 class UploadManager @Inject constructor(
     val context: Context
 ) {

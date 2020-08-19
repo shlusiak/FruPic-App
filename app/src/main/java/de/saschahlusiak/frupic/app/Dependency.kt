@@ -9,6 +9,7 @@ import com.squareup.picasso.Picasso
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import dagger.Reusable
 import de.saschahlusiak.frupic.app.job.CleanupJob
 import de.saschahlusiak.frupic.app.job.SynchronizeJob
 import de.saschahlusiak.frupic.gallery.GalleryActivity
@@ -24,15 +25,19 @@ class AppModule(private val app: App) {
     @Provides
     fun getContext(): Context = app
 
+    @Reusable
     @Provides
     fun getPicasso(): Picasso = Picasso.get()
 
+    @Reusable
     @Provides
     fun getSharedPreferences(context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
+    @Reusable
     @Provides
     fun getFirebaseAnalytics(context: Context) = FirebaseAnalytics.getInstance(context)
 
+    @Reusable
     @Provides
     fun getFirebaseCrashlytics() = FirebaseCrashlytics.getInstance()
 }

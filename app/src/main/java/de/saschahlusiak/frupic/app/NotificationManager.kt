@@ -9,10 +9,12 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import dagger.Reusable
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.grid.GridActivity
 import javax.inject.Inject
 
+@Reusable
 class NotificationManager @Inject constructor(
     private val context: Context
 ) {
@@ -40,7 +42,7 @@ class NotificationManager @Inject constructor(
         val pendingIntent = PendingIntent.getActivity(context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_UNSEEN).apply {
-            color = context.getColor(R.color.brand_yellow_bright)
+            color = context.getColor(R.color.brand_yellow)
             setContentTitle(context.getString(R.string.refresh_service_count_text, newFrupics))
             setContentText(context.getString(R.string.refresh_service_title))
             setSmallIcon(R.drawable.frupic_notification)

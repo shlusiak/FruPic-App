@@ -6,7 +6,9 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import de.saschahlusiak.frupic.model.Frupic
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class FrupicDB @Inject constructor(context: Context) {
     private var db: SQLiteDatabase? = null
     private val dbHelper = FrupicDBOpenHandler(context)
