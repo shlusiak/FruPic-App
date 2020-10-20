@@ -135,23 +135,6 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
         super.onDestroy()
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        // stop while we are visible, will schedule in onStop
-        SynchronizeJob.unschedule(requireContext())
-    }
-
-    override fun onStop() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-
-        if (prefs.getBoolean("background_notifications", true)) {
-            SynchronizeJob.schedule(requireContext())
-        }
-
-        super.onStop()
-    }
-
     override fun onResume() {
         super.onResume()
         mReady = true

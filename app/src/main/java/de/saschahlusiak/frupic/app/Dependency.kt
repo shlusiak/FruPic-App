@@ -45,6 +45,8 @@ class AppModule(private val app: App) {
 @Component(modules = [AppModule::class])
 @Singleton
 interface AppComponent {
+    fun inject(app: App)
+
     fun inject(activity: GalleryActivity)
     fun inject(fragment: GridFragment)
     fun inject(viewModel: GridViewModel)
