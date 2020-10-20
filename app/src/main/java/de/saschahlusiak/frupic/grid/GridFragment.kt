@@ -264,6 +264,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             val firstVisibleItem = gridLayoutManager.findFirstVisibleItemPosition()
             val lastVisibleItem = gridLayoutManager.findLastVisibleItemPosition()
+            if (firstVisibleItem < 0) return
             val isStarred = (viewModel.starred.value == true)
             if (!isStarred && (lastVisibleItem > gridAdapter.itemCount - FRUPICS_STEP) && (lastVisibleItem > 0)) {
                 val base = gridAdapter.itemCount - FRUPICS_STEP
@@ -285,7 +286,6 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
                         mHandler.postDelayed(mRemoveWindow, 1500)
                     }
                     mPrevDate = date
-
                 }
             }
         }
