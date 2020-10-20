@@ -127,6 +127,12 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
         val inflater = menuInflater
         inflater.inflate(R.menu.gallery_optionsmenu, menu)
         this.menu = menu
+        viewModel.currentFrupic.value?.let { frupic ->
+            menu.findItem(R.id.star)?.apply {
+                setIcon(if (frupic.hasFlag(Frupic.FLAG_FAV)) R.drawable.star_label else R.drawable.star_empty)
+                isChecked = frupic.hasFlag(Frupic.FLAG_FAV)
+            }
+        }
         return super.onCreateOptionsMenu(menu)
     }
 
