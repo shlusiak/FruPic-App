@@ -11,4 +11,4 @@ fun <T> JSONArray.toSequence() = sequence {
 fun <T> JSONArray.toList(): List<T> = toSequence<T>().toList()
 
 fun Cursor.getInt(columnName: String) = getInt(getColumnIndexOrThrow(columnName))
-fun Cursor.getString(columnName: String) = getString(getColumnIndexOrThrow(columnName))
+fun Cursor.getString(columnName: String): String = getString(getColumnIndexOrThrow(columnName))

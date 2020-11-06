@@ -52,7 +52,7 @@ fun createDetailDialog(context: Context, storage: FrupicStorage, frupic: Frupic)
     val items = listOf(
         DetailItem(context.getString(R.string.details_posted_by), frupic.username ?: ""),
         DetailItem(context.getString(R.string.details_tags), frupic.tagsString),
-        DetailItem(context.getString(R.string.details_date), frupic.date ?: ""),
+        DetailItem(context.getString(R.string.details_date), frupic.date),
         DetailItem(context.getString(R.string.details_size), size),
         DetailItem("URL", frupic.fullUrl)
     )

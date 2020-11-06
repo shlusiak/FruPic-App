@@ -22,7 +22,7 @@ class Frupic(
     var flags: Int,
     val fullUrl: String,
     val thumbUrl: String,
-    val date: String?,
+    val date: String,
     val username: String?,
     val tags: List<String>
 ) : Serializable {
@@ -42,7 +42,7 @@ class Frupic(
         thumbUrl = cursor.getString(FrupicDB.THUMBURL_ID),
         date = cursor.getString(FrupicDB.DATE_ID),
         username = cursor.getString(FrupicDB.USERNAME_ID),
-        tags = cursor.getString(FrupicDB.TAGS_ID)?.split(", ") ?: emptyList()
+        tags = cursor.getString(FrupicDB.TAGS_ID).split(", ")
     )
 
     fun hasFlag(flag: Int) = (flags and flag) != 0

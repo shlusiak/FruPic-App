@@ -62,22 +62,28 @@
             android:text="https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <TextView
-            android:id="@+id/bitcoin_link"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="?selectableItemBackground"
-            android:text="btc:bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl"
-            android:textIsSelectable="true"
-            android:textSize="12sp" />
+            android:layout_marginTop="20dp"
+            android:gravity="right|center_vertical"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/ok"
-            android:layout_width="124dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@android:string/ok" />
 
+            <Button
+                android:id="@+id/bitcoin_link"
+                style="?borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="@string/donate_bitcoin" />
+
+            <Button
+                android:id="@+id/ok"
+                android:layout_width="124dp"
+                android:layout_height="wrap_content"
+                android:text="@android:string/ok" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

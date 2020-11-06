@@ -258,7 +258,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
             if (mReady) {
                 gridAdapter.getItem(firstVisibleItem)?.let { first ->
                     // Cut out YYYY-MM-DD
-                    val date = first.date?.substring(0, 10) ?: ""
+                    val date = first.date.substring(0, 10)
                     if (!mShowing && date != mPrevDate && (lastScrollState != RecyclerView.SCROLL_STATE_IDLE)) {
                         mShowing = true
                         mDialogText?.visibility = View.VISIBLE

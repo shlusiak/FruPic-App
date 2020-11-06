@@ -61,6 +61,13 @@
         </PreferenceScreen>
 
         <PreferenceScreen
+            android:key="donate_bitcoin"
+            android:summary="btc:bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl"
+            android:title="@string/donate_bitcoin"
+            app:iconSpaceReserved="false">
+        </PreferenceScreen>
+
+        <PreferenceScreen
             android:key="about"
             android:summary="@string/copyright"
             android:title="@string/about"
