@@ -1,6 +1,7 @@
 package de.saschahlusiak.frupic.upload
 
 import android.app.IntentService
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -56,6 +57,7 @@ class UploadService : IntentService("UploadService") {
         Log.d(tag, "onCreate")
         (applicationContext as App).appComponent.inject(this)
 
+        setIntentRedelivery(true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel()
@@ -69,11 +71,11 @@ class UploadService : IntentService("UploadService") {
         failed = 0
 
         // for the duration of this service we have an ongoing notification
-        updateNotification(true, 0.0f)
+        val notification = updateNotification(true, 0.0f)
+        startForeground(NOTIFICATION_ID, notification)
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         Log.d(tag, "onDestroy")
 
         updateNotification(false, 0.0f)
@@ -82,6 +84,8 @@ class UploadService : IntentService("UploadService") {
         GlobalScope.launch(Dispatchers.Main) {
             repository.synchronize(0, 100)
         }
+
+        super.onDestroy()
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -168,7 +172,7 @@ class UploadService : IntentService("UploadService") {
     }
 
     @Synchronized
-    private fun updateNotification(ongoing: Boolean, progress: Float) {
+    private fun updateNotification(ongoing: Boolean, progress: Float): Notification {
         val builder = NotificationCompat.Builder(this, CHANNEL_UPLOAD)
 
         builder.setContentTitle(getString(R.string.upload_notification_title))
@@ -182,6 +186,7 @@ class UploadService : IntentService("UploadService") {
             }
             builder.setAutoCancel(false)
             builder.setOngoing(true)
+
             /* TODO: provide intent to see progress dialog and support for cancel */
         } else {
             if (failed == 0) {
@@ -201,7 +206,10 @@ class UploadService : IntentService("UploadService") {
 
         // TODO: set progress dialog intent when ongoing
         builder.setContentIntent(pendingIntent)
-        notificationManager.notify(NOTIFICATION_ID, builder.build())
+
+        return builder.build().also {
+            notificationManager.notify(NOTIFICATION_ID, it)
+        }
     }
 
     companion object {
