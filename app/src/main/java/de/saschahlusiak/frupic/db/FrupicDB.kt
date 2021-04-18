@@ -73,12 +73,17 @@ class FrupicDB @Inject constructor(context: Context) {
         return true
     }
 
-    fun getFrupics(username: String?, flagmask: Int): Cursor {
+    /**
+     * @param username filter by this username
+     * @param flagMask mask to only return frupics that have this flag set
+     * @param flagMaskValue value to compare the flags with, after applying the mask
+     */
+    fun getFrupics(username: String?, flagMask: Int, flagMaskValue: Int = flagMask): Cursor {
         val db = requireNotNull(db) { "DB is not open" }
         var where = ""
         if (username != null) where += "$USERNAME_ID=$username"
         if (where != "") where += " AND "
-        where += "($FLAGS_ID&$flagmask) = $flagmask"
+        where += "($FLAGS_ID&$flagMask) = ${flagMaskValue and flagMask}"
 
         return db.query(TABLE, null, where, null, null, null, "$ID_ID DESC", null)
     }

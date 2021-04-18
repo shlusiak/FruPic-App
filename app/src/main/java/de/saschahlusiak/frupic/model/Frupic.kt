@@ -56,5 +56,6 @@ class Frupic(
         const val FLAG_NEW = 0x01
         const val FLAG_FAV = 0x02
         const val FLAG_UNUSED = 0x04
+        const val FLAG_HIDDEN = 0x08
     }
 }
