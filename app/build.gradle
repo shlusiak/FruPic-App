@@ -1,7 +1,8 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         google()
+        jcenter()
     }
     dependencies {
         // https://developers.google.com/android/guides/releases
@@ -13,8 +14,9 @@ buildscript {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
     google()
+    jcenter()
 }
 
 apply plugin: 'com.android.application'
