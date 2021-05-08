@@ -69,20 +69,31 @@
             android:gravity="center_horizontal|center_vertical"
             android:orientation="horizontal">
 
-
             <Button
                 android:id="@+id/bitcoin_link"
                 style="?borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_marginRight="8dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:text="@string/donate_bitcoin" />
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                android:text="@string/bitcoin"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/litecoin_link"
+                style="?borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                android:text="@string/litecoin"
+                android:textSize="12sp" />
 
             <Button
                 android:id="@+id/ok"
-                android:layout_width="124dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@android:string/ok" />
         </LinearLayout>
     </LinearLayout>

@@ -25,11 +25,13 @@ class AboutFragment : AppCompatDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         version.text = BuildConfig.VERSION_NAME
+
         ok.setOnClickListener { dismiss() }
-        bitcoin_link.setOnClickListener { onBitcoinClick() }
+        bitcoin_link.setOnClickListener { onDonateBitcoinClick() }
+        litecoin_link.setOnClickListener { onDonateLitecoinClick() }
     }
 
-    private fun onBitcoinClick() {
+    private fun onDonateBitcoinClick() {
         val wallet = "bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl"
 
         try {
@@ -38,6 +40,20 @@ class AboutFragment : AppCompatDialogFragment() {
         }
         catch (e: Exception) {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.blockchain.com/btc/address/$wallet"))
+            startActivity(intent)
+        }
+    }
+
+
+    private fun onDonateLitecoinClick() {
+        val wallet = "Lh3YTC7Tv4edEe48kHMbyhgE6BNH22bqBt"
+
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("litecoin:$wallet"))
+            startActivity(intent)
+        }
+        catch (e: Exception) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.blockchain.com/ltc/address/$wallet"))
             startActivity(intent)
         }
     }

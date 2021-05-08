@@ -37,6 +37,24 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="@string/donate"
+        app:iconSpaceReserved="false">
+
+        <PreferenceScreen
+            android:key="donate_bitcoin"
+            android:summary="btc:bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl"
+            android:title="@string/donate_bitcoin"
+            app:iconSpaceReserved="false" />
+
+        <PreferenceScreen
+            android:key="donate_litecoin"
+            android:summary="ltc:Lh3YTC7Tv4edEe48kHMbyhgE6BNH22bqBt"
+            android:title="@string/donate_litecoin"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/about"
         app:iconSpaceReserved="false">
 
@@ -61,17 +79,9 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="donate_bitcoin"
-            android:summary="btc:bc1qdgm2zvlc6qzqh8qs44wv8l622tfrhvkjqn0fkl"
-            android:title="@string/donate_bitcoin"
-            app:iconSpaceReserved="false">
-        </PreferenceScreen>
-
-        <PreferenceScreen
             android:key="about"
             android:summary="@string/copyright"
             android:title="@string/about"
-            app:iconSpaceReserved="false">
-        </PreferenceScreen>
+            app:iconSpaceReserved="false"></PreferenceScreen>
     </PreferenceCategory>
 </PreferenceScreen>
