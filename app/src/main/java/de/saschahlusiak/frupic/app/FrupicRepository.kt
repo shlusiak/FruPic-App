@@ -105,7 +105,7 @@ class FrupicRepository @Inject constructor(
             val mask = if (starred) Frupic.FLAG_FAV else 0
             return@withContext withDB {
                 // only return pics that do NOT have the FLAG_HIDDEN flag set to 1
-                getFrupics(null, Frupic.FLAG_HIDDEN and mask, Frupic.FLAG_FAV)
+                getFrupics(null, Frupic.FLAG_HIDDEN or mask, Frupic.FLAG_FAV)
             }
         }
     }
