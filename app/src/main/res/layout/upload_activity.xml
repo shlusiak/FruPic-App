@@ -124,7 +124,7 @@
         tools:text="123 kb" />
 
     <Button
-        android:id="@android:id/closeButton"
+        android:id="@+id/closeButton"
         style="?borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
