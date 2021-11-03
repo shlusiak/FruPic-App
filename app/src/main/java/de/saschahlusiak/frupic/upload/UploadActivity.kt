@@ -25,7 +25,7 @@ class UploadActivity : AppCompatActivity(R.layout.upload_activity), View.OnClick
 
     private val viewModel: UploadActivityViewModel by viewModels {
         object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
                 return UploadActivityViewModel(application, intent) as T
             }
@@ -102,7 +102,7 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
      */
     private var images = emptyList<PreparedImage>()
 
-    val filenameText = MutableLiveData<String>(null)
+    val filenameText = MutableLiveData<String?>(null)
     val okEnabled = MutableLiveData(false)
     val inProgress = MutableLiveData(true)
     val preview = MutableLiveData<File>()
