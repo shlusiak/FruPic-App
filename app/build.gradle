@@ -9,7 +9,7 @@ buildscript {
         classpath 'com.google.gms:google-services:4.3.10'
 
         // https://firebase.google.com/support/release-notes/android
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.6.1'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
     }
 }
 
@@ -33,8 +33,8 @@ android {
     defaultConfig {
         applicationId "de.saschahlusiak.frupic"
 
-        minSdkVersion 23
-        targetSdkVersion 31
+        minSdk 23
+        targetSdk 31
 
         versionCode 38
         versionName "1.4.0"
@@ -49,28 +49,28 @@ android {
 }
 
 dependencies {
-    def dagger_version = '2.39'
+    def dagger_version = '2.40.5'
     def lifecycle_version = '2.4.0'
-    def fragment_version = '1.3.6'
+    def fragment_version = '1.4.0'
     def picasso_version = '2.71828'
 
-    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
     // https://mvnrepository.com/artifact/androidx.swiperefreshlayout/swiperefreshlayout
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     // https://mvnrepository.com/artifact/androidx.viewpager/viewpager
     implementation 'androidx.viewpager:viewpager:1.0.0'
-    implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'com.google.android.material:material:1.4.0'
     // https://mvnrepository.com/artifact/androidx.annotation/annotation
-    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation 'androidx.annotation:annotation:1.3.0'
     // https://mvnrepository.com/artifact/androidx.recyclerview/recyclerview
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
     // https://firebase.google.com/support/release-notes/android
-    implementation 'com.google.firebase:firebase-analytics:20.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.2.4'
+    implementation 'com.google.firebase:firebase-analytics:20.0.2'
+    implementation 'com.google.firebase:firebase-crashlytics:18.2.6'
 
     // Fragment
     implementation "androidx.fragment:fragment-ktx:$fragment_version"
