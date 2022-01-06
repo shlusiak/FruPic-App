@@ -51,7 +51,7 @@ will. Specifically you can redistribute and/or modify it under the terms of the
 published by the Free Software Foundation, either version 2 of the License, or
 (at your option) any later version.
 
-FruPic-App is Copyright (c) by Sascha Hlusiak, 2012-2021.
+FruPic-App is Copyright (c) by Sascha Hlusiak, 2012-2022.
 
 Email: apps@saschahlusiak.de
 GitHub: https://github.com/shlusiak/FruPicApp
