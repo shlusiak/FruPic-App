@@ -39,7 +39,7 @@ class NotificationManager @Inject constructor(
         }
 
         val intent = Intent(context, GridActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getActivity(context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_UNSEEN).apply {
             color = context.getColor(R.color.brand_yellow)

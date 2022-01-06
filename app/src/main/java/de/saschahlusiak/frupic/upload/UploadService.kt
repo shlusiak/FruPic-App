@@ -64,7 +64,7 @@ class UploadService : IntentService("UploadService") {
         }
 
         val intent = Intent(this, GridActivity::class.java)
-        pendingIntent = PendingIntent.getActivity(applicationContext, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        pendingIntent = PendingIntent.getActivity(applicationContext, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         max = 0
         current = 0
