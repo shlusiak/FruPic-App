@@ -53,11 +53,6 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
         super.onCleared()
 
         cursor.value?.close()
-
-        GlobalScope.launch(Dispatchers.Main) {
-            repository.removeFlags(Frupic.FLAG_NEW)
-            notificationManager.clearUnseenNotification()
-        }
     }
 
     fun toggleShowStarred() {

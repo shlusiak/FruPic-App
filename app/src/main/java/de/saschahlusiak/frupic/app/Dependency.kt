@@ -14,6 +14,7 @@ import de.saschahlusiak.frupic.app.job.CleanupJob
 import de.saschahlusiak.frupic.app.job.SynchronizeJob
 import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.gallery.GalleryViewModel
+import de.saschahlusiak.frupic.grid.GridActivity
 import de.saschahlusiak.frupic.grid.GridFragment
 import de.saschahlusiak.frupic.grid.GridViewModel
 import de.saschahlusiak.frupic.upload.UploadActivityViewModel
@@ -47,6 +48,7 @@ class AppModule(private val app: App) {
 interface AppComponent {
     fun inject(app: App)
 
+    fun inject(activity: GridActivity)
     fun inject(activity: GalleryActivity)
     fun inject(fragment: GridFragment)
     fun inject(viewModel: GridViewModel)
