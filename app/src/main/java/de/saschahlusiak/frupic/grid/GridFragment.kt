@@ -123,6 +123,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
         super.onDestroyView()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
@@ -148,16 +149,19 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
         super.onPause()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.grid_optionsmenu, menu)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         menu.findItem(R.id.starred).setIcon(if (viewModel.starred.value == true) R.drawable.star_label else R.drawable.star_empty)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val intent: Intent
         when (item.itemId) {

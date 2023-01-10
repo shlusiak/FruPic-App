@@ -51,6 +51,7 @@ class UploadService : IntentService("UploadService") {
     private val notificationManager by lazy { NotificationManagerCompat.from(this) }
     private lateinit var pendingIntent: PendingIntent
 
+    @Deprecated("Deprecated in Java")
     override fun onCreate() {
         super.onCreate()
 
@@ -75,6 +76,7 @@ class UploadService : IntentService("UploadService") {
         startForeground(NOTIFICATION_ID, notification)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onDestroy() {
         Log.d(tag, "onDestroy")
 

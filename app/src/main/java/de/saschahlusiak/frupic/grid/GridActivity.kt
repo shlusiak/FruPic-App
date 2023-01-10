@@ -31,6 +31,7 @@ class GridActivity : AppCompatActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         GlobalScope.launch(Dispatchers.Main) {
             repository.removeFlags(Frupic.FLAG_NEW)
