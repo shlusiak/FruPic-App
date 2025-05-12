@@ -27,16 +27,19 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.App
+import de.saschahlusiak.frupic.databinding.GalleryActivityBinding
 import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.model.Frupic
-import kotlinx.android.synthetic.main.gallery_activity.*
 import javax.inject.Inject
+import androidx.core.net.toUri
 
-class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChangeListener {
+class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
     private var adapter: GalleryAdapter? = null
     private var fadeAnimation: Animation? = null
     private var menu: Menu? = null
     private val viewModel: GalleryViewModel by viewModels()
+
+    private lateinit var binding: GalleryActivityBinding
 
     @Inject
     lateinit var analytics: FirebaseAnalytics
@@ -47,8 +50,10 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (application as App).appComponent.inject(this)
+        binding = GalleryActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowHomeEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -63,25 +68,25 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
 
             setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationStart(animation: Animation) {
-                    url.visibility = View.VISIBLE
+                    binding.url.visibility = View.VISIBLE
                 }
 
                 override fun onAnimationRepeat(animation: Animation) {}
                 override fun onAnimationEnd(animation: Animation) {
                     /* hide URL view, because with alpha of 0, it's still clickable */
-                    url.visibility = View.INVISIBLE
+                    binding.url.visibility = View.INVISIBLE
                 }
             })
         }
-        viewPager.addOnPageChangeListener(this)
+        binding.viewPager.addOnPageChangeListener(this)
 
         val animateGifs = prefs.getBoolean("animatedgifs", true)
         adapter = GalleryAdapter(this, animateGifs, viewModel.storage, viewModel.downloadManager)
-        viewPager.adapter = adapter
+        binding.viewPager.adapter = adapter
 
         viewModel.cursor.observe(this, Observer { cursor: Cursor ->
             adapter?.setCursor(cursor)
-            viewPager.setCurrentItem(viewModel.position, false)
+            binding.viewPager.setCurrentItem(viewModel.position, false)
         })
 
         viewModel.currentFrupic.observe(this, Observer { frupic: Frupic -> updateLabels(frupic) })
@@ -94,11 +99,11 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
     fun toggleControls() {
         if (supportActionBar?.isShowing == true) {
             supportActionBar?.hide()
-            all_controls.startAnimation(fadeAnimation)
+            binding.allControls.startAnimation(fadeAnimation)
         } else {
             supportActionBar?.show()
-            all_controls.clearAnimation()
-            url.visibility = View.VISIBLE
+            binding.allControls.clearAnimation()
+            binding.url.visibility = View.VISIBLE
         }
     }
 
@@ -137,6 +142,8 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
         when (requestCode) {
             RC_WRITE_EXTERNAL_STORAGE_PERMISSION -> if (grantResults.isNotEmpty() && PackageManager.PERMISSION_GRANTED == grantResults[0]) {
                 Log.i(tag, "permission granted")
@@ -160,7 +167,7 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
         /* Make sure, destination directory exists */
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs()
         val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        val req = DownloadManager.Request(Uri.parse(frupic.fullUrl))
+        val req = DownloadManager.Request(frupic.fullUrl.toUri())
         req.setVisibleInDownloadsUi(true)
         req.allowScanningByMediaScanner()
         req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
@@ -181,7 +188,7 @@ class GalleryActivity : AppCompatActivity(R.layout.gallery_activity), OnPageChan
             }
             R.id.openinbrowser -> {
                 analytics.logEvent("frupic_open_in_browser", null)
-                intent = Intent(Intent.ACTION_VIEW, Uri.parse(frupic.url))
+                intent = Intent(Intent.ACTION_VIEW, frupic.url.toUri())
                 startActivity(intent)
                 true
             }

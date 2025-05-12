@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
@@ -24,13 +23,12 @@ import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.about.AboutFragment
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.NotificationManager
-import de.saschahlusiak.frupic.app.job.SynchronizeJob
+import de.saschahlusiak.frupic.databinding.GridFragmentBinding
 import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.preferences.FrupicPreferencesActivity
 import de.saschahlusiak.frupic.upload.UploadActivity
-import kotlinx.android.synthetic.main.grid_fragment.*
 import javax.inject.Inject
 
 class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickListener, OnRefreshListener {
@@ -51,6 +49,8 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
     @Inject
     lateinit var notificationManager: NotificationManager
 
+    lateinit var binding: GridFragmentBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,7 +65,9 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        swipeRefreshLayout.setOnRefreshListener(this)
+        binding = GridFragmentBinding.bind(view)
+
+        binding.swipeRefreshLayout.setOnRefreshListener(this)
 
         mDialogText = layoutInflater.inflate(R.layout.grid_list_position, null) as TextView
         mDialogText?.visibility = View.INVISIBLE
@@ -84,13 +86,13 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
         gridLayoutManager = GridAutofitLayoutManager(view.context, columnWidth, GridLayoutManager.VERTICAL, false)
 
         gridAdapter = GridAdapter(this@GridFragment)
-        gridView.apply {
+        binding.gridView.apply {
             layoutManager = gridLayoutManager
             adapter = gridAdapter
             addOnScrollListener(scrollListener)
         }
 
-        upload.setOnClickListener {
+        binding.upload.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(Intent.createChooser(intent, getString(R.string.upload)), REQUEST_PICK_PICTURE)
@@ -101,7 +103,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
         })
 
         viewModel.synchronizing.observe(viewLifecycleOwner, Observer { synchronizing ->
-            swipeRefreshLayout.isRefreshing = (synchronizing)
+            binding.swipeRefreshLayout.isRefreshing = (synchronizing)
         })
 
         viewModel.cursor.observe(viewLifecycleOwner, Observer { cursor ->
@@ -128,7 +130,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
         super.onActivityCreated(savedInstanceState)
 
         val activity = activity as AppCompatActivity?
-        activity?.setSupportActionBar(toolbar)
+        activity?.setSupportActionBar(binding.toolbar)
     }
 
     override fun onDestroy() {

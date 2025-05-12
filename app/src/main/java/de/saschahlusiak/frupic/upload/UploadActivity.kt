@@ -16,7 +16,7 @@ import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.PreparedImage
 import de.saschahlusiak.frupic.app.UploadManager
-import kotlinx.android.synthetic.main.upload_activity.*
+import de.saschahlusiak.frupic.databinding.UploadActivityBinding
 import kotlinx.coroutines.*
 import java.io.File
 import javax.inject.Inject
@@ -32,50 +32,61 @@ class UploadActivity : AppCompatActivity(R.layout.upload_activity), View.OnClick
         }
     }
 
+    private lateinit var binding: UploadActivityBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
 
         super.onCreate(savedInstanceState)
+
+        binding = UploadActivityBinding.inflate(layoutInflater)
 
         if (intent == null) {
             finish()
             return
         }
 
-        viewModel.filenameText.observe(this, Observer { filename.text = it })
-        viewModel.okEnabled.observe(this, Observer { upload.isEnabled = it })
-        viewModel.preview.observe(this, Observer { file ->
-            Picasso.get()
-                .load(file)
-                .fit()
-                .centerInside()
-                .into(preview)
-        })
-        viewModel.inProgress.observe(this, Observer { inProgress ->
-            progress.visibility = if (inProgress) View.VISIBLE else View.GONE
-            title_label.visibility = if (inProgress) View.INVISIBLE else View.VISIBLE
-        })
-        viewModel.sizeLabel.observe(this, Observer { value ->
-            fileSize.text = value
-        })
+        with(binding) {
+            viewModel.filenameText.observe(this@UploadActivity, Observer { filename.text = it })
+            viewModel.okEnabled.observe(this@UploadActivity, Observer { upload.isEnabled = it })
+            viewModel.preview.observe(this@UploadActivity, Observer { file ->
+                Picasso.get()
+                    .load(file)
+                    .fit()
+                    .centerInside()
+                    .into(preview)
+            })
+            viewModel.inProgress.observe(this@UploadActivity, Observer { inProgress ->
+                progress.visibility = if (inProgress) View.VISIBLE else View.GONE
+                titleLabel.visibility = if (inProgress) View.INVISIBLE else View.VISIBLE
+            })
+            viewModel.sizeLabel.observe(this@UploadActivity, Observer { value ->
+                fileSize.text = value
+            })
 
-        closeButton.setOnClickListener { finish() }
-        upload.setOnClickListener(this)
+            closeButton.setOnClickListener { finish() }
+            upload.setOnClickListener(this@UploadActivity)
 
-        image_resize_checkbox.isChecked = viewModel.resizeImages
-        image_resize_checkbox.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setResize(isChecked)
+            imageResizeCheckbox.isChecked = viewModel.resizeImages
+            imageResizeCheckbox.setOnCheckedChangeListener { _, isChecked ->
+                viewModel.setResize(isChecked)
+            }
+
+            val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
+
+            if (prefs.getString("username", "") !== "") username.setText(
+                prefs.getString(
+                    "username",
+                    null
+                )
+            )
         }
-
-        val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
-
-        if (prefs.getString("username", "") !== "") username.setText(prefs.getString("username", null))
     }
 
     override fun onClick(v: View) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
-        val username = username.text.toString()
-        val tags = tags.text.toString().ifBlank { "via:android" }
+        val username = binding.username.text.toString()
+        val tags = binding.tags.text.toString().ifBlank { "via:android" }
 
         prefs.edit()
             .putString("username", username)

@@ -5,7 +5,6 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.squareup.picasso.Picasso
 import de.saschahlusiak.frupic.R
-import kotlinx.android.synthetic.main.preferences_activity.*
 
 class FrupicPreferencesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +12,7 @@ class FrupicPreferencesActivity : AppCompatActivity() {
 
         setContentView(R.layout.preferences_activity)
 
-        setSupportActionBar(toolbar)
+        setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val picasso = Picasso.get()

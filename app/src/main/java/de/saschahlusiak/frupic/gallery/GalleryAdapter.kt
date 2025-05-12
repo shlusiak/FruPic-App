@@ -3,7 +3,6 @@ package de.saschahlusiak.frupic.gallery
 import android.database.Cursor
 import android.net.Uri
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
@@ -15,8 +14,8 @@ import de.saschahlusiak.frupic.app.DownloadJob
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.Result
+import de.saschahlusiak.frupic.databinding.GalleryItemBinding
 import de.saschahlusiak.frupic.model.Frupic
-import kotlinx.android.synthetic.main.gallery_item.view.*
 import java.io.*
 import java.util.*
 
@@ -24,15 +23,15 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
     private var cursor: Cursor? = null
 
     inner class ViewHolder(
-        val containerView: View,
+        val binding: GalleryItemBinding,
         val frupic: Frupic
     ) {
-        private val progressLayout = containerView.progressLayout
-        private val stopButton = containerView.stopButton
-        private val progressBar = containerView.progressBar
-        private val progressText = containerView.progress
-        private val image = containerView.imageView
-        private val video = containerView.videoView
+        private val progressLayout = binding.progressLayout
+        private val stopButton = binding.stopButton
+        private val progressBar = binding.progressBar
+        private val progressText = binding.progress
+        private val image = binding.imageView
+        private val video = binding.videoView
 
         init {
             progressBar.apply {
@@ -49,7 +48,7 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
         }
 
         private fun newFrupic(frupic: Frupic) {
-            if (showFrupic(containerView, frupic)) {
+            if (showFrupic(binding.root, frupic)) {
                 // loaded and shown, otherwise download
                 progressLayout.visibility = View.GONE
             } else {
@@ -72,7 +71,7 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
 
                         else -> {
                             progressLayout.visibility = View.GONE
-                            if (!showFrupic(containerView, frupic)) {
+                            if (!showFrupic(binding.root, frupic)) {
                                 image.visibility = View.VISIBLE
                                 video.visibility = View.GONE
                                 image.setImage(ImageSource.resource(R.drawable.broken_frupic))
@@ -177,20 +176,18 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
         Log.w(tag, "instantiateItem($position)")
         cursor.moveToPosition(position)
         val frupic = Frupic(cursor)
-        val view = LayoutInflater.from(activity).inflate(R.layout.gallery_item, container, false)
-        val i = view.findViewById<View>(R.id.imageView) as SubsamplingScaleImageView
-        val v = view.findViewById<View>(R.id.videoView) as GifMovieView
-        i.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
+        val binding = GalleryItemBinding.inflate(activity.layoutInflater, container, false)
+        binding.imageView.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
 
         val l = View.OnClickListener { activity.toggleControls() }
-        i.setOnClickListener(l)
-        v.setOnClickListener(l)
-        view.setOnClickListener(l)
-        val holder = ViewHolder(view, frupic)
+        binding.imageView.setOnClickListener(l)
+        binding.videoView.setOnClickListener(l)
+        binding.root.setOnClickListener(l)
+        val holder = ViewHolder(binding, frupic)
 
-        view.tag = holder
+        binding.root.tag = holder
 
-        container.addView(view)
+        container.addView(binding.root)
         return holder
     }
 
@@ -198,7 +195,7 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
         Log.w(tag, "destroyItem($position)")
         val holder = `object` as ViewHolder
         downloadManager.cancel(holder.frupic)
-        container.removeView(holder.containerView)
+        container.removeView(holder.binding.root)
     }
 
     override fun getItemPosition(`object`: Any): Int {
@@ -220,7 +217,7 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
     }
 
     override fun isViewFromObject(view: View, `object`: Any): Boolean {
-        return view === (`object` as ViewHolder).containerView
+        return view === (`object` as ViewHolder).binding.root
     }
 
     companion object {

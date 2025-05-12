@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDialogFragment
 import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.R
-import kotlinx.android.synthetic.main.about_activity.*
+import de.saschahlusiak.frupic.databinding.AboutActivityBinding
 
 class AboutFragment : AppCompatDialogFragment() {
     override fun getTheme() = R.style.AppTheme_Dialog
@@ -24,11 +24,15 @@ class AboutFragment : AppCompatDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        version.text = BuildConfig.VERSION_NAME
+        val binding = AboutActivityBinding.bind(view)
 
-        ok.setOnClickListener { dismiss() }
-        bitcoin_link.setOnClickListener { onDonateBitcoinClick() }
-        litecoin_link.setOnClickListener { onDonateLitecoinClick() }
+        with(binding) {
+            version.text = BuildConfig.VERSION_NAME
+
+            ok.setOnClickListener { dismiss() }
+            bitcoinLink.setOnClickListener { onDonateBitcoinClick() }
+            litecoinLink.setOnClickListener { onDonateLitecoinClick() }
+        }
     }
 
     private fun onDonateBitcoinClick() {
