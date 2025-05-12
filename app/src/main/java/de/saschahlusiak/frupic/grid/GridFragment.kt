@@ -19,9 +19,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.google.firebase.analytics.FirebaseAnalytics
+import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.about.AboutFragment
-import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.NotificationManager
 import de.saschahlusiak.frupic.databinding.GridFragmentBinding
 import de.saschahlusiak.frupic.detail.createDetailDialog
@@ -31,6 +31,7 @@ import de.saschahlusiak.frupic.preferences.FrupicPreferencesActivity
 import de.saschahlusiak.frupic.upload.UploadActivity
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickListener, OnRefreshListener {
     private val mRemoveWindow = Runnable { removeWindow() }
     private val mHandler = Handler()
@@ -53,9 +54,6 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val app = requireContext().applicationContext as App
-        app.appComponent.inject(this)
 
         mWindowManager = requireContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager
 

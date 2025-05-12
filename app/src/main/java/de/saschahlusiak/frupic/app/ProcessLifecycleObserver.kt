@@ -7,13 +7,14 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.preference.PreferenceManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saschahlusiak.frupic.app.job.SynchronizeJob
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ProcessLifecycleObserver @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) : LifecycleObserver {
     private val tag = ProcessLifecycleObserver::class.java.simpleName
     private var isObservingLifecycle = false

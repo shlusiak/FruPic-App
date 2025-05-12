@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import com.squareup.picasso.Picasso
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.PreparedImage
@@ -21,13 +23,17 @@ import kotlinx.coroutines.*
 import java.io.File
 import javax.inject.Inject
 
-class UploadActivity : AppCompatActivity(R.layout.upload_activity), View.OnClickListener {
+@AndroidEntryPoint
+class UploadActivity : AppCompatActivity(), View.OnClickListener {
+
+    @Inject
+    lateinit var manager: UploadManager
 
     private val viewModel: UploadActivityViewModel by viewModels {
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
-                return UploadActivityViewModel(application, intent) as T
+                return UploadActivityViewModel(application, intent, manager) as T
             }
         }
     }
@@ -40,6 +46,7 @@ class UploadActivity : AppCompatActivity(R.layout.upload_activity), View.OnClick
         super.onCreate(savedInstanceState)
 
         binding = UploadActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         if (intent == null) {
             finish()
@@ -101,7 +108,11 @@ class UploadActivity : AppCompatActivity(R.layout.upload_activity), View.OnClick
     }
 }
 
-class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewModel(app) {
+class UploadActivityViewModel(
+    app: Application,
+    intent: Intent,
+    val manager: UploadManager
+) : ViewModel() {
     private val tag = UploadActivityViewModel::class.simpleName
     private val context = app
 
@@ -121,21 +132,18 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
 
     private var hasSubmitted = false
 
-    @Inject
-    lateinit var manager: UploadManager
-
     init {
-        (app as App).appComponent.inject(this)
-
         val sources = when (intent.action) {
             Intent.ACTION_SEND -> {
                 val uri = intent.extras?.get(Intent.EXTRA_STREAM) as? Uri
                 uri?.let { listOf(it) } ?: emptyList()
             }
+
             Intent.ACTION_SEND_MULTIPLE -> {
                 @Suppress("UNCHECKED_CAST")
                 intent.extras?.get(Intent.EXTRA_STREAM) as? List<Uri> ?: emptyList()
             }
+
             else -> emptyList()
         }
 
@@ -189,7 +197,8 @@ class UploadActivityViewModel(app: Application, intent: Intent) : AndroidViewMod
         var result = "${sizeTotal / 1024} kB"
         if (images.size == 1) {
             val first = images.first()
-            val image = if (resizeImages) first.resized.await() ?: first.original else first.original
+            val image =
+                if (resizeImages) first.resized.await() ?: first.original else first.original
             result += " (${image.width}x${image.height})"
         }
 

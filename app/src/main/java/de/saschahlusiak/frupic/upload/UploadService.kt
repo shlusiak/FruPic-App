@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.analytics.FirebaseAnalytics
+import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FreamwareApi
@@ -23,6 +24,7 @@ import kotlinx.coroutines.*
 import java.io.*
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class UploadService : IntentService("UploadService") {
     private val tag = UploadService::class.java.simpleName
 
@@ -56,7 +58,6 @@ class UploadService : IntentService("UploadService") {
         super.onCreate()
 
         Log.d(tag, "onCreate")
-        (applicationContext as App).appComponent.inject(this)
 
         setIntentRedelivery(true)
 

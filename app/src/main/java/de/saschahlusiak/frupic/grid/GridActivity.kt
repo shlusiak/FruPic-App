@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.grid
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.app.NotificationManager
@@ -11,6 +12,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class GridActivity : AppCompatActivity() {
     @Inject
     lateinit var repository: FrupicRepository
@@ -20,8 +22,6 @@ class GridActivity : AppCompatActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        (applicationContext as App).appComponent.inject(this)
 
         if (savedInstanceState == null) {
             supportFragmentManager

@@ -32,7 +32,11 @@ import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.model.Frupic
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import dagger.hilt.android.AndroidEntryPoint
+import de.saschahlusiak.frupic.app.FrupicStorage
 
+@AndroidEntryPoint
 class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
     private var adapter: GalleryAdapter? = null
     private var fadeAnimation: Animation? = null
@@ -47,9 +51,14 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
     @Inject
     lateinit var prefs: SharedPreferences
 
+    @Inject
+    lateinit var storage: FrupicStorage
+
+    @Inject
+    lateinit var crashlytics: FirebaseCrashlytics
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (application as App).appComponent.inject(this)
         binding = GalleryActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -81,7 +90,7 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
         binding.viewPager.addOnPageChangeListener(this)
 
         val animateGifs = prefs.getBoolean("animatedgifs", true)
-        adapter = GalleryAdapter(this, animateGifs, viewModel.storage, viewModel.downloadManager)
+        adapter = GalleryAdapter(this, animateGifs, storage, viewModel.downloadManager)
         binding.viewPager.adapter = adapter
 
         viewModel.cursor.observe(this, Observer { cursor: Cursor ->
@@ -194,7 +203,7 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
             }
             R.id.details -> {
                 analytics.logEvent("frupic_details", null)
-                createDetailDialog(this, viewModel.storage, frupic).show()
+                createDetailDialog(this, storage, frupic).show()
                 true
             }
             R.id.download -> {
@@ -212,7 +221,7 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
                 true
             }
             R.id.share_picture -> {
-                val file = viewModel.storage.getFile(frupic)
+                val file = storage.getFile(frupic)
                 if (file.exists()) {
                     analytics.logEvent("frupic_share", null)
                     val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)

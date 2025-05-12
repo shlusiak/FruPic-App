@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saschahlusiak.frupic.db.FrupicDB
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ import kotlin.system.measureTimeMillis
 
 @Singleton
 class FrupicRepository @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val api: FreamwareApi,
     private val db: FrupicDB
 ) {

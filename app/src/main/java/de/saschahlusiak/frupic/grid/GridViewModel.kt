@@ -1,23 +1,25 @@
 package de.saschahlusiak.frupic.grid
 
-import android.app.Application
 import android.database.Cursor
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import de.saschahlusiak.frupic.app.App
-import de.saschahlusiak.frupic.app.FrupicStorage
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saschahlusiak.frupic.app.FrupicRepository
+import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.NotificationManager
 import de.saschahlusiak.frupic.model.Frupic
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class GridViewModel(app: Application) : AndroidViewModel(app) {
+@HiltViewModel
+class GridViewModel @Inject constructor(
+    val repository: FrupicRepository,
+    val storage: FrupicStorage,
+    val notificationManager: NotificationManager
+) : ViewModel() {
     private val tag = GridViewModel::class.simpleName
 
     val starred = MutableLiveData(false)
@@ -25,18 +27,8 @@ class GridViewModel(app: Application) : AndroidViewModel(app) {
     val synchronizing: LiveData<Boolean>
     val lastUpdated: LiveData<Long>
 
-    @Inject
-    lateinit var repository: FrupicRepository
-
-    @Inject
-    lateinit var storage: FrupicStorage
-
-    @Inject
-    lateinit var notificationManager: NotificationManager
 
     init {
-        (app as App).appComponent.inject(this)
-
         Log.d(tag, "Initializing")
 
         synchronizing = repository.synchronizing

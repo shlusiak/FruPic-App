@@ -10,13 +10,14 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.grid.GridActivity
 import javax.inject.Inject
 
 @Reusable
 class NotificationManager @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private val nm = NotificationManagerCompat.from(context)
 

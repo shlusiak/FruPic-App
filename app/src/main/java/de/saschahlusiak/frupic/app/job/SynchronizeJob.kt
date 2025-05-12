@@ -7,6 +7,7 @@ import android.app.job.JobService
 import android.content.ComponentName
 import android.content.Context
 import android.util.Log
+import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.app.NotificationManager
@@ -14,6 +15,7 @@ import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.*
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class SynchronizeJob : JobService() {
     private val scope = CoroutineScope(Dispatchers.Main)
 
@@ -22,11 +24,6 @@ class SynchronizeJob : JobService() {
 
     @Inject
     lateinit var notificationManager: NotificationManager
-
-    override fun onCreate() {
-        super.onCreate()
-        (application as App).appComponent.inject(this)
-    }
 
     override fun onDestroy() {
         scope.cancel()

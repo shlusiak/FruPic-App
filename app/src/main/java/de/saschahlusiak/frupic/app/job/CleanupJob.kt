@@ -7,6 +7,7 @@ import android.app.job.JobService
 import android.content.ComponentName
 import android.content.Context
 import android.util.Log
+import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicStorage
 import kotlinx.coroutines.Dispatchers
@@ -17,14 +18,10 @@ import javax.inject.Inject
 /**
  * Job that is run when the device is idle to clean up old full frupic images in [FrupicStorage].
  */
+@AndroidEntryPoint
 class CleanupJob : JobService() {
     @Inject
     lateinit var storage: FrupicStorage
-
-    override fun onCreate() {
-        super.onCreate()
-        (application as App).appComponent.inject(this)
-    }
 
     override fun onStartJob(params: JobParameters): Boolean {
         Log.d(tag, "onStartJob")

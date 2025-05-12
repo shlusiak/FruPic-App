@@ -10,6 +10,7 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saschahlusiak.frupic.upload.UploadService
 import kotlinx.coroutines.*
 import java.io.File
@@ -57,7 +58,7 @@ internal data class UploadJob(
 
 @Reusable
 class UploadManager @Inject constructor(
-    val context: Context
+    @ApplicationContext val context: Context
 ) {
     private val tag = UploadManager::class.simpleName
     private val tempDir = File(context.cacheDir, "upload")

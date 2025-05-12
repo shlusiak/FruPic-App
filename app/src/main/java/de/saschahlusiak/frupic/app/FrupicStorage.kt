@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.WorkerThread
 import com.squareup.picasso.Picasso
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saschahlusiak.frupic.app.job.CleanupJob
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,7 @@ import kotlin.random.Random
  */
 @Singleton
 class FrupicStorage @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val api: FreamwareApi,
     private val picasso: Picasso
 ) {

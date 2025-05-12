@@ -4,12 +4,15 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saschahlusiak.frupic.model.Frupic
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FrupicDB @Inject constructor(context: Context) {
+class FrupicDB @Inject constructor(
+    @ApplicationContext context: Context
+) {
     private var db: SQLiteDatabase? = null
     private val dbHelper = FrupicDBOpenHandler(context)
     
