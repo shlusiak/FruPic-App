@@ -4,7 +4,7 @@
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -12,17 +12,17 @@
 
     <!-- For launcher badges -->
     <!--for Samsung-->
-    <uses-permission android:name="com.sec.android.provider.badge.permission.READ"/>
-    <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE"/>
+    <uses-permission android:name="com.sec.android.provider.badge.permission.READ" />
+    <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE" />
     <!--for htc-->
-    <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS"/>
-    <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT"/>
+    <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS" />
+    <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT" />
     <!--for sony-->
-    <uses-permission android:name="com.sonyericsson.home.permission.BROADCAST_BADGE"/>
+    <uses-permission android:name="com.sonyericsson.home.permission.BROADCAST_BADGE" />
     <!--for apex-->
-    <uses-permission android:name="com.anddoes.launcher.permission.UPDATE_COUNT"/>
+    <uses-permission android:name="com.anddoes.launcher.permission.UPDATE_COUNT" />
     <!--for solid-->
-    <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE"/>
+    <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE" />
 
     <uses-feature
         android:name="android.hardware.faketouch"
@@ -34,6 +34,7 @@
     <application
         android:name=".app.App"
         android:allowBackup="true"
+        android:enableOnBackInvokedCallback="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         tools:ignore="AllowBackup">
@@ -48,8 +49,8 @@
 
         <activity
             android:name=".grid.GridActivity"
-            android:launchMode="singleTask"
             android:exported="true"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.Grid">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -68,8 +69,8 @@
 
         <activity
             android:name="de.saschahlusiak.frupic.upload.UploadActivity"
-            android:label="@string/upload_to_frupic"
             android:exported="true"
+            android:label="@string/upload_to_frupic"
             android:theme="@style/AppTheme.Dialog">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -80,8 +81,7 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".upload.UploadService" />
+        <service android:name=".upload.UploadService" />
 
         <service
             android:name=".app.job.CleanupJob"

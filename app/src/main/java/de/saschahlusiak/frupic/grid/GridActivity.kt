@@ -1,9 +1,11 @@
 package de.saschahlusiak.frupic.grid
 
+import android.graphics.Color
 import android.os.Bundle
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
-import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.app.NotificationManager
 import de.saschahlusiak.frupic.model.Frupic
@@ -21,6 +23,7 @@ class GridActivity : AppCompatActivity() {
     lateinit var notificationManager: NotificationManager
 
     public override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {

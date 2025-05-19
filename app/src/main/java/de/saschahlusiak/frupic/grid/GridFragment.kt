@@ -12,6 +12,9 @@ import android.view.*
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -78,6 +81,18 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE),
                 PixelFormat.TRANSLUCENT)
             mWindowManager?.addView(mDialogText, lp)
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.appbar) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updatePadding(top = bars.top)
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.uploadButtonContainer) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updatePadding(bottom = bars.bottom, right = bars.right)
+            insets
         }
 
         val columnWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 88f, resources.displayMetrics).toInt()

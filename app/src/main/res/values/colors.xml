@@ -12,5 +12,5 @@
     <color name="splash_background">#1F1F1F</color>
     <color name="launcher_icon_background">@color/splash_background</color>
 
-    <color name="galleryControlBackground">@color/black</color>
+    <color name="galleryControlBackground">#9F1F1F1F</color>
 </resources>

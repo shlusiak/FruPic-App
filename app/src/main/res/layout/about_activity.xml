@@ -70,27 +70,6 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/bitcoin_link"
-                style="?borderlessButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="8dp"
-                android:layout_weight="1"
-                android:visibility="gone"
-                android:text="@string/bitcoin"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/litecoin_link"
-                style="?borderlessButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="8dp"
-                android:layout_weight="1"
-                android:text="@string/litecoin"
-                android:textSize="12sp" />
-
-            <Button
                 android:id="@+id/ok"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
