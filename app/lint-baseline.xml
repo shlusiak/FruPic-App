@@ -1,0 +1,894 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.10.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.10.0)" variant="all" version="8.10.0">
+
+    <issue
+        id="MissingPermission"
+        message="Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (with `checkPermission`) or explicitly handle a potential `SecurityException`"
+        errorLine1="        nm.notify(NOTIFICATION_ID, builder.build())"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/app/NotificationManager.kt"
+            line="57"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (with `checkPermission`) or explicitly handle a potential `SecurityException`"
+        errorLine1="            notificationManager.notify(NOTIFICATION_ID, it)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/upload/UploadService.kt"
+            line="214"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ScopedStorage"
+        message="READ_EXTERNAL_STORAGE is deprecated (and is not granted) when targeting Android 13+. If you need to query or interact with MediaStore or media files on the shared storage, you should instead use one or more new storage permissions: `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` or `READ_MEDIA_AUDIO`."
+        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot; />"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="10"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        String.format(&quot;%d x %d (%d kb)&quot;, options.outWidth, options.outHeight, f.length() / 1024)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/detail/DetailDialog.kt"
+            line="48"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        supportActionBar?.title = String.format(&quot;#%d&quot;, frupic.id)"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/gallery/GalleryActivity.kt"
+            line="128"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        supportActionBar?.title = String.format(&quot;#%d&quot;, frupic.id)"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/gallery/GalleryActivity.kt"
+            line="128"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                    progressText.text = String.format(&quot;%dkb / %dkb (%d%%)&quot;, progress / 1024, max / 1024, if (max > 0) progress * 100 / max else 0)"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/gallery/GalleryAdapter.kt"
+            line="62"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                    progressText.text = String.format(&quot;%dkb / %dkb (%d%%)&quot;, progress / 1024, max / 1024, if (max > 0) progress * 100 / max else 0)"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/gallery/GalleryAdapter.kt"
+            line="62"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                canvas.drawText(&quot;Scale: &quot; + String.format(&quot;%.2f&quot;, scale), 5, 15, debugPaint);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="933"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                canvas.drawText(&quot;Translate: &quot; + String.format(&quot;%.2f&quot;, vTranslate.x) + &quot;:&quot; + String.format(&quot;%.2f&quot;, vTranslate.y), 5, 35, debugPaint);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="934"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                canvas.drawText(&quot;Translate: &quot; + String.format(&quot;%.2f&quot;, vTranslate.x) + &quot;:&quot; + String.format(&quot;%.2f&quot;, vTranslate.y), 5, 35, debugPaint);"
+        errorLine2="                                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="934"
+            column="93"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                canvas.drawText(&quot;Source center: &quot; + String.format(&quot;%.2f&quot;, center.x) + &quot;:&quot; + String.format(&quot;%.2f&quot;, center.y), 5, 55, debugPaint);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="936"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                canvas.drawText(&quot;Source center: &quot; + String.format(&quot;%.2f&quot;, center.x) + &quot;:&quot; + String.format(&quot;%.2f&quot;, center.y), 5, 55, debugPaint);"
+        errorLine2="                                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="936"
+            column="93"/>
+    </issue>
+
+    <issue
+        id="ExifInterface"
+        message="Avoid using `android.media.ExifInterface`; use `android.support.media.ExifInterface` instead"
+        errorLine1="import android.media.ExifInterface;"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="32"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="OldTargetApi"
+        message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
+        errorLine1="        targetSdk 34"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `enableOnBackInvokedCallback` is only used in API level 33 and higher (current min is 23)"
+        errorLine1="        android:enableOnBackInvokedCallback=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method getExifOrientation must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="                    int exifOrientation = view.getExifOrientation(sourceUri);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="1372"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method fileSRect must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="                        view.fileSRect(tile.sRect, tile.fileSRect);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="1447"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method getExifOrientation must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="                    return subsamplingScaleImageView.getExifOrientation(sourceUri);"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="1522"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="ForegroundServiceType"
+        message="To call `Service.startForeground()`, the `&lt;service>` element of manifest file must have the `foregroundServiceType` attribute specified"
+        errorLine1="        startForeground(NOTIFICATION_ID, notification)"
+        errorLine2="        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/upload/UploadService.kt"
+            line="77"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AndroidGradlePluginVersion"
+        message="A newer version of Gradle than 8.14 is available: 8.14.1"
+        errorLine1="distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-bin.zip"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="$HOME/develop/workspace/Frupic/gradle/wrapper/gradle-wrapper.properties"
+            line="3"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="                id = res.getIdentifier(resName, &quot;drawable&quot;, packageName);"
+        errorLine2="                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/decoder/SkiaImageDecoder.java"
+            line="47"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="                id = res.getIdentifier(resName, &quot;drawable&quot;, packageName);"
+        errorLine2="                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/decoder/SkiaImageRegionDecoder.java"
+            line="48"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;new&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;refresh_service_count_text&quot;>%1$d new FruPics&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="53"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;images&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;files&quot;>%1$d images&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="60"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;images&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;upload_notification_progress&quot;>Uploading %1$d of %2$d images&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="64"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;images&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;upload_notification_success&quot;>%1$d images uploaded&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="65"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;images&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;upload_notification_failed&quot;>%1$d images successful, %2$d failed&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="66"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="NotifyDataSetChanged"
+        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
+        errorLine1="        notifyDataSetChanged()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/grid/GridAdapter.kt"
+            line="88"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (VERSION.SDK_INT >= 14) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="1677"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (2442 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="        android:pathData=&quot;M112.43750 11.000000C108.23694 11.314061 103.73174 13.088334 101.22460 16.600216C99.431583 20.024281 103.71655 22.521773 103.54203 26.045365C104.81240 31.261417 104.62081 36.841663 102.44645 41.794094C98.878993 52.000008 91.953695 61.248593 82.299862 66.378186C69.476928 73.300687 54.677084 74.584175 40.513827 76.701841C29.472269 78.306487 18.302915 80.123764 7.9375000 84.406250C3.8315142 87.147382 4.2950838 92.879362 5.9965621 96.894585C7.8699297 100.11353 11.282171 102.18318 13.891041 104.80663C16.019064 107.17578 19.282725 108.94744 21.507687 110.37553C22.251743 114.26229 25.631040 116.29651 28.735566 118.18508C31.987105 120.13775 35.101236 122.46139 38.625000 123.87500C41.614993 124.16257 42.030346 129.18715 45.712057 129.55755C50.102845 131.50274 54.447362 133.78693 59.093750 135.00000C80.856786 133.16963 102.99557 127.13323 120.36287 113.39720C135.39403 101.65436 145.94871 83.752106 147.08092 64.532522C147.58231 55.032143 146.12025 44.583364 139.56452 37.235916C137.53267 33.914996 133.84523 31.700089 129.85911 32.198873C126.34846 32.685271 125.13789 27.055135 123.23055 24.628444C122.14595 21.758357 116.58288 21.497540 119.28360 18.516487C120.12476 14.547787 117.66877 13.293005 115.84375 11.750000C114.61228 11.862588 113.73709 10.905141 112.43750 11.000000zM112.81250 13.906250C114.57124 14.701112 118.15890 15.982314 116.30988 18.833380C114.98742 22.173693 121.50640 26.464522 122.48584 29.425865C124.60830 32.739998 124.23261 34.145613 128.40930 35.293144C131.77621 34.529622 135.51426 35.655840 137.15597 38.833241C142.97691 45.273074 144.39001 54.422087 144.21875 62.812500C143.58672 82.278543 132.75199 100.50249 117.33178 112.04367C100.64054 124.71055 79.700068 130.25923 59.093750 132.03125C54.178640 130.27319 49.401464 128.11498 44.750000 125.75000C42.919950 123.62919 42.297951 120.03012 38.776142 120.79777C34.272064 118.32726 29.925028 115.55436 25.750000 112.56250C24.129568 110.05189 24.199073 106.13652 20.333642 106.34494C16.284210 103.15482 12.423712 99.710449 8.8125000 96.031250C7.4740773 92.986284 6.5302815 87.579145 10.753126 86.455336C30.760190 78.941097 52.685103 79.910165 72.968917 73.502931C83.913770 70.091733 94.022202 63.258763 100.05538 53.359697C103.32738 47.921240 106.10162 41.989970 107.13454 35.689861C107.69231 30.429044 106.81433 25.006642 104.79702 20.136050C101.51254 17.993329 106.70116 15.510335 108.64621 14.860631C109.92374 14.372597 111.71096 13.889079 112.81250 13.906250z&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/frupic.xml"
+            line="149"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (2442 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="            android:pathData=&quot;M112.43750 11.000000C108.23694 11.314061 103.73174 13.088334 101.22460 16.600216C99.431583 20.024281 103.71655 22.521773 103.54203 26.045365C104.81240 31.261417 104.62081 36.841663 102.44645 41.794094C98.878993 52.000008 91.953695 61.248593 82.299862 66.378186C69.476928 73.300687 54.677084 74.584175 40.513827 76.701841C29.472269 78.306487 18.302915 80.123764 7.9375000 84.406250C3.8315142 87.147382 4.2950838 92.879362 5.9965621 96.894585C7.8699297 100.11353 11.282171 102.18318 13.891041 104.80663C16.019064 107.17578 19.282725 108.94744 21.507687 110.37553C22.251743 114.26229 25.631040 116.29651 28.735566 118.18508C31.987105 120.13775 35.101236 122.46139 38.625000 123.87500C41.614993 124.16257 42.030346 129.18715 45.712057 129.55755C50.102845 131.50274 54.447362 133.78693 59.093750 135.00000C80.856786 133.16963 102.99557 127.13323 120.36287 113.39720C135.39403 101.65436 145.94871 83.752106 147.08092 64.532522C147.58231 55.032143 146.12025 44.583364 139.56452 37.235916C137.53267 33.914996 133.84523 31.700089 129.85911 32.198873C126.34846 32.685271 125.13789 27.055135 123.23055 24.628444C122.14595 21.758357 116.58288 21.497540 119.28360 18.516487C120.12476 14.547787 117.66877 13.293005 115.84375 11.750000C114.61228 11.862588 113.73709 10.905141 112.43750 11.000000zM112.81250 13.906250C114.57124 14.701112 118.15890 15.982314 116.30988 18.833380C114.98742 22.173693 121.50640 26.464522 122.48584 29.425865C124.60830 32.739998 124.23261 34.145613 128.40930 35.293144C131.77621 34.529622 135.51426 35.655840 137.15597 38.833241C142.97691 45.273074 144.39001 54.422087 144.21875 62.812500C143.58672 82.278543 132.75199 100.50249 117.33178 112.04367C100.64054 124.71055 79.700068 130.25923 59.093750 132.03125C54.178640 130.27319 49.401464 128.11498 44.750000 125.75000C42.919950 123.62919 42.297951 120.03012 38.776142 120.79777C34.272064 118.32726 29.925028 115.55436 25.750000 112.56250C24.129568 110.05189 24.199073 106.13652 20.333642 106.34494C16.284210 103.15482 12.423712 99.710449 8.8125000 96.031250C7.4740773 92.986284 6.5302815 87.579145 10.753126 86.455336C30.760190 78.941097 52.685103 79.910165 72.968917 73.502931C83.913770 70.091733 94.022202 63.258763 100.05538 53.359697C103.32738 47.921240 106.10162 41.989970 107.13454 35.689861C107.69231 30.429044 106.81433 25.006642 104.79702 20.136050C101.51254 17.993329 106.70116 15.510335 108.64621 14.860631C109.92374 14.372597 111.71096 13.889079 112.81250 13.906250z&quot;"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/frupic_launcher_foreground.xml"
+            line="153"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (2442 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="        android:pathData=&quot;M112.43750 11.000000C108.23694 11.314061 103.73174 13.088334 101.22460 16.600216C99.431583 20.024281 103.71655 22.521773 103.54203 26.045365C104.81240 31.261417 104.62081 36.841663 102.44645 41.794094C98.878993 52.000008 91.953695 61.248593 82.299862 66.378186C69.476928 73.300687 54.677084 74.584175 40.513827 76.701841C29.472269 78.306487 18.302915 80.123764 7.9375000 84.406250C3.8315142 87.147382 4.2950838 92.879362 5.9965621 96.894585C7.8699297 100.11353 11.282171 102.18318 13.891041 104.80663C16.019064 107.17578 19.282725 108.94744 21.507687 110.37553C22.251743 114.26229 25.631040 116.29651 28.735566 118.18508C31.987105 120.13775 35.101236 122.46139 38.625000 123.87500C41.614993 124.16257 42.030346 129.18715 45.712057 129.55755C50.102845 131.50274 54.447362 133.78693 59.093750 135.00000C80.856786 133.16963 102.99557 127.13323 120.36287 113.39720C135.39403 101.65436 145.94871 83.752106 147.08092 64.532522C147.58231 55.032143 146.12025 44.583364 139.56452 37.235916C137.53267 33.914996 133.84523 31.700089 129.85911 32.198873C126.34846 32.685271 125.13789 27.055135 123.23055 24.628444C122.14595 21.758357 116.58288 21.497540 119.28360 18.516487C120.12476 14.547787 117.66877 13.293005 115.84375 11.750000C114.61228 11.862588 113.73709 10.905141 112.43750 11.000000zM112.81250 13.906250C114.57124 14.701112 118.15890 15.982314 116.30988 18.833380C114.98742 22.173693 121.50640 26.464522 122.48584 29.425865C124.60830 32.739998 124.23261 34.145613 128.40930 35.293144C131.77621 34.529622 135.51426 35.655840 137.15597 38.833241C142.97691 45.273074 144.39001 54.422087 144.21875 62.812500C143.58672 82.278543 132.75199 100.50249 117.33178 112.04367C100.64054 124.71055 79.700068 130.25923 59.093750 132.03125C54.178640 130.27319 49.401464 128.11498 44.750000 125.75000C42.919950 123.62919 42.297951 120.03012 38.776142 120.79777C34.272064 118.32726 29.925028 115.55436 25.750000 112.56250C24.129568 110.05189 24.199073 106.13652 20.333642 106.34494C16.284210 103.15482 12.423712 99.710449 8.8125000 96.031250C7.4740773 92.986284 6.5302815 87.579145 10.753126 86.455336C30.760190 78.941097 52.685103 79.910165 72.968917 73.502931C83.913770 70.091733 94.022202 63.258763 100.05538 53.359697C103.32738 47.921240 106.10162 41.989970 107.13454 35.689861C107.69231 30.429044 106.81433 25.006642 104.79702 20.136050C101.51254 17.993329 106.70116 15.510335 108.64621 14.860631C109.92374 14.372597 111.71096 13.889079 112.81250 13.906250z&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/frupic_notification.xml"
+            line="13"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (2442 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="        android:pathData=&quot;M112.43750 11.000000C108.23694 11.314061 103.73174 13.088334 101.22460 16.600216C99.431583 20.024281 103.71655 22.521773 103.54203 26.045365C104.81240 31.261417 104.62081 36.841663 102.44645 41.794094C98.878993 52.000008 91.953695 61.248593 82.299862 66.378186C69.476928 73.300687 54.677084 74.584175 40.513827 76.701841C29.472269 78.306487 18.302915 80.123764 7.9375000 84.406250C3.8315142 87.147382 4.2950838 92.879362 5.9965621 96.894585C7.8699297 100.11353 11.282171 102.18318 13.891041 104.80663C16.019064 107.17578 19.282725 108.94744 21.507687 110.37553C22.251743 114.26229 25.631040 116.29651 28.735566 118.18508C31.987105 120.13775 35.101236 122.46139 38.625000 123.87500C41.614993 124.16257 42.030346 129.18715 45.712057 129.55755C50.102845 131.50274 54.447362 133.78693 59.093750 135.00000C80.856786 133.16963 102.99557 127.13323 120.36287 113.39720C135.39403 101.65436 145.94871 83.752106 147.08092 64.532522C147.58231 55.032143 146.12025 44.583364 139.56452 37.235916C137.53267 33.914996 133.84523 31.700089 129.85911 32.198873C126.34846 32.685271 125.13789 27.055135 123.23055 24.628444C122.14595 21.758357 116.58288 21.497540 119.28360 18.516487C120.12476 14.547787 117.66877 13.293005 115.84375 11.750000C114.61228 11.862588 113.73709 10.905141 112.43750 11.000000zM112.81250 13.906250C114.57124 14.701112 118.15890 15.982314 116.30988 18.833380C114.98742 22.173693 121.50640 26.464522 122.48584 29.425865C124.60830 32.739998 124.23261 34.145613 128.40930 35.293144C131.77621 34.529622 135.51426 35.655840 137.15597 38.833241C142.97691 45.273074 144.39001 54.422087 144.21875 62.812500C143.58672 82.278543 132.75199 100.50249 117.33178 112.04367C100.64054 124.71055 79.700068 130.25923 59.093750 132.03125C54.178640 130.27319 49.401464 128.11498 44.750000 125.75000C42.919950 123.62919 42.297951 120.03012 38.776142 120.79777C34.272064 118.32726 29.925028 115.55436 25.750000 112.56250C24.129568 110.05189 24.199073 106.13652 20.333642 106.34494C16.284210 103.15482 12.423712 99.710449 8.8125000 96.031250C7.4740773 92.986284 6.5302815 87.579145 10.753126 86.455336C30.760190 78.941097 52.685103 79.910165 72.968917 73.502931C83.913770 70.091733 94.022202 63.258763 100.05538 53.359697C103.32738 47.921240 106.10162 41.989970 107.13454 35.689861C107.69231 30.429044 106.81433 25.006642 104.79702 20.136050C101.51254 17.993329 106.70116 15.510335 108.64621 14.860631C109.92374 14.372597 111.71096 13.889079 112.81250 13.906250z&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_launcher.xml"
+            line="149"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@android:color/black` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="    android:background=&quot;@android:color/black&quot;>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_fragment.xml"
+            line="6"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.colorPrimary` appears to be unused"
+        errorLine1="    &lt;color name=&quot;colorPrimary&quot;>@color/brand_yellow&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="3"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.colorPrimaryDark` appears to be unused"
+        errorLine1="    &lt;color name=&quot;colorPrimaryDark&quot;>#7e6d00&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="4"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.white` appears to be unused"
+        errorLine1="    &lt;color name=&quot;white&quot;>#ffffff&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="8"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_upload` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/ic_upload.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.refresh` appears to be unused"
+        errorLine1="    &lt;string name=&quot;refresh&quot;>Refresh&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="8"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.donate` appears to be unused"
+        errorLine1="    &lt;string name=&quot;donate&quot;>Donate&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="14"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.donate_bitcoin` appears to be unused"
+        errorLine1="    &lt;string name=&quot;donate_bitcoin&quot;>Donate Bitcoin&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="15"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.donate_litecoin` appears to be unused"
+        errorLine1="    &lt;string name=&quot;donate_litecoin&quot;>Donate Litecoin&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="16"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.bitcoin` appears to be unused"
+        errorLine1="    &lt;string name=&quot;bitcoin&quot;>Bitcoin&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="17"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.litecoin` appears to be unused"
+        errorLine1="    &lt;string name=&quot;litecoin&quot;>Litecoin&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="18"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.mark_as_seen` appears to be unused"
+        errorLine1="    &lt;string name=&quot;mark_as_seen&quot;>Mark all seen&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="34"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.all_frupics` appears to be unused"
+        errorLine1="    &lt;string name=&quot;all_frupics&quot;>All&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="36"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.unseen` appears to be unused"
+        errorLine1="    &lt;string name=&quot;unseen&quot;>New&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="37"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.please_wait` appears to be unused"
+        errorLine1="    &lt;string name=&quot;please_wait&quot;>Please wait…&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.error_no_storage` appears to be unused"
+        errorLine1="    &lt;string name=&quot;error_no_storage&quot;>External storage not available&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cannot_connect` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cannot_connect&quot;>Cannot establish connection&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="50"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.error_reading_response` appears to be unused"
+        errorLine1="    &lt;string name=&quot;error_reading_response&quot;>Error reading response&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="51"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.preferences_cache` appears to be unused"
+        errorLine1="    &lt;string name=&quot;preferences_cache&quot;>Cache&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="74"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.array.cache_labels` appears to be unused"
+        errorLine1="    &lt;string-array name=&quot;cache_labels&quot;>"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="87"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.array.cache_values` appears to be unused"
+        errorLine1="    &lt;string-array name=&quot;cache_values&quot;>"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="95"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="IconColors"
+        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
+        <location
+            file="src/main/res/drawable-hdpi/star_empty.png"/>
+    </issue>
+
+    <issue
+        id="IconMissingDensityFolder"
+        message="Missing density variation folders in `src/main/res`: drawable-mdpi, drawable-xhdpi, drawable-xxhdpi">
+        <location
+            file="src/main/res"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="                intent.data = Uri.parse(&quot;http://frupic.frubar.net&quot;)"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/grid/GridFragment.kt"
+            line="201"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="                intent.data = Uri.parse(&quot;http://frupic.frubar.net&quot;)"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/grid/GridFragment.kt"
+            line="201"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="                intent = Intent(&quot;android.intent.action.VIEW&quot;, Uri.parse(frupic.url))"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/grid/GridFragment.kt"
+            line="317"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs.edit()"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/de/saschahlusiak/frupic/upload/UploadActivity.kt"
+            line="98"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view `SubsamplingScaleImageView` overrides `onTouchEvent` but not `performClick`"
+        errorLine1="    public boolean onTouchEvent(MotionEvent event) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/davemorrissey/labs/subscaleview/SubsamplingScaleImageView.java"
+            line="569"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/about_activity.xml"
+            line="14"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/gallery_item.xml"
+            line="30"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageButton"
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/gallery_item.xml"
+            line="51"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Empty `contentDescription` attribute on image"
+        errorLine1="            android:contentDescription=&quot;&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_fragment.xml"
+            line="57"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_item.xml"
+            line="9"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_item.xml"
+            line="16"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Empty `contentDescription` attribute on image"
+        errorLine1="        android:contentDescription=&quot;&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/upload_activity.xml"
+            line="41"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;mail@saschahlusiak.de&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;mail@saschahlusiak.de&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/about_activity.xml"
+            line="42"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;https://github.com/shlusiak/FruPic-App&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;https://github.com/shlusiak/FruPic-App&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/about_activity.xml"
+            line="52"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/about_activity.xml"
+            line="62"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;progress&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;progress&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/gallery_item.xml"
+            line="62"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="            android:gravity=&quot;right&quot;"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/main/res/layout/gallery_activity.xml"
+            line="61"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/grid_item.xml"
+            line="21"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:gravity=&quot;left&quot;"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/res/layout/upload_activity.xml"
+            line="15"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:gravity=&quot;left&quot;"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/res/layout/upload_activity.xml"
+            line="28"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;6dp&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_marginRight=&quot;6dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/upload_activity.xml"
+            line="60"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;6dp&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_marginLeft=&quot;6dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/upload_activity.xml"
+            line="86"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:layout_gravity=&quot;left&quot;"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/res/layout/upload_activity.xml"
+            line="108"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:gravity=&quot;right&quot;"
+        errorLine2="                         ~~~~~">
+        <location
+            file="src/main/res/layout/upload_activity.xml"
+            line="120"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="RtlEnabled"
+        message="The project references RTL attributes, but does not explicitly enable or disable RTL support with `android:supportsRtl` in the manifest">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+</issues>

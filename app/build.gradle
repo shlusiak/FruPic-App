@@ -31,6 +31,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lint {
+        baseline(file("lint-baseline.xml"))
+    }
     namespace 'de.saschahlusiak.frupic'
     buildFeatures {
         compose = false
@@ -68,7 +71,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:19.4.3'
 
     // Fragment
-    implementation "androidx.fragment:fragment-ktx:1.8.6"
+    implementation "androidx.fragment:fragment-ktx:1.8.7"
 
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-process:2.9.0"
