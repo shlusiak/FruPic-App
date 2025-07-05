@@ -86,7 +86,11 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.animation:animation:1.8.3")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8")
+    implementation("androidx.paging:paging-compose:3.3.6")
+    implementation("io.coil-kt:coil:2.7.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     // Dagger/Hilt
     ksp("com.google.dagger:hilt-compiler:2.56.2")

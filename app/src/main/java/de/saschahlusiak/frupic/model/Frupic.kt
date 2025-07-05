@@ -1,6 +1,8 @@
 package de.saschahlusiak.frupic.model
 
 import android.database.Cursor
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import de.saschahlusiak.frupic.db.FrupicDB
 import de.saschahlusiak.frupic.utils.getInt
 import de.saschahlusiak.frupic.utils.getString
@@ -17,6 +19,8 @@ val String.cloudfront get() = this
 /**
  * Model object of a Frupic definition, as read from the database or the API.
  */
+@Immutable
+@Stable
 class Frupic(
     val id: Int,
     var flags: Int,
@@ -24,7 +28,7 @@ class Frupic(
     val thumbUrl: String,
     val date: String,
     val username: String?,
-    val tags: List<String>
+    @Stable val tags: List<String>
 ) : Serializable {
 
     val url = "https://frupic.frubar.net/$id"

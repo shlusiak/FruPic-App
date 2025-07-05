@@ -18,6 +18,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.asLiveData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
@@ -32,6 +33,8 @@ import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.preferences.FrupicPreferencesActivity
 import de.saschahlusiak.frupic.upload.UploadActivity
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -111,7 +114,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
             startActivityForResult(Intent.createChooser(intent, getString(R.string.upload)), REQUEST_PICK_PICTURE)
         }
 
-        viewModel.lastUpdated.observe(viewLifecycleOwner, Observer {
+        viewModel.lastUpdated.asLiveData().observe(viewLifecycleOwner, Observer {
             viewModel.reloadData()
         })
 
@@ -119,7 +122,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
             binding.swipeRefreshLayout.isRefreshing = (synchronizing)
         })
 
-        viewModel.cursor.observe(viewLifecycleOwner, Observer { cursor ->
+        viewModel.cursor.filterNotNull().asLiveData().observe(viewLifecycleOwner, Observer { cursor ->
             gridAdapter.setCursor(cursor)
         })
 

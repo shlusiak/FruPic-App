@@ -16,6 +16,7 @@ import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.model.Frupic
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,7 +29,7 @@ class GalleryViewModel @Inject constructor(
 
     val cursor = MutableLiveData<Cursor>()
     val currentFrupic = MutableLiveData<Frupic>()
-    val lastUpdated: LiveData<Long>
+    val lastUpdated: StateFlow<Long>
 
     var starred: Boolean = false
 

@@ -32,6 +32,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.Observer
+import androidx.lifecycle.asLiveData
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -106,7 +107,7 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
         })
 
         viewModel.currentFrupic.observe(this, Observer { frupic: Frupic -> updateLabels(frupic) })
-        viewModel.lastUpdated.observe(this, Observer { viewModel.reloadData() })
+        viewModel.lastUpdated.asLiveData().observe(this, Observer { viewModel.reloadData() })
     }
 
     /**
