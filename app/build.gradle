@@ -19,7 +19,7 @@ android {
         applicationId "de.saschahlusiak.frupic"
 
         minSdk 23
-        targetSdk 34
+        targetSdk 36
 
         versionCode 40
         versionName "1.5.0"
@@ -52,7 +52,7 @@ android {
 dependencies {
     def picasso_version = '2.71828'
 
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     // https://mvnrepository.com/artifact/androidx.swiperefreshlayout/swiperefreshlayout
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     // https://mvnrepository.com/artifact/androidx.viewpager/viewpager
@@ -67,16 +67,16 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
 
     // https://firebase.google.com/support/release-notes/android
-    implementation 'com.google.firebase:firebase-analytics:22.4.0'
-    implementation 'com.google.firebase:firebase-crashlytics:19.4.3'
+    implementation 'com.google.firebase:firebase-analytics:22.5.0'
+    implementation 'com.google.firebase:firebase-crashlytics:19.4.4'
 
     // Fragment
-    implementation "androidx.fragment:fragment-ktx:1.8.7"
+    implementation "androidx.fragment:fragment-ktx:1.8.8"
 
     // Lifecycle
-    implementation "androidx.lifecycle:lifecycle-process:2.9.0"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.9.0"
+    implementation "androidx.lifecycle:lifecycle-process:2.9.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.9.1"
 
     // Dagger/Hilt
     ksp("com.google.dagger:hilt-compiler:2.56.2")

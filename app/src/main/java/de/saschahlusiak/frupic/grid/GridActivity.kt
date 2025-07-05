@@ -23,7 +23,10 @@ class GridActivity : AppCompatActivity() {
     lateinit var notificationManager: NotificationManager
 
     public override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
+        )
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
@@ -34,13 +37,12 @@ class GridActivity : AppCompatActivity() {
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
+    override fun onDestroy() {
         GlobalScope.launch(Dispatchers.Main) {
             repository.removeFlags(Frupic.FLAG_NEW)
             notificationManager.clearUnseenNotification()
         }
 
-        super.onBackPressed()
+        super.onDestroy()
     }
 }

@@ -7,22 +7,20 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDialogFragment
 import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.R
-import de.saschahlusiak.frupic.databinding.AboutActivityBinding
+import de.saschahlusiak.frupic.databinding.AboutFragmentBinding
 
 class AboutFragment : AppCompatDialogFragment() {
-    override fun getTheme() = R.style.AppTheme_Dialog
-
     override fun onCreateDialog(savedInstanceState: Bundle?) = super.onCreateDialog(savedInstanceState).apply {
         setTitle(R.string.about_frupic)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.about_activity, container, false)
+        inflater.inflate(R.layout.about_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = AboutActivityBinding.bind(view)
+        val binding = AboutFragmentBinding.bind(view)
 
         with(binding) {
             version.text = BuildConfig.VERSION_NAME

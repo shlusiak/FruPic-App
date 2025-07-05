@@ -28,17 +28,17 @@
     <uses-feature
         android:name="android.hardware.faketouch"
         android:required="false" />
+
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
 
     <application
         android:name=".app.App"
-        android:allowBackup="true"
         android:enableOnBackInvokedCallback="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        tools:ignore="AllowBackup">
+        tools:targetApi="33">
 
         <meta-data
             android:name="google_analytics_adid_collection_enabled"
@@ -82,8 +82,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".upload.UploadService"
-            android:foregroundServiceType="dataSync"/>
+        <service
+            android:name=".upload.UploadService"
+            android:foregroundServiceType="dataSync" />
 
         <service
             android:name=".app.job.CleanupJob"
