@@ -51,19 +51,13 @@ android {
 }
 
 dependencies {
+    implementation("androidx.annotation:annotation:1.9.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
-    // https://mvnrepository.com/artifact/androidx.swiperefreshlayout/swiperefreshlayout
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    // https://mvnrepository.com/artifact/androidx.viewpager/viewpager
     implementation("androidx.viewpager:viewpager:1.1.0")
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("com.google.android.material:material:1.12.0")
-    // https://mvnrepository.com/artifact/androidx.annotation/annotation
-    implementation("androidx.annotation:annotation:1.9.1")
-    // https://mvnrepository.com/artifact/androidx.recyclerview/recyclerview
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
 
     // https://firebase.google.com/support/release-notes/android
     implementation("com.google.firebase:firebase-analytics:22.5.0")
@@ -79,19 +73,18 @@ dependencies {
 
     // Compose
     implementation(platform("androidx.compose:compose-bom:2025.06.01"))
+    debugImplementation("androidx.compose.ui:ui-tooling:1.8.3")
+    debugImplementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.animation:animation:1.8.3")
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8")
-    implementation("androidx.paging:paging-compose:3.3.6")
+
     implementation("io.coil-kt:coil:2.7.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
-    debugImplementation("androidx.compose.ui:ui-tooling:1.8.3")
 
     // Room for data persisting
     implementation("androidx.room:room-runtime:2.7.2")
