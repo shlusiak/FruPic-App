@@ -32,7 +32,7 @@ fun AboutScreen(
     onLink: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val marketUrl = "https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic"
+    val marketUrl = "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
     val githubLink = "https://github.com/shlusiak/FruPic-App"
     val state = rememberScrollState()
 
@@ -43,6 +43,10 @@ fun AboutScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                stringResource(R.string.about_frupic),
+                style = MaterialTheme.typography.headlineSmall
+            )
             Image(
                 painter = painterResource(id = R.drawable.frupic),
                 modifier = Modifier.size(80.dp),

@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.utils.AppTheme
 
 @Composable
@@ -45,8 +44,8 @@ fun StarredButton(
         contentColor = if (starred) colors.checkedContentColor else colors.contentColor
     ) {
         Box(
-            contentAlignment = Alignment.Companion.Center,
-            modifier = Modifier.Companion
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
                 .padding(
                     bottom = contentPadding.calculateBottomPadding(),
                     end = 32.dp
@@ -58,9 +57,9 @@ fun StarredButton(
                 transitionSpec = { scaleIn().togetherWith(scaleOut()) }
             ) { starred ->
                 Icon(
-                    if (starred) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    if (starred) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     "",
-                    modifier = Modifier.Companion.size(42.dp)
+                    modifier = Modifier.size(42.dp)
                 )
             }
         }

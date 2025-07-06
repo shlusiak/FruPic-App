@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.gallery
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -12,16 +13,23 @@ import androidx.compose.animation.slideOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconToggleButton
+import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -37,8 +45,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.model.Frupic
@@ -50,14 +60,21 @@ fun GalleryScreen(
     onBack: () -> Unit,
     onToggleFavourite: (Frupic) -> Unit,
     onShare: (Frupic) -> Unit,
-    onDownload: (Frupic) -> Unit
+    onDownload: (Frupic) -> Unit,
+    onDetails: (Frupic) -> Unit,
+    onOpenInBrowser: (Frupic) -> Unit
 ) {
     val items = viewModel.frupics.collectAsStateWithLifecycle(emptyList()).value
     val pagerState = rememberPagerState(viewModel.initialPosition) { items.size }
     val current by remember(items) { derivedStateOf { items.getOrNull(pagerState.currentPage) } }
     var hudVisible by rememberSaveable { mutableStateOf(true) }
 
+    val backgroundColor by animateColorAsState(
+        if (hudVisible) MaterialTheme.colorScheme.background else Color.Black
+    )
+
     Scaffold(
+        containerColor = backgroundColor,
         topBar = {
             val alpha = animateFloatAsState(if (hudVisible) 1f else 0f)
             TopAppBar(
@@ -75,26 +92,14 @@ fun GalleryScreen(
                 },
                 actions = {
                     current?.let { current ->
-                        IconButton({onDownload(current)}) {
-                            Icon(
-                                painterResource(R.drawable.ic_file_download), ""
-                            )
+                        IconButton({ onDownload(current) }) {
+                            Icon(painterResource(R.drawable.ic_file_download), "")
                         }
-
-                        IconButton({ onToggleFavourite(current) }) {
-                            AnimatedContent(
-                                current.isStarred,
-                                transitionSpec = { scaleIn().togetherWith(scaleOut()) }
-                            ) { starred ->
-                                if (starred) {
-                                    Icon(
-                                        Icons.Default.Favorite, "",
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
-                                } else {
-                                    Icon(Icons.Default.FavoriteBorder, "")
-                                }
-                            }
+                        IconButton({ onOpenInBrowser(current) }) {
+                            Icon(painterResource(R.drawable.ic_launch), "")
+                        }
+                        IconButton({ onDetails(current) }) {
+                            Icon(Icons.Outlined.Info, "")
                         }
                     }
                 }
@@ -117,6 +122,40 @@ fun GalleryScreen(
 
         current?.let { current ->
             Box(Modifier.fillMaxSize()) {
+                val colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                    checkedContentColor = MaterialTheme.colorScheme.error
+                )
+
+                AnimatedVisibility(
+                    hudVisible,
+                    enter = slideIn { IntOffset(it.width, 0) } + fadeIn(),
+                    exit = slideOut { IntOffset(it.width, 0) } + fadeOut(),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(contentPadding)
+                        .padding(bottom = 110.dp, end = 12.dp)
+
+                ) {
+                    FilledTonalIconToggleButton(
+                        checked = current.isStarred,
+                        onCheckedChange = { onToggleFavourite(current) },
+                        modifier = Modifier
+                            .size(64.dp),
+                        colors = colors
+                    ) {
+                        AnimatedContent(
+                            current.isStarred,
+                            transitionSpec = { scaleIn().togetherWith(scaleOut()) }
+                        ) { starred ->
+                            Icon(
+                                if (starred) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                "",
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    }
+                }
+
                 AnimatedVisibility(
                     hudVisible,
                     enter = slideIn { IntOffset(0, it.height) } + fadeIn(),

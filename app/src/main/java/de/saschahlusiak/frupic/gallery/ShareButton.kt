@@ -26,9 +26,7 @@ fun ShareButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val colors = IconButtonDefaults.filledIconButtonColors(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer
-    )
+    val colors = IconButtonDefaults.filledIconButtonColors()
 
     Surface(
         onClick = onClick,

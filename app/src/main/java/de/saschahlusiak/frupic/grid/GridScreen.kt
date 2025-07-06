@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -90,6 +91,19 @@ fun GridScreen(
                     ) {
                         onFrupicClick(it, item, starred)
                     }
+                }
+            }
+
+            if (items.isEmpty()) {
+                if (starred) {
+                    EmptyState(
+                        "You don’t have any favourites yet",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
             }
         }
