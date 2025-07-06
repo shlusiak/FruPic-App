@@ -7,7 +7,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.NotificationManager
-import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +25,7 @@ class GridViewModel @Inject constructor(
     private val tag = GridViewModel::class.simpleName
 
     val starred = MutableStateFlow(false)
-    val synchronizing: StateFlow<Boolean>
+    val synchronizing = repository.synchronizing
 
     val fruPics = repository.asFlow()
         .combine(starred) { frupics, starred ->
@@ -38,8 +37,6 @@ class GridViewModel @Inject constructor(
 
     init {
         Log.d(tag, "Initializing")
-
-        synchronizing = repository.synchronizing
 
         viewModelScope.launch {
             repository.synchronize()
@@ -57,13 +54,6 @@ class GridViewModel @Inject constructor(
 
     fun toggleShowStarred() {
         starred.value = (starred.value == false)
-    }
-
-    fun toggleFrupicStarred(frupic: Frupic) {
-        viewModelScope.launch {
-            // will update lastUpdated
-            repository.setStarred(frupic, !frupic.isStarred)
-        }
     }
 
     fun synchronize() {

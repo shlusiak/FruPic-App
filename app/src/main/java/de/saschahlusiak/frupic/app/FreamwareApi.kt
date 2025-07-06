@@ -109,8 +109,6 @@ class FreamwareApi @Inject constructor() {
                                 copied += read
 
                                 progress.send(copied)
-
-                                yield()
                             } while (true)
                         }
                     }

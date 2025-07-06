@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicRepository
+import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
     val downloadManager: FrupicDownloadManager,
+    val storage: FrupicStorage,
     private val repository: FrupicRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {

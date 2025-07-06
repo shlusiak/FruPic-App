@@ -85,6 +85,7 @@ dependencies {
 
     implementation("io.coil-kt:coil:2.7.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("me.saket.telephoto:zoomable-image-coil:0.9.0")
 
     // Room for data persisting
     implementation("androidx.room:room-runtime:2.7.2")

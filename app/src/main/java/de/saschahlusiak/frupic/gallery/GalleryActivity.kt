@@ -21,6 +21,7 @@ import android.view.animation.Animation
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -39,10 +40,12 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.R
+import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.databinding.GalleryActivityBinding
 import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.model.Frupic
+import de.saschahlusiak.frupic.utils.AppTheme
 import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
@@ -69,6 +72,21 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
     public override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        if (true) {
+            setContent {
+                AppTheme {
+                    GalleryScreen(
+                        viewModel,
+                        { finish() },
+                        { viewModel.toggleFrupicStarred(it) },
+                        ::onShare
+                    )
+                }
+            }
+            return
+        }
+
         binding = GalleryActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -244,22 +262,7 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
             }
 
             R.id.share_picture -> {
-                val file = storage.getFile(frupic)
-                if (file.exists()) {
-                    analytics.logEvent("frupic_share", null)
-                    val uri = FileProvider.getUriForFile(
-                        this,
-                        BuildConfig.APPLICATION_ID + ".provider",
-                        file
-                    )
-                    intent = ShareCompat.IntentBuilder.from(this)
-                        .setType("image/?")
-                        .setStream(uri)
-                        .setChooserTitle(R.string.share_picture)
-                        .createChooserIntent()
-                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    startActivity(intent)
-                }
+                onShare(frupic)
                 true
             }
 
@@ -283,6 +286,25 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
             }
 
             else -> true
+        }
+    }
+
+    private fun onShare(frupic: Frupic) {
+        val file = storage.getFile(frupic)
+        if (file.exists()) {
+            analytics.logEvent("frupic_share", null)
+            val uri = FileProvider.getUriForFile(
+                this,
+                BuildConfig.APPLICATION_ID + ".provider",
+                file
+            )
+            intent = ShareCompat.IntentBuilder.from(this)
+                .setType("image/?")
+                .setStream(uri)
+                .setChooserTitle(R.string.share_picture)
+                .createChooserIntent()
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            startActivity(intent)
         }
     }
 

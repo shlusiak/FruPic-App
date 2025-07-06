@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.lifecycle.asLiveData
 import androidx.viewpager.widget.PagerAdapter
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -12,7 +13,7 @@ import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.DownloadJob
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicStorage
-import de.saschahlusiak.frupic.app.Result
+import de.saschahlusiak.frupic.app.JobStatus
 import de.saschahlusiak.frupic.databinding.GalleryItemBinding
 import de.saschahlusiak.frupic.model.Frupic
 import java.io.*
@@ -61,24 +62,25 @@ class GalleryAdapter(
                 video.visibility = View.INVISIBLE
 
                 val job = getDownloadJob(frupic)
-                job.progress.observe(activity, Observer { (progress, max) ->
-                    progressBar.progress = 100 * progress / max
-                    progressText.text = String.format(
-                        "%dkb / %dkb (%d%%)",
-                        progress / 1024,
-                        max / 1024,
-                        if (max > 0) progress * 100 / max else 0
-                    )
-
-                })
-                job.result.observe(activity, Observer { result ->
+                job.status.asLiveData().observe(activity, Observer { result ->
                     when (result) {
-                        is Result.Cancelled -> {
+                        is JobStatus.InProgress -> {
+                            progressBar.progress = 100 * result.progress / result.max
+                            progressText.text = String.format(
+                                "%dkb / %dkb (%d%%)",
+                                result.progress / 1024,
+                                result.max / 1024,
+                                if (result.max > 0) result.progress * 100 / result.max else 0
+                            )
+                        }
+
+                        JobStatus.Cancelled -> {
                             progressText.setText(R.string.cancelled)
                             stopButton.setImageResource(android.R.drawable.ic_menu_revert)
                         }
 
-                        else -> {
+                        is JobStatus.Success,
+                            JobStatus.Failed -> {
                             progressLayout.visibility = View.GONE
                             if (!showFrupic(binding.root, frupic)) {
                                 image.visibility = View.VISIBLE
@@ -86,15 +88,17 @@ class GalleryAdapter(
                                 image.setImage(ImageSource.resource(R.drawable.broken_frupic))
                             }
                         }
-                    }
 
-                    job.progress.removeObservers(activity)
+                        JobStatus.Scheduled -> {
+                            // FIXME
+                        }
+                    }
                 })
             }
         }
 
         private fun getDownloadJob(frupic: Frupic): DownloadJob {
-            val existing = downloadManager.getJob(frupic)
+            val existing = downloadManager.getJobOrNull(frupic)
             if (existing != null) return existing
 
             progressText.setText(R.string.waiting_to_start)

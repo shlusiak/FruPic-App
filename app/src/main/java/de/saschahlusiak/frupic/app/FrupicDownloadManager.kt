@@ -1,27 +1,29 @@
 package de.saschahlusiak.frupic.app
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.io.File
 import java.util.Collections.synchronizedMap
 import javax.inject.Inject
 
-sealed class Result {
-    class Success : Result()
-    class Cancelled : Result()
-    class Failed : Result()
+sealed interface JobStatus {
+    data object Scheduled : JobStatus
+    data class InProgress(val progress: Int, val max: Int) : JobStatus
+    data class Success(val file: File) : JobStatus
+    data object Cancelled : JobStatus
+    data object Failed : JobStatus
 }
 
 class DownloadJob(
     val frupic: Frupic
 ) {
     var job: Job? = null
-    val progress = MutableLiveData<Pair<Int, Int>>()
-    val result = MutableLiveData<Result>()
+    val status = MutableStateFlow<JobStatus>(JobStatus.Scheduled)
 }
 
 class FrupicDownloadManager @Inject constructor(
@@ -30,7 +32,8 @@ class FrupicDownloadManager @Inject constructor(
     private val analytics: FirebaseAnalytics
 ) {
     private val scope = CoroutineScope(Dispatchers.Main)
-    private val allJobs: MutableMap<Frupic, DownloadJob> = synchronizedMap(mutableMapOf<Frupic, DownloadJob>())
+    private val allJobs: MutableMap<Frupic, DownloadJob> =
+        synchronizedMap(mutableMapOf<Frupic, DownloadJob>())
     private val channel = Channel<DownloadJob>()
 
     private val concurrentDownloads = 3
@@ -49,7 +52,7 @@ class FrupicDownloadManager @Inject constructor(
         }
     }
 
-    private suspend fun processJob(job: DownloadJob){
+    private suspend fun processJob(job: DownloadJob) {
         val frupic = job.frupic
 
         // skip if we have received work that is already been cancelled
@@ -58,25 +61,22 @@ class FrupicDownloadManager @Inject constructor(
         Log.d(tag, "Starting job #${frupic.id}")
         try {
             val file = storage.download(frupic) { copied, max ->
-                job.progress.value = copied to max
+                job.status.value = JobStatus.InProgress(copied, max)
             }
             Log.d(tag, "Job #${frupic.id} success, downloaded to ${file.absolutePath}")
-            job.result.value = Result.Success()
-        }
-        catch (e: CancellationException) {
+            job.status.value = JobStatus.Success(file)
+        } catch (e: CancellationException) {
             e.printStackTrace()
             Log.d(tag, "Job #${frupic.id} cancelled")
-            job.result.value = Result.Cancelled()
-        }
-        catch (e: Exception) {
+            job.status.value = JobStatus.Cancelled
+        } catch (e: Exception) {
             crashlytics.recordException(e)
             e.printStackTrace()
             analytics.logEvent("frupic_download_failed", null)
 
             Log.d(tag, "Job #${frupic.id} failed")
-            job.result.value = Result.Failed()
-        }
-        finally {
+            job.status.value = JobStatus.Failed
+        } finally {
             allJobs.remove(frupic)
         }
     }
@@ -94,7 +94,23 @@ class FrupicDownloadManager @Inject constructor(
         return true
     }
 
-    fun getJob(frupic: Frupic) = allJobs[frupic]
+    fun getJob(frupic: Frupic): DownloadJob {
+        val existing = allJobs[frupic]
+        if (existing != null) return existing
+
+        val file = storage.getFile(frupic)
+        if (file.exists()) {
+            return DownloadJob(frupic).apply {
+                status.value = JobStatus.Success(file)
+            }
+        }
+
+        return DownloadJob(frupic).also {
+            enqueue(it)
+        }
+    }
+
+    fun getJobOrNull(frupic: Frupic) = allJobs[frupic]
 
     fun cancel(frupic: Frupic): Boolean {
         val job = allJobs[frupic] ?: return false
