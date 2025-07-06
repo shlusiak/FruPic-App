@@ -53,18 +53,14 @@ android {
 dependencies {
     implementation("androidx.annotation:annotation:1.9.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.viewpager:viewpager:1.1.0")
     implementation("androidx.core:core-ktx:1.16.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.fragment:fragment-ktx:1.8.8")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("com.google.android.material:material:1.12.0")
 
     // https://firebase.google.com/support/release-notes/android
     implementation("com.google.firebase:firebase-analytics:22.5.0")
     implementation("com.google.firebase:firebase-crashlytics:19.4.4")
-
-    // Fragment
-    implementation("androidx.fragment:fragment-ktx:1.8.8")
 
     // Lifecycle
     implementation("androidx.lifecycle:lifecycle-process:2.9.1")
@@ -98,7 +94,4 @@ dependencies {
 
     // for launcher badges
     implementation("me.leolin:ShortcutBadger:1.1.22@aar")
-
-    // Picasso for image downloading
-    implementation("com.squareup.picasso:picasso:2.71828")
 }

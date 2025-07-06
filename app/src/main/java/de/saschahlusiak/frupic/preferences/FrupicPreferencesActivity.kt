@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import com.squareup.picasso.Picasso
 import de.saschahlusiak.frupic.R
 
 class FrupicPreferencesActivity : AppCompatActivity() {
@@ -27,10 +26,6 @@ class FrupicPreferencesActivity : AppCompatActivity() {
             view.updatePadding(top = bars.top)
             insets
         }
-
-        val picasso = Picasso.get()
-        val stats = picasso.snapshot
-        stats.dump()
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()

@@ -1,6 +1,7 @@
 package de.saschahlusiak.frupic.grid
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -49,11 +50,13 @@ fun StarredButton(
                 )
                 .size(120.dp, 100.dp)
         ) {
-            Icon(
-                if (starred) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                "",
-                modifier = Modifier.Companion.size(42.dp)
-            )
+            AnimatedContent(starred) { starred ->
+                Icon(
+                    if (starred) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    "",
+                    modifier = Modifier.Companion.size(42.dp)
+                )
+            }
         }
     }
 }

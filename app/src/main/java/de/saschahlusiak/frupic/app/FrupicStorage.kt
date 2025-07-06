@@ -3,7 +3,6 @@ package de.saschahlusiak.frupic.app
 import android.content.Context
 import android.util.Log
 import androidx.annotation.WorkerThread
-import com.squareup.picasso.Picasso
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saschahlusiak.frupic.app.job.CleanupJob
 import de.saschahlusiak.frupic.model.Frupic
@@ -22,7 +21,6 @@ import kotlin.random.Random
 class FrupicStorage @Inject constructor(
     @ApplicationContext private val context: Context,
     private val api: FreamwareApi,
-    private val picasso: Picasso
 ) {
     private val tag = FrupicStorage::class.simpleName
     private val cacheDir = File(context.externalCacheDir ?: context.cacheDir, "full")
@@ -86,10 +84,6 @@ class FrupicStorage @Inject constructor(
     @WorkerThread
     fun maintainCacheSize(targetSizeInMb: Int = 128) {
         val targetSize = targetSizeInMb * 1024 * 1024
-
-        // dump picasso stats, just for good measure
-        val stats = picasso.snapshot
-        stats.dump()
 
         // we are not meant to have any tmpFiles at all
         var freed = 0L

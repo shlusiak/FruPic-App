@@ -7,20 +7,23 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
-import com.squareup.picasso.Picasso
+import coil.load
+import coil.size.Scale
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saschahlusiak.frupic.R
-import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.PreparedImage
 import de.saschahlusiak.frupic.app.UploadManager
 import de.saschahlusiak.frupic.databinding.UploadActivityBinding
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
@@ -58,11 +61,9 @@ class UploadActivity : AppCompatActivity(), View.OnClickListener {
             viewModel.filenameText.observe(this@UploadActivity, Observer { filename.text = it })
             viewModel.okEnabled.observe(this@UploadActivity, Observer { upload.isEnabled = it })
             viewModel.preview.observe(this@UploadActivity, Observer { file ->
-                Picasso.get()
-                    .load(file)
-                    .fit()
-                    .centerInside()
-                    .into(preview)
+                preview.load(file) {
+                    scale(Scale.FIT)
+                }
             })
             viewModel.inProgress.observe(this@UploadActivity, Observer { inProgress ->
                 progress.visibility = if (inProgress) View.VISIBLE else View.GONE
