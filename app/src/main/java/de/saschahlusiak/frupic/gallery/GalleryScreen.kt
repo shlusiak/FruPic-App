@@ -1,23 +1,19 @@
 package de.saschahlusiak.frupic.gallery
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -48,8 +45,8 @@ fun GalleryScreen(
     onShare: (Frupic) -> Unit
 ) {
     val items = viewModel.frupics.collectAsStateWithLifecycle(emptyList()).value
-    val state = rememberPagerState(viewModel.initialPosition) { items.size }
-    val current by remember(items) { derivedStateOf { items.getOrNull(state.currentPage) } }
+    val pagerState = rememberPagerState(viewModel.initialPosition) { items.size }
+    val current by remember(items) { derivedStateOf { items.getOrNull(pagerState.currentPage) } }
     var hudVisible by rememberSaveable { mutableStateOf(true) }
 
     Scaffold(
@@ -58,6 +55,7 @@ fun GalleryScreen(
             TopAppBar(
                 title = { Text("#${current?.id}") },
                 modifier = Modifier.alpha(alpha.value),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
                 navigationIcon = {
                     IconButton(onBack) {
                         Icon(Icons.AutoMirrored.Default.ArrowBack, "")
@@ -81,13 +79,13 @@ fun GalleryScreen(
         }
     ) { contentPadding ->
 
-        HorizontalPager(state) { position ->
+        HorizontalPager(pagerState) { position ->
             GalleryItem(
                 frupic = items[position],
                 downloadManager = viewModel.downloadManager,
                 hudVisible = hudVisible,
+                contentPadding = contentPadding,
                 modifier = Modifier
-                    .padding(contentPadding)
                     .fillMaxSize()
             ) {
                 hudVisible = !hudVisible
@@ -98,8 +96,8 @@ fun GalleryScreen(
             Box(Modifier.fillMaxSize()) {
                 AnimatedVisibility(
                     hudVisible,
-                    enter = slideIn { IntOffset(0, it.height) },
-                    exit = slideOut { IntOffset(0, it.height) },
+                    enter = slideIn { IntOffset(0, it.height) } + fadeIn(),
+                    exit = slideOut { IntOffset(0, it.height) } + fadeOut(),
                     modifier = Modifier.align(Alignment.BottomEnd)
                 ) {
                     ShareButton(contentPadding) { onShare(current) }

@@ -17,13 +17,13 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "de.saschahlusiak.frupic"
+        applicationId = "de.saschahlusiak.frupic2"
 
         minSdk = 31
         targetSdk = 36
 
         versionCode = 40
-        versionName = "1.5.0"
+        versionName = "2.0.0"
     }
     buildTypes {
         release {

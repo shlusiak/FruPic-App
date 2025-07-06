@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -44,6 +45,7 @@ fun GalleryItem(
     frupic: Frupic,
     downloadManager: FrupicDownloadManager,
     hudVisible: Boolean,
+    contentPadding: PaddingValues,
     modifier: Modifier,
     onToggleHud: () -> Unit
 ) {
@@ -56,7 +58,10 @@ fun GalleryItem(
         }
     }
 
-    Box(modifier, contentAlignment = Alignment.Center) {
+    Box(
+        modifier.padding(contentPadding),
+        contentAlignment = Alignment.Center
+    ) {
         when (status) {
             JobStatus.Scheduled -> Progress(null)
 
@@ -75,8 +80,8 @@ fun GalleryItem(
 
                 AnimatedVisibility(
                     hudVisible,
-                    enter = slideIn { IntOffset(0, it.height) },
-                    exit = slideOut { IntOffset(0, it.height) },
+                    enter = slideIn { IntOffset(-it.width, 0) },
+                    exit = slideOut { IntOffset(-it.width, 0) },
                     modifier = Modifier.align(Alignment.BottomStart)
                 ) {
                     Hud(frupic)

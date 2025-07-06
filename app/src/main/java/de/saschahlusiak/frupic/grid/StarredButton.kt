@@ -35,18 +35,19 @@ fun StarredButton(
     Surface(
         checked = starred,
         onCheckedChange = onStarredChange,
-        modifier = modifier
-            .size(150.dp, 115.dp),
-        shape = RoundedCornerShape(topEndPercent = 100, topStartPercent = 25),
+        modifier = modifier,
+        shape = RoundedCornerShape(topEndPercent = 100, topStartPercent = 20),
         color = if (starred) colors.checkedContainerColor else colors.containerColor,
         contentColor = if (starred) colors.checkedContentColor else colors.contentColor
     ) {
         Box(
             contentAlignment = Alignment.Companion.Center,
-            modifier = Modifier.Companion.padding(
-                bottom = contentPadding.calculateBottomPadding(),
-                end = 32.dp
-            ),
+            modifier = Modifier.Companion
+                .padding(
+                    bottom = contentPadding.calculateBottomPadding(),
+                    end = 32.dp
+                )
+                .size(120.dp, 100.dp)
         ) {
             Icon(
                 if (starred) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,

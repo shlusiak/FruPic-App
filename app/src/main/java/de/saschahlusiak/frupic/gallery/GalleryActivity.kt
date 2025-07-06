@@ -77,10 +77,10 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
             setContent {
                 AppTheme {
                     GalleryScreen(
-                        viewModel,
-                        { finish() },
-                        { viewModel.toggleFrupicStarred(it) },
-                        ::onShare
+                        viewModel = viewModel,
+                        onBack = { finish() },
+                        onToggleFavourite = { viewModel.toggleFrupicStarred(it) },
+                        onShare = ::onShare
                     )
                 }
             }

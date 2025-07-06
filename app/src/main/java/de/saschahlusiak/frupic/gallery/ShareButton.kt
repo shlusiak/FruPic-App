@@ -32,17 +32,18 @@ fun ShareButton(
 
     Surface(
         onClick = onClick,
-        modifier = modifier
-            .size(150.dp, 115.dp),
-        shape = RoundedCornerShape(topStartPercent = 100, topEndPercent = 25),
+        modifier = modifier,
+        shape = RoundedCornerShape(topStartPercent = 100, topEndPercent = 20),
         color = colors.containerColor,
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(
-                bottom = contentPadding.calculateBottomPadding(),
-                start = 32.dp
-            ),
+            modifier = Modifier
+                .padding(
+                    bottom = contentPadding.calculateBottomPadding(),
+                    start = 32.dp
+                )
+                .size(120.dp, 100.dp)
         ) {
             Icon(
                 Icons.Filled.Share,

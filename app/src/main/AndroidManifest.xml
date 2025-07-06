@@ -60,7 +60,7 @@
 
         <activity
             android:name=".gallery.GalleryActivity"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.Gallery" />
 
         <activity
             android:name=".preferences.FrupicPreferencesActivity"
