@@ -54,11 +54,9 @@ data class Frupic(
     @Transient
     val url = "https://frupic.frubar.net/$id"
 
-    @Transient
-    val isAnimated = fullUrl.endsWith(".gif") || fullUrl.endsWith(".GIF")
+    val isAnimated get() = fullUrl.endsWith(".gif") || fullUrl.endsWith(".GIF")
 
-    @Transient
-    val tags = tagsString.split(", ")
+    val tags by lazy { tagsString.split(", ") }
 
     val isStarred get() = (flags and FLAG_FAV) != 0
 
@@ -75,10 +73,6 @@ data class Frupic(
     )
 
     fun hasFlag(flag: Int) = (flags and flag) != 0
-
-    override fun equals(other: Any?) = (other is Frupic) && other.id == id
-
-    override fun hashCode() = id
 
     companion object {
         private const val serialVersionUID = 12345L

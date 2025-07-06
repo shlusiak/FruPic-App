@@ -130,13 +130,16 @@ class FrupicRepository @Inject constructor(
         _lastUpdated.value = System.currentTimeMillis()
     }
 
-    @MainThread
     suspend fun setStarred(frupic: Frupic, starred: Boolean) {
-        withContext(Dispatchers.IO) {
-            withDB {
-                updateFlags(frupic, Frupic.FLAG_FAV, starred)
-            }
-        }
+        val updated = frupic.copy(
+            flags = if (starred)
+                frupic.flags or Frupic.FLAG_FAV
+            else
+                frupic.flags and Frupic.FLAG_FAV.inv()
+        )
+
+        dao.update(updated)
+
         _lastUpdated.value = System.currentTimeMillis()
     }
 

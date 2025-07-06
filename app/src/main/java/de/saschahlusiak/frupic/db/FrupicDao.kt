@@ -3,6 +3,7 @@ package de.saschahlusiak.frupic.db
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.flow.Flow
 
@@ -19,4 +20,7 @@ interface FrupicDao {
 
     @Insert
     suspend fun add(list: List<Frupic>)
+
+    @Update
+    suspend fun update(frupic: Frupic)
 }
