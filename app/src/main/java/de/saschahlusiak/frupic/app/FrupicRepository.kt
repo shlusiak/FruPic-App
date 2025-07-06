@@ -13,6 +13,7 @@ import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -30,12 +31,12 @@ class FrupicRepository @Inject constructor(
     private val db: FrupicDB,
     private val dao: FrupicDao
 ) {
-    private val _synchronizing = MutableLiveData(false)
+    private val _synchronizing = MutableStateFlow(false)
     private val _lastUpdated = MutableStateFlow(0L)
     private val dbLock = Mutex()
 
     // Flag whether synchronizing is currently in progress
-    val synchronizing = _synchronizing as LiveData<Boolean>
+    val synchronizing = _synchronizing.asStateFlow()
 
     // Timestamp of last successful synchronize. May be used to update UI
     val lastUpdated = _lastUpdated as StateFlow<Long>

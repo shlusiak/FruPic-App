@@ -33,7 +33,6 @@ import de.saschahlusiak.frupic.gallery.GalleryActivity
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.preferences.FrupicPreferencesActivity
 import de.saschahlusiak.frupic.upload.UploadActivity
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
@@ -118,7 +117,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
             viewModel.reloadData()
         })
 
-        viewModel.synchronizing.observe(viewLifecycleOwner, Observer { synchronizing ->
+        viewModel.synchronizing.asLiveData().observe(viewLifecycleOwner, Observer { synchronizing ->
             binding.swipeRefreshLayout.isRefreshing = (synchronizing)
         })
 
@@ -230,7 +229,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
     }
 
     override fun onRefresh() {
-        viewModel.doRefresh()
+        viewModel.synchronize()
     }
 
     override fun onFrupicClick(position: Int, frupic: Frupic) {

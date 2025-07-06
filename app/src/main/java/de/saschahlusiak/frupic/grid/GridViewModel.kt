@@ -1,20 +1,9 @@
 package de.saschahlusiak.frupic.grid
 
 import android.database.Cursor
-import android.net.http.HttpException
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
-import androidx.paging.PagingSource.LoadParams
-import androidx.paging.PagingSource.LoadResult
-import androidx.paging.PagingState
-import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.app.FrupicStorage
@@ -23,19 +12,10 @@ import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,7 +28,7 @@ class GridViewModel @Inject constructor(
 
     val starred = MutableStateFlow(false)
     val cursor = MutableStateFlow<Cursor?>(null)
-    val synchronizing: LiveData<Boolean>
+    val synchronizing: StateFlow<Boolean>
     val lastUpdated: StateFlow<Long>
 
     val fruPics = repository.asFlow()
@@ -93,7 +73,7 @@ class GridViewModel @Inject constructor(
         }
     }
 
-    fun doRefresh() {
+    fun synchronize() {
         viewModelScope.launch {
             repository.removeFlags(Frupic.FLAG_NEW)
             repository.synchronize()

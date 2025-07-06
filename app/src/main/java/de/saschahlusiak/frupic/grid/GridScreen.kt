@@ -3,6 +3,7 @@ package de.saschahlusiak.frupic.grid
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,20 +52,26 @@ fun GridScreen(
     ) { contentPadding ->
         val items = viewModel.fruPics.collectAsStateWithLifecycle(emptyList()).value
 
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 88.dp),
-            contentPadding = contentPadding
+        PullToRefreshBox(
+            viewModel.synchronizing.collectAsStateWithLifecycle().value,
+            modifier = Modifier.padding(contentPadding).fillMaxSize(),
+            onRefresh = { viewModel.synchronize() }
         ) {
-            items(
-                count = items.count(),
-                key = { items[it].id }
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 88.dp),
+                modifier = Modifier.fillMaxSize()
             ) {
-                val item = items[it]
-                GridItem(
-                    frupic = item,
-                    modifier = Modifier.animateItem()
+                items(
+                    count = items.count(),
+                    key = { items[it].id }
                 ) {
-                    onFrupicClick(it, item)
+                    val item = items[it]
+                    GridItem(
+                        frupic = item,
+                        modifier = Modifier.animateItem()
+                    ) {
+                        onFrupicClick(it, item)
+                    }
                 }
             }
         }
