@@ -1,6 +1,5 @@
 package de.saschahlusiak.frupic.grid
 
-import android.database.Cursor
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,9 +26,7 @@ class GridViewModel @Inject constructor(
     private val tag = GridViewModel::class.simpleName
 
     val starred = MutableStateFlow(false)
-    val cursor = MutableStateFlow<Cursor?>(null)
     val synchronizing: StateFlow<Boolean>
-    val lastUpdated: StateFlow<Long>
 
     val fruPics = repository.asFlow()
         .combine(starred) { frupics, starred ->
@@ -43,7 +40,6 @@ class GridViewModel @Inject constructor(
         Log.d(tag, "Initializing")
 
         synchronizing = repository.synchronizing
-        lastUpdated = repository.lastUpdated
 
         viewModelScope.launch {
             repository.synchronize()
@@ -53,17 +49,14 @@ class GridViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        cursor.value?.close()
-
         GlobalScope.launch(Dispatchers.Main) {
-            repository.removeFlags(Frupic.FLAG_NEW)
+            repository.markAllAsSeen()
             notificationManager.clearUnseenNotification()
         }
     }
 
     fun toggleShowStarred() {
         starred.value = (starred.value == false)
-        reloadData()
     }
 
     fun toggleFrupicStarred(frupic: Frupic) {
@@ -75,7 +68,7 @@ class GridViewModel @Inject constructor(
 
     fun synchronize() {
         viewModelScope.launch {
-            repository.removeFlags(Frupic.FLAG_NEW)
+            repository.markAllAsSeen()
             repository.synchronize()
         }
     }
@@ -86,14 +79,7 @@ class GridViewModel @Inject constructor(
         }
     }
 
-    fun reloadData() {
-        Log.d(tag, "reloadData")
-
-        viewModelScope.launch {
-            val c = repository.getFrupics(starred.value ?: false)
-
-            cursor.value?.close()
-            cursor.value = c
-        }
+    suspend fun needsMoreData(size: Int) {
+        repository.fetch(size, 50)
     }
 }

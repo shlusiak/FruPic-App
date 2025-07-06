@@ -3,11 +3,11 @@ package de.saschahlusiak.frupic.grid
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -25,6 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -35,7 +39,7 @@ import de.saschahlusiak.frupic.model.Frupic
 @Composable
 fun GridScreen(
     viewModel: GridViewModel,
-    onFrupicClick: (Int, Frupic) -> Unit,
+    onFrupicClick: (Int, Frupic, Boolean) -> Unit,
     onUpload: () -> Unit,
     onSettings: () -> Unit
 ) {
@@ -52,14 +56,34 @@ fun GridScreen(
         }
     ) { contentPadding ->
         val items = viewModel.fruPics.collectAsStateWithLifecycle(emptyList()).value
+        val gridState = rememberLazyGridState()
+        val starred by viewModel.starred.collectAsStateWithLifecycle()
+        val needsMoreData by remember(items.size) {
+            derivedStateOf { gridState.firstVisibleItemIndex > items.size - 200 && !starred }
+        }
+
+        LaunchedEffect(starred) {
+            if (!starred) {
+                gridState.animateScrollToItem(0)
+            }
+        }
+
+        LaunchedEffect(needsMoreData, items.size) {
+            if (needsMoreData) {
+                viewModel.needsMoreData(items.size)
+            }
+        }
 
         PullToRefreshBox(
             viewModel.synchronizing.collectAsStateWithLifecycle().value,
-            modifier = Modifier.padding(contentPadding).fillMaxSize(),
+            modifier = Modifier
+                .padding(contentPadding)
+                .fillMaxSize(),
             onRefresh = { viewModel.synchronize() }
         ) {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 88.dp),
+                state = gridState,
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(
@@ -71,17 +95,15 @@ fun GridScreen(
                         frupic = item,
                         modifier = Modifier.animateItem()
                     ) {
-                        onFrupicClick(it, item)
+                        onFrupicClick(it, item, starred)
                     }
                 }
             }
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            val starred = viewModel.starred.collectAsStateWithLifecycle()
-
             StarredButton(
-                starred = starred.value,
+                starred = starred,
                 contentPadding = contentPadding,
                 modifier = Modifier.align(Alignment.BottomStart)
             ) {

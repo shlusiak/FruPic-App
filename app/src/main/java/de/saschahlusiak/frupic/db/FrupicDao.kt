@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.db
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import de.saschahlusiak.frupic.model.Frupic
@@ -15,12 +16,12 @@ interface FrupicDao {
     @Query("SELECT * from frupics ORDER BY _id DESC")
     fun getFlow(): Flow<List<Frupic>>
 
-    @Insert
-    suspend fun add(frupic: Frupic)
-
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun add(list: List<Frupic>)
 
     @Update
     suspend fun update(frupic: Frupic)
+
+    @Query("UPDATE frupics SET new = false")
+    suspend fun markAllAsSeen()
 }

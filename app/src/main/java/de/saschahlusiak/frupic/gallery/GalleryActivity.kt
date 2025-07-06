@@ -43,6 +43,7 @@ import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.databinding.GalleryActivityBinding
 import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.model.Frupic
+import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -78,11 +79,6 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
         supportActionBar?.setDisplayShowHomeEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        if (savedInstanceState == null) {
-            viewModel.starred = intent.getBooleanExtra("starred", false)
-            viewModel.position = intent.getIntExtra("position", 0)
-        }
-
         binding.viewPager.addOnPageChangeListener(this)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.appbar) { view, insets ->
@@ -101,13 +97,19 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
         adapter = GalleryAdapter(this, animateGifs, storage, viewModel.downloadManager)
         binding.viewPager.adapter = adapter
 
-        viewModel.cursor.observe(this, Observer { cursor: Cursor ->
-            adapter?.setCursor(cursor)
-            binding.viewPager.setCurrentItem(viewModel.position, false)
+        viewModel.frupics.asLiveData().observe(this, Observer { list: List<Frupic> ->
+            adapter?.setList(list)
+            binding.viewPager.setCurrentItem(viewModel.position.value, false)
         })
 
-        viewModel.currentFrupic.observe(this, Observer { frupic: Frupic -> updateLabels(frupic) })
-        viewModel.lastUpdated.asLiveData().observe(this, Observer { viewModel.reloadData() })
+        viewModel.currentFrupic.asLiveData().observe(this, Observer { frupic: Frupic? ->
+            frupic ?: return@Observer
+            updateLabels(frupic)
+        })
+
+        viewModel.position.asLiveData().observe(this) { position ->
+            if (position < 0) finish()
+        }
     }
 
     /**
@@ -131,8 +133,8 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
         t.text = getString(R.string.gallery_posted_by, frupic.username)
         supportActionBar?.title = String.format("#%d", frupic.id)
         menu?.findItem(R.id.star)?.apply {
-            setIcon(if (frupic.hasFlag(Frupic.FLAG_FAV)) R.drawable.star_label else R.drawable.star_empty)
-            isChecked = frupic.hasFlag(Frupic.FLAG_FAV)
+            setIcon(if (frupic.isStarred) R.drawable.star_label else R.drawable.star_empty)
+            isChecked = frupic.isStarred
         }
         t = findViewById(R.id.tags)
         val tags = frupic.tagsString
@@ -150,8 +152,8 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
         this.menu = menu
         viewModel.currentFrupic.value?.let { frupic ->
             menu.findItem(R.id.star)?.apply {
-                setIcon(if (frupic.hasFlag(Frupic.FLAG_FAV)) R.drawable.star_label else R.drawable.star_empty)
-                isChecked = frupic.hasFlag(Frupic.FLAG_FAV)
+                setIcon(if (frupic.isStarred) R.drawable.star_label else R.drawable.star_empty)
+                isChecked = frupic.isStarred
             }
         }
         return super.onCreateOptionsMenu(menu)
@@ -208,13 +210,13 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val intent: Intent
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+
         val frupic = viewModel.currentFrupic.value ?: return false
         return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
-
             R.id.openinbrowser -> {
                 analytics.logEvent("frupic_open_in_browser", null)
                 intent = Intent(Intent.ACTION_VIEW, frupic.url.toUri())
@@ -291,7 +293,7 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
 
     override fun onPageSelected(position: Int) {
         Log.i(tag, "onPageSelected($position)")
-        viewModel.position = position
+        viewModel.position.value = position
         if (supportActionBar?.isShowing == false) {
             toggleControls()
         }

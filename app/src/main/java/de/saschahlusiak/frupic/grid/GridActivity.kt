@@ -31,23 +31,14 @@ class GridActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        if (true) {
-            setContent {
-                AppTheme {
-                    GridScreen(
-                        viewModel = hiltViewModel(),
-                        onFrupicClick = ::onFrupicClick,
-                        onUpload = ::onUpload,
-                        onSettings = ::onSettings
-                    )
-                }
-            }
-        } else {
-            if (savedInstanceState == null) {
-                supportFragmentManager
-                    .beginTransaction()
-                    .replace(android.R.id.content, GridFragment())
-                    .commit()
+        setContent {
+            AppTheme {
+                GridScreen(
+                    viewModel = hiltViewModel(),
+                    onFrupicClick = ::onFrupicClick,
+                    onUpload = ::onUpload,
+                    onSettings = ::onSettings
+                )
             }
         }
 
@@ -57,11 +48,11 @@ class GridActivity : AppCompatActivity() {
         )
     }
 
-    private fun onFrupicClick(position: Int, frupic: Frupic) {
+    private fun onFrupicClick(position: Int, frupic: Frupic, showStarred: Boolean) {
         val intent = Intent(this, GalleryActivity::class.java).apply {
             putExtra("id", frupic.id)
             putExtra("position", position)
-//            putExtra("starred", viewModel.starred.value)
+            putExtra("starred", showStarred)
         }
         startActivity(intent)
     }

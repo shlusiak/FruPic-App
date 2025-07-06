@@ -1,21 +1,14 @@
 package de.saschahlusiak.frupic.app
 
 import android.content.Context
-import android.database.Cursor
 import android.util.Log
 import androidx.annotation.MainThread
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import dagger.hilt.android.qualifiers.ApplicationContext
-import de.saschahlusiak.frupic.db.FrupicDB
 import de.saschahlusiak.frupic.db.FrupicDao
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import me.leolin.shortcutbadger.ShortcutBadger
 import org.json.JSONException
@@ -28,24 +21,12 @@ import kotlin.system.measureTimeMillis
 class FrupicRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val api: FreamwareApi,
-    private val db: FrupicDB,
     private val dao: FrupicDao
 ) {
     private val _synchronizing = MutableStateFlow(false)
-    private val _lastUpdated = MutableStateFlow(0L)
-    private val dbLock = Mutex()
 
     // Flag whether synchronizing is currently in progress
     val synchronizing = _synchronizing.asStateFlow()
-
-    // Timestamp of last successful synchronize. May be used to update UI
-    val lastUpdated = _lastUpdated as StateFlow<Long>
-
-    init {
-        Log.d(tag, "Initializing ${FrupicRepository::class.simpleName}")
-        // FIXME: there is no close. :(
-        db.open()
-    }
 
     /**
      * Synchronize the most recent Frupics.
@@ -100,70 +81,29 @@ class FrupicRepository @Inject constructor(
         }.also {
             Log.d(tag, "Stored ${result.size} Frupics in db in $it ms")
         }
-
-        _lastUpdated.value = System.currentTimeMillis()
     }
 
     fun asFlow() = dao.getFlow()
 
-    suspend fun getFrupics(starred: Boolean = false): Cursor {
-        return withContext(Dispatchers.IO) {
-            val mask = if (starred) Frupic.FLAG_FAV else 0
-            return@withContext withDB {
-                // only return pics that do NOT have the FLAG_HIDDEN flag set to 1
-                getFrupics(null, Frupic.FLAG_HIDDEN or mask, Frupic.FLAG_FAV)
-            }
-        }
-    }
-
-    /**
-     * Remove the given flag (e.g. [Frupic.FLAG_NEW]) from all Frupics.
-     */
-    @MainThread
-    suspend fun removeFlags(flag: Int) {
-        withContext(Dispatchers.IO) {
-            withDB {
-                updateFlags(null, flag, false)
-            }
-            updateBadgeCount()
-        }
-        _lastUpdated.value = System.currentTimeMillis()
+    suspend fun markAllAsSeen() {
+        dao.markAllAsSeen()
+        updateBadgeCount()
     }
 
     suspend fun setStarred(frupic: Frupic, starred: Boolean) {
-        val updated = frupic.copy(
-            flags = if (starred)
-                frupic.flags or Frupic.FLAG_FAV
-            else
-                frupic.flags and Frupic.FLAG_FAV.inv()
-        )
+        val updated = frupic.copy(isStarred = starred)
 
         dao.update(updated)
-
-        _lastUpdated.value = System.currentTimeMillis()
     }
 
     private suspend fun updateBadgeCount() {
-        val count = getFrupicCount(Frupic.FLAG_NEW)
+        val count = getNewCount()
         Log.d(tag, "Updating unread badge to $count")
         ShortcutBadger.applyCount(context, count)
     }
 
-    suspend fun getFrupicCount(mask: Int): Int {
-        return withContext(Dispatchers.IO) {
-            withDB {
-                getFrupics(null, mask)
-            }
-        }.use { it.count }
-    }
-
-    /**
-     * Runs the given block in an exclusive DB session.
-     */
-    private suspend fun <R> withDB(block: FrupicDB.() -> R): R {
-        return dbLock.withLock {
-            block(db)
-        }
+    suspend fun getNewCount(): Int {
+        return dao.getAllFrupics().count { it.isNew }
     }
 
     companion object {

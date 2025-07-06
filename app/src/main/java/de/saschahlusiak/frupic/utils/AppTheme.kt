@@ -13,6 +13,7 @@ fun AppTheme(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
+
     MaterialTheme(
         colorScheme = if (darkTheme)
             dynamicDarkColorScheme(context)

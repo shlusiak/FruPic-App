@@ -1,6 +1,5 @@
 package de.saschahlusiak.frupic.gallery
 
-import android.database.Cursor
 import android.net.Uri
 import android.util.Log
 import android.view.View
@@ -19,8 +18,13 @@ import de.saschahlusiak.frupic.model.Frupic
 import java.io.*
 import java.util.*
 
-class GalleryAdapter(private val activity: GalleryActivity, private val showAnimations: Boolean, private val storage: FrupicStorage, private val downloadManager: FrupicDownloadManager) : PagerAdapter() {
-    private var cursor: Cursor? = null
+class GalleryAdapter(
+    private val activity: GalleryActivity,
+    private val showAnimations: Boolean,
+    private val storage: FrupicStorage,
+    private val downloadManager: FrupicDownloadManager
+) : PagerAdapter() {
+    private var list: List<Frupic> = emptyList()
 
     inner class ViewHolder(
         val binding: GalleryItemBinding,
@@ -59,7 +63,12 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
                 val job = getDownloadJob(frupic)
                 job.progress.observe(activity, Observer { (progress, max) ->
                     progressBar.progress = 100 * progress / max
-                    progressText.text = String.format("%dkb / %dkb (%d%%)", progress / 1024, max / 1024, if (max > 0) progress * 100 / max else 0)
+                    progressText.text = String.format(
+                        "%dkb / %dkb (%d%%)",
+                        progress / 1024,
+                        max / 1024,
+                        if (max > 0) progress * 100 / max else 0
+                    )
 
                 })
                 job.result.observe(activity, Observer { result ->
@@ -106,8 +115,8 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
         }
     }
 
-    fun setCursor(cursor: Cursor) {
-        this.cursor = cursor
+    fun setList(list: List<Frupic>) {
+        this.list = list
         notifyDataSetChanged()
     }
 
@@ -171,11 +180,9 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val cursor = cursor ?: return Unit
+        val frupic = list[position]
 
         Log.w(tag, "instantiateItem($position)")
-        cursor.moveToPosition(position)
-        val frupic = Frupic(cursor)
         val binding = GalleryItemBinding.inflate(activity.layoutInflater, container, false)
         binding.imageView.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
 
@@ -201,19 +208,14 @@ class GalleryAdapter(private val activity: GalleryActivity, private val showAnim
     override fun getItemPosition(`object`: Any): Int {
         val holder = `object` as ViewHolder
         val frupic = holder.frupic
-        val cursor = cursor ?: return POSITION_NONE
-        cursor.moveToFirst()
-        var position = 0
-        while (!cursor.isAfterLast) {
-            if (Frupic(cursor) == frupic) return position
-            position++
-            cursor.moveToNext()
-        }
-        return POSITION_NONE
+        val found = list.firstOrNull {
+            it.id == frupic.id
+        } ?: POSITION_NONE
+        return list.indexOf(found)
     }
 
     override fun getCount(): Int {
-        return cursor?.count ?: 0
+        return list.size
     }
 
     override fun isViewFromObject(view: View, `object`: Any): Boolean {

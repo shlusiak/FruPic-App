@@ -39,13 +39,14 @@ class FreamwareApi @Inject constructor() {
 
         return JSONArray(json).toList<JSONObject>().map { jo ->
             Frupic(
-                jo.getInt("id"),
-                Frupic.FLAG_NEW,
-                jo.getString("url"),
-                jo.getString("thumb_url"),
-                jo.getString("date"),
-                jo.getString("username"),
-                jo.getJSONArray("tags").toList<String>().joinToString(", ")
+                id = jo.getInt("id"),
+                isStarred = false,
+                isNew = true,
+                fullUrl = jo.getString("url"),
+                thumbUrl = jo.getString("thumb_url"),
+                date = jo.getString("date"),
+                username = jo.getString("username"),
+                tagsString = jo.getJSONArray("tags").toList<String>().joinToString(", ")
             )
         }
     }

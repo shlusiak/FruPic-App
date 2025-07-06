@@ -32,13 +32,14 @@ class SynchronizeJob : JobService() {
 
     override fun onStartJob(params: JobParameters): Boolean {
         scope.launch {
-            val before = repository.getFrupicCount(Frupic.FLAG_NEW)
+            val before = repository.getNewCount()
+
             if (!repository.synchronize()) {
                 jobFinished(params, true)
                 return@launch
             }
 
-            val after = repository.getFrupicCount(Frupic.FLAG_NEW)
+            val after = repository.getNewCount()
 
             if (after == 0) {
                 notificationManager.clearUnseenNotification()

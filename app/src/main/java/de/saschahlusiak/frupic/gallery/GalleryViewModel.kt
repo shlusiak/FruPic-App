@@ -1,77 +1,52 @@
 package de.saschahlusiak.frupic.gallery
 
-import android.app.Application
 import android.database.Cursor
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.lifecycle.HiltViewModel
-import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
-import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.model.Frupic
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
     val downloadManager: FrupicDownloadManager,
-    private val repository: FrupicRepository
+    private val repository: FrupicRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val tag = GalleryViewModel::class.simpleName
 
-    val cursor = MutableLiveData<Cursor>()
-    val currentFrupic = MutableLiveData<Frupic>()
-    val lastUpdated: StateFlow<Long>
+    val showStarred: Boolean = savedStateHandle["starred"] ?: false
 
-    var starred: Boolean = false
-
-    var position: Int = -1
-        set(value) {
-            Log.d(tag, "Position = " + value)
-            field = value
-            cursor.value?.let { cursor ->
-                if (cursor.moveToPosition(value)) {
-                    val frupic = Frupic(cursor)
-                    currentFrupic.value = frupic
-                    // TODO: mark as seen
-                }
-            }
+    val frupics = repository.asFlow()
+        .map {
+            if (showStarred) it.filter { it.isStarred }
+            else it
         }
+
+    val position = MutableStateFlow(savedStateHandle["position"] ?: 0)
+    val currentFrupic = frupics.combine(position) { frupics, position ->
+        if (position >= 0 && position !in frupics.indices) this.position.value = frupics.lastIndex
+        frupics.getOrNull(position)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     init {
         Log.d(tag, "Initializing")
-
-        lastUpdated = repository.lastUpdated
-
-        reloadData()
     }
 
     override fun onCleared() {
         downloadManager.shutdown()
-        cursor.value?.close()
         super.onCleared()
-    }
-
-    fun reloadData() {
-        viewModelScope.launch {
-            val c = repository.getFrupics(starred)
-            cursor.value?.close()
-            cursor.value = c
-
-            if (c.moveToPosition(position)) {
-                val frupic = Frupic(c)
-                currentFrupic.value = frupic
-                // TODO: mark as seen
-            }
-        }
     }
 
     fun toggleFrupicStarred(frupic: Frupic) {
