@@ -46,7 +46,7 @@ class FreamwareApi @Inject constructor() {
                 thumbUrl = jo.getString("thumb_url"),
                 date = jo.getString("date"),
                 username = jo.getString("username"),
-                tagsString = jo.getJSONArray("tags").toList<String>().joinToString(", ")
+                tagsString = jo.getJSONArray("tags").toList<String>().joinToString("||")
             )
         }
     }

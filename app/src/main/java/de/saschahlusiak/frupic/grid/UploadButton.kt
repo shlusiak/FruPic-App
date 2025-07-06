@@ -29,7 +29,7 @@ fun UploadButton(
     Surface(
         onClick = onClick,
         modifier = modifier
-            .size(170.dp, 130.dp),
+            .size(150.dp, 115.dp),
         shape = RoundedCornerShape(topStartPercent = 100, topEndPercent = 25),
         color = colors.containerColor,
     ) {

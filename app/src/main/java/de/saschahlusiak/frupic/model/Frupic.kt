@@ -53,7 +53,7 @@ data class Frupic(
 
     val isAnimated get() = fullUrl.endsWith(".gif") || fullUrl.endsWith(".GIF")
 
-    val tags by lazy { tagsString.split(", ") }
+    val tags by lazy { tagsString.split("||").filter { it.isNotBlank() } }
 
     val filename: String by lazy { File(fullUrl).name }
 }

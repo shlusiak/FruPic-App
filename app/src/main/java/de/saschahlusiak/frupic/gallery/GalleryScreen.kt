@@ -1,6 +1,14 @@
 package de.saschahlusiak.frupic.gallery
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,7 +24,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.saschahlusiak.frupic.model.Frupic
 
@@ -29,11 +44,14 @@ fun GalleryScreen(
     onShare: (Frupic) -> Unit
 ) {
     val current = viewModel.currentFrupic.collectAsStateWithLifecycle().value
+    var hudVisible by rememberSaveable { mutableStateOf(true) }
 
     Scaffold(
         topBar = {
+            val alpha = animateFloatAsState(if (hudVisible) 1f else 0f)
             TopAppBar(
                 title = { Text("#${current?.id}") },
+                modifier = Modifier.alpha(alpha.value),
                 navigationIcon = {
                     IconButton(onBack) {
                         Icon(Icons.AutoMirrored.Default.ArrowBack, "")
@@ -41,11 +59,6 @@ fun GalleryScreen(
                 },
                 actions = {
                     current ?: return@TopAppBar
-
-                    IconButton({ onShare(current)}) {
-                        Icon(Icons.Default.Share, "")
-                    }
-
 
                     IconButton({ onToggleFavourite(current) }) {
                         AnimatedContent(current.isStarred) { starred ->
@@ -61,7 +74,6 @@ fun GalleryScreen(
                         }
                     }
                 }
-
             )
         }
     ) { contentPadding ->
@@ -70,8 +82,24 @@ fun GalleryScreen(
             GalleryItem(
                 frupic = current,
                 downloadManager = viewModel.downloadManager,
-                modifier = Modifier.padding(contentPadding).fillMaxSize()
-            )
+                hudVisible = hudVisible,
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .fillMaxSize()
+            ) {
+                hudVisible = !hudVisible
+            }
+
+            Box(Modifier.fillMaxSize()) {
+                AnimatedVisibility(
+                    hudVisible,
+                    enter = slideIn { IntOffset(0, it.height) },
+                    exit = slideOut { IntOffset(0, it.height) },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                ) {
+                    ShareButton(contentPadding) { onShare(current) }
+                }
+            }
         }
     }
 }

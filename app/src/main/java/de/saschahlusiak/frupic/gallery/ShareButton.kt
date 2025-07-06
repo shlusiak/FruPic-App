@@ -1,4 +1,4 @@
-package de.saschahlusiak.frupic.grid
+package de.saschahlusiak.frupic.gallery
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -18,40 +18,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.utils.AppTheme
 
 @Composable
-fun StarredButton(
-    starred: Boolean,
+fun ShareButton(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
-    onStarredChange: (Boolean) -> Unit
+    onClick: () -> Unit
 ) {
-    val colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-        checkedContentColor = MaterialTheme.colorScheme.error
+    val colors = IconButtonDefaults.filledIconButtonColors(
+        containerColor = MaterialTheme.colorScheme.secondaryContainer
     )
 
     Surface(
-        checked = starred,
-        onCheckedChange = onStarredChange,
+        onClick = onClick,
         modifier = modifier
             .size(150.dp, 115.dp),
-        shape = RoundedCornerShape(topEndPercent = 100, topStartPercent = 25),
-        color = if (starred) colors.checkedContainerColor else colors.containerColor,
-        contentColor = if (starred) colors.checkedContentColor else colors.contentColor
+        shape = RoundedCornerShape(topStartPercent = 100, topEndPercent = 25),
+        color = colors.containerColor,
     ) {
         Box(
-            contentAlignment = Alignment.Companion.Center,
-            modifier = Modifier.Companion.padding(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(
                 bottom = contentPadding.calculateBottomPadding(),
-                end = 32.dp
+                start = 32.dp
             ),
         ) {
             Icon(
-                if (starred) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                Icons.Filled.Share,
                 "",
-                modifier = Modifier.Companion.size(42.dp)
+                modifier = Modifier.size(42.dp)
             )
         }
     }
@@ -62,6 +58,6 @@ fun StarredButton(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 private fun Preview() {
     AppTheme {
-        StarredButton(true, PaddingValues()) {}
+        ShareButton(PaddingValues()) {}
     }
 }

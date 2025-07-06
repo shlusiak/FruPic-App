@@ -1,17 +1,22 @@
 package de.saschahlusiak.frupic.gallery
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -20,11 +25,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
-import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.app.JobStatus
 import de.saschahlusiak.frupic.model.Frupic
 import me.saket.telephoto.zoomable.ZoomSpec
@@ -38,7 +43,9 @@ import java.util.Locale
 fun GalleryItem(
     frupic: Frupic,
     downloadManager: FrupicDownloadManager,
-    modifier: Modifier
+    hudVisible: Boolean,
+    modifier: Modifier,
+    onToggleHud: () -> Unit
 ) {
     val job = remember(frupic) { downloadManager.getJob(frupic) }
     val status = job.status.collectAsStateWithLifecycle().value
@@ -64,14 +71,67 @@ fun GalleryItem(
             }
 
             is JobStatus.Success -> {
-                ImageView(status.file)
+                ImageView(status.file, onToggleHud)
+
+                AnimatedVisibility(
+                    hudVisible,
+                    enter = slideIn { IntOffset(0, it.height) },
+                    exit = slideOut { IntOffset(0, it.height) },
+                    modifier = Modifier.align(Alignment.BottomStart)
+                ) {
+                    Hud(frupic)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun ImageView(file: File) {
+private fun Hud(frupic: Frupic, modifier: Modifier = Modifier) {
+    Column(
+        verticalArrangement = spacedBy(8.dp),
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier.padding(16.dp)
+    ) {
+        if (frupic.username?.isNotBlank() == true) {
+            Surface(
+                shape = AssistChipDefaults.shape,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+            ) {
+                Box(Modifier.padding(horizontal = 8.dp)) {
+                    Text(
+                        frupic.username,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+        }
+
+        if (frupic.tags.isNotEmpty()) {
+            FlowRow(
+                horizontalArrangement = spacedBy(4.dp),
+                modifier = Modifier.padding(end = 150.dp)
+            ) {
+                frupic.tags.forEach { tag ->
+                    Surface(
+                        shape = AssistChipDefaults.shape,
+                        color = MaterialTheme.colorScheme.tertiaryContainer,
+                    ) {
+                        Box(Modifier.padding(horizontal = 8.dp)) {
+                            Text(
+                                tag,
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ImageView(file: File, onToggleHud: () -> Unit) {
     val state = rememberZoomableImageState(rememberZoomableState(ZoomSpec(maxZoomFactor = 4f)))
     ZoomableAsyncImage(
         modifier = Modifier
@@ -79,7 +139,8 @@ private fun ImageView(file: File) {
         model = file,
         state = state,
         contentDescription = "",
-        clipToBounds = false
+        clipToBounds = false,
+        onClick = { onToggleHud() }
     )
 
     if (!state.isImageDisplayed) {
