@@ -19,7 +19,7 @@ android {
     defaultConfig {
         applicationId = "de.saschahlusiak.frupic"
 
-        minSdk = 23
+        minSdk = 31
         targetSdk = 36
 
         versionCode = 40
