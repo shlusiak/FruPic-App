@@ -3,11 +3,15 @@ package de.saschahlusiak.frupic.model
 import android.database.Cursor
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import de.saschahlusiak.frupic.db.FrupicDB
 import de.saschahlusiak.frupic.utils.getInt
 import de.saschahlusiak.frupic.utils.getString
 import java.io.File
 import java.io.Serializable
+import kotlin.text.split
 
 /**
  * Returns a URL with frupic.frubar.net replaced with a cloudfront URL
@@ -21,19 +25,40 @@ val String.cloudfront get() = this
  */
 @Immutable
 @Stable
-class Frupic(
+@Entity(tableName = "frupics")
+data class Frupic(
+    @PrimaryKey
+    @ColumnInfo(name = "_id")
     val id: Int,
-    var flags: Int,
+
+    @ColumnInfo(name = "flags")
+    val flags: Int,
+
+    @ColumnInfo(name = "fullurl")
     val fullUrl: String,
+
+    @ColumnInfo(name = "thumburl")
     val thumbUrl: String,
+
+    @ColumnInfo(name = "date")
     val date: String,
+
+    @ColumnInfo(name = "username")
     val username: String?,
-    @Stable val tags: List<String>
+
+    @ColumnInfo(name = "tags")
+    @Stable
+    val tagsString: String
 ) : Serializable {
 
+    @Transient
     val url = "https://frupic.frubar.net/$id"
+
+    @Transient
     val isAnimated = fullUrl.endsWith(".gif") || fullUrl.endsWith(".GIF")
-    val tagsString = tags.joinToString(", ")
+
+    @Transient
+    val tags = tagsString.split(", ")
 
     val isStarred get() = (flags and FLAG_FAV) != 0
 
@@ -46,7 +71,7 @@ class Frupic(
         thumbUrl = cursor.getString(FrupicDB.THUMBURL_ID),
         date = cursor.getString(FrupicDB.DATE_ID),
         username = cursor.getString(FrupicDB.USERNAME_ID),
-        tags = cursor.getString(FrupicDB.TAGS_ID).split(", ")
+        tagsString = cursor.getString(FrupicDB.TAGS_ID)
     )
 
     fun hasFlag(flag: Int) = (flags and flag) != 0

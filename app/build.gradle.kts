@@ -92,6 +92,11 @@ dependencies {
     implementation("io.coil-kt:coil:2.7.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
 
+    // Room for data persisting
+    implementation("androidx.room:room-runtime:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
+
     // Dagger/Hilt
     ksp("com.google.dagger:hilt-compiler:2.56.2")
     implementation("com.google.dagger:hilt-android:2.56.2")

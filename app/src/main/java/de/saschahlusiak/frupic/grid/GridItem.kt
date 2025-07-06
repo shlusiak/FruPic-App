@@ -18,14 +18,14 @@ import de.saschahlusiak.frupic.model.Frupic
 
 @Composable
 fun GridItem(
-    frupic: Frupic?,
+    frupic: Frupic,
     modifier: Modifier = Modifier,
-    onClick: (Frupic) -> Unit
+    onClick: () -> Unit
 ) {
     Box(modifier = modifier.padding(4.dp)) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(frupic?.thumbUrl)
+                .data(frupic.thumbUrl)
                 .placeholder(R.drawable.frupic)
                 .error(R.drawable.broken_frupic)
                 .crossfade(200)
@@ -34,7 +34,7 @@ fun GridItem(
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
                 .size(88.dp, 70.dp)
-                .clickable(enabled = frupic != null, onClick = { frupic?.let { onClick(it) } }),
+                .clickable(onClick = onClick),
             contentScale = ContentScale.Crop
         )
     }

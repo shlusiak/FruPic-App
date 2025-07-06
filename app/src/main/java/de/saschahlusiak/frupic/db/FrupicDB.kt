@@ -103,13 +103,13 @@ class FrupicDB @Inject constructor(
 
         const val CREATE_TABLE = """
             CREATE TABLE $TABLE (
-                $ID_ID INTEGER PRIMARY KEY, 
-                $FULLURL_ID TEXT, 
-                $THUMBURL_ID TEXT,
-                $DATE_ID TEXT, 
+                $ID_ID INTEGER PRIMARY KEY NOT NULL, 
+                $FULLURL_ID TEXT NOT NULL, 
+                $THUMBURL_ID TEXT NOT NULL,
+                $DATE_ID TEXT NOT NULL, 
                 $USERNAME_ID TEXT, 
-                $FLAGS_ID INTEGER, 
-                $TAGS_ID TEXT
+                $FLAGS_ID INTEGER NOT NULL, 
+                $TAGS_ID TEXT NOT NULL
             );
             """
 

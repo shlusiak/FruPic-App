@@ -126,7 +126,7 @@ class GridFragment : Fragment(R.layout.grid_fragment), GridAdapter.OnItemClickLi
             gridAdapter.setCursor(cursor)
         })
 
-        viewModel.starred.observe(viewLifecycleOwner, Observer { _ ->
+        viewModel.starred.asLiveData().observe(viewLifecycleOwner, Observer { _ ->
             activity?.invalidateOptionsMenu()
         })
     }

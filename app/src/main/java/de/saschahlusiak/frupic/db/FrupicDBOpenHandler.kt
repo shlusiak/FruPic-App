@@ -11,9 +11,8 @@ class FrupicDBOpenHandler(context: Context?) : SQLiteOpenHelper(context, DATABAS
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         try {
-            if (oldVersion < 2) {
-                db.execSQL(FrupicDB.UPGRADE_FROM_1)
-            }
+
+
         } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(FrupicDB.DROP_TABLE)
@@ -23,7 +22,7 @@ class FrupicDBOpenHandler(context: Context?) : SQLiteOpenHelper(context, DATABAS
 
     companion object {
         private const val DATABASE_NAME = "frupic.db"
-        private const val DATABASE_VERSION = 2
+        private const val DATABASE_VERSION = 1
         private val tag = FrupicDBOpenHandler::class.java.simpleName
     }
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saschahlusiak.frupic.db.FrupicDB
+import de.saschahlusiak.frupic.db.FrupicDao
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +27,8 @@ import kotlin.system.measureTimeMillis
 class FrupicRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val api: FreamwareApi,
-    private val db: FrupicDB
+    private val db: FrupicDB,
+    private val dao: FrupicDao
 ) {
     private val _synchronizing = MutableLiveData(false)
     private val _lastUpdated = MutableStateFlow(0L)
@@ -102,6 +104,8 @@ class FrupicRepository @Inject constructor(
 
         _lastUpdated.value = System.currentTimeMillis()
     }
+
+    fun asFlow() = dao.getFlow()
 
     suspend fun getFrupics(starred: Boolean = false): Cursor {
         return withContext(Dispatchers.IO) {
