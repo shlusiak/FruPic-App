@@ -91,6 +91,7 @@ dependencies {
     implementation("androidx.paging:paging-compose:3.3.6")
     implementation("io.coil-kt:coil:2.7.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.8.3")
 
     // Room for data persisting
     implementation("androidx.room:room-runtime:2.7.2")

@@ -1,26 +1,17 @@
 package de.saschahlusiak.frupic.grid
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -91,8 +82,10 @@ fun GridScreen(
                     key = { items[it].id }
                 ) {
                     val item = items[it]
+
                     GridItem(
-                        frupic = item,
+                        data = item.thumbUrl,
+                        isStarred = item.isStarred,
                         modifier = Modifier.animateItem()
                     ) {
                         onFrupicClick(it, item, starred)
@@ -119,69 +112,3 @@ fun GridScreen(
     }
 }
 
-@Composable
-private fun StarredButton(
-    starred: Boolean,
-    contentPadding: PaddingValues,
-    modifier: Modifier = Modifier,
-    onStarredChange: (Boolean) -> Unit
-) {
-    val colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-        checkedContentColor = MaterialTheme.colorScheme.error
-    )
-
-    Surface(
-        checked = starred,
-        onCheckedChange = onStarredChange,
-        modifier = modifier
-            .size(170.dp, 130.dp),
-        shape = RoundedCornerShape(topEndPercent = 100, topStartPercent = 25),
-        color = if (starred) colors.checkedContainerColor else colors.containerColor,
-        contentColor = if (starred) colors.checkedContentColor else colors.contentColor
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(
-                bottom = contentPadding.calculateBottomPadding(),
-                end = 32.dp
-            ),
-        ) {
-            Icon(
-                if (starred) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                "",
-                modifier = Modifier.size(42.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun UploadButton(
-    contentPadding: PaddingValues,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    val colors = IconButtonDefaults.filledIconButtonColors()
-
-    Surface(
-        onClick = onClick,
-        modifier = modifier
-            .size(170.dp, 130.dp),
-        shape = RoundedCornerShape(topStartPercent = 100, topEndPercent = 25),
-        color = colors.containerColor,
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(
-                bottom = contentPadding.calculateBottomPadding(),
-                start = 32.dp
-            ),
-        ) {
-            Icon(
-                Icons.Filled.Add,
-                "",
-                modifier = Modifier.size(42.dp)
-            )
-        }
-    }
-}

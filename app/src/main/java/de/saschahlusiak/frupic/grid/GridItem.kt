@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.grid
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -19,22 +20,25 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.model.Frupic
+import de.saschahlusiak.frupic.utils.AppTheme
 
 @Composable
 fun GridItem(
-    frupic: Frupic,
+    data: Any,
+    isStarred: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Box(modifier = modifier.padding(4.dp)) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(frupic.thumbUrl)
+                .data(data)
                 .placeholder(R.drawable.frupic)
                 .error(R.drawable.broken_frupic)
                 .crossfade(200)
@@ -47,7 +51,7 @@ fun GridItem(
             contentScale = ContentScale.Crop
         )
 
-        if (frupic.isStarred) {
+        if (isStarred) {
             Icon(
                 Icons.Filled.Favorite, "",
                 tint = MaterialTheme.colorScheme.error,
@@ -57,5 +61,14 @@ fun GridItem(
                     .shadow(4.dp, shape = CircleShape)
             )
         }
+    }
+}
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+private fun Preview() {
+    AppTheme {
+        GridItem(R.drawable.frupic, true) { }
     }
 }
