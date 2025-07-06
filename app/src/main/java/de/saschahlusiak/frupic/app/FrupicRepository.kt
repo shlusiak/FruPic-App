@@ -63,7 +63,6 @@ class FrupicRepository @Inject constructor(
      * @throws IOException
      * @throws JSONException
      */
-    @MainThread
     suspend fun fetch(offset: Int, limit: Int) {
         Log.d(tag, "Fetching $limit Frupics")
 

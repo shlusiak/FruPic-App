@@ -73,13 +73,9 @@ class GridViewModel @Inject constructor(
         }
     }
 
-    fun doFetch(base: Int, count: Int) {
-        viewModelScope.launch {
-            repository.fetch(base, count)
-        }
-    }
-
     suspend fun needsMoreData(size: Int) {
-        repository.fetch(size, 50)
+        runCatching {
+            repository.fetch(size, 50)
+        }
     }
 }

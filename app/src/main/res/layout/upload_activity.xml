@@ -7,15 +7,12 @@
     android:animateLayoutChanges="true"
     android:padding="16dp">
 
-
     <TextView
         android:id="@+id/title_label"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="left"
         android:text="@string/upload_title"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:textColorPrimary"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/preview"
         app:layout_constraintBottom_toTopOf="@id/filename"
@@ -27,8 +24,6 @@
         android:layout_height="wrap_content"
         android:gravity="left"
         android:text="@string/files"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:textColorSecondary"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/preview"
         app:layout_constraintBottom_toBottomOf="@id/preview"
@@ -116,7 +111,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:textColor="?android:textColorTertiary"
         android:gravity="right"
         app:layout_constraintBaseline_toBaselineOf="@id/image_resize_checkbox"
         app:layout_constraintLeft_toLeftOf="@id/tags_container"
