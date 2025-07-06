@@ -1,8 +1,6 @@
 package de.saschahlusiak.frupic.gallery
 
-import android.database.Cursor
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +11,6 @@ import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -36,10 +33,12 @@ class GalleryViewModel @Inject constructor(
             else it
         }
 
-    val position = MutableStateFlow(savedStateHandle["position"] ?: 0)
-    val currentFrupic = frupics.combine(position) { frupics, position ->
-        if (position >= 0 && position !in frupics.indices) this.position.value = frupics.lastIndex
-        frupics.getOrNull(position)
+    val initialPosition = savedStateHandle["position"] ?: 0
+
+    val position = MutableStateFlow(initialPosition)
+
+    val currentFrupic = frupics.map { frupics ->
+        frupics.getOrNull(initialPosition)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     init {

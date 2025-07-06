@@ -11,6 +11,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
@@ -24,8 +26,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,7 +47,9 @@ fun GalleryScreen(
     onToggleFavourite: (Frupic) -> Unit,
     onShare: (Frupic) -> Unit
 ) {
-    val current = viewModel.currentFrupic.collectAsStateWithLifecycle().value
+    val items = viewModel.frupics.collectAsStateWithLifecycle(emptyList()).value
+    val state = rememberPagerState(viewModel.initialPosition) { items.size }
+    val current by remember(items) { derivedStateOf { items.getOrNull(state.currentPage) } }
     var hudVisible by rememberSaveable { mutableStateOf(true) }
 
     Scaffold(
@@ -58,14 +64,11 @@ fun GalleryScreen(
                     }
                 },
                 actions = {
-                    current ?: return@TopAppBar
-
-                    IconButton({ onToggleFavourite(current) }) {
-                        AnimatedContent(current.isStarred) { starred ->
-                            if (starred) {
+                    current?.let { current ->
+                        IconButton({ onToggleFavourite(current) }) {
+                            if (current.isStarred) {
                                 Icon(
-                                    Icons.Default.Favorite,
-                                    "",
+                                    Icons.Default.Favorite, "",
                                     tint = MaterialTheme.colorScheme.error
                                 )
                             } else {
@@ -78,9 +81,9 @@ fun GalleryScreen(
         }
     ) { contentPadding ->
 
-        if (current != null) {
+        HorizontalPager(state) { position ->
             GalleryItem(
-                frupic = current,
+                frupic = items[position],
                 downloadManager = viewModel.downloadManager,
                 hudVisible = hudVisible,
                 modifier = Modifier
@@ -89,7 +92,9 @@ fun GalleryScreen(
             ) {
                 hudVisible = !hudVisible
             }
+        }
 
+        current?.let { current ->
             Box(Modifier.fillMaxSize()) {
                 AnimatedVisibility(
                     hudVisible,
