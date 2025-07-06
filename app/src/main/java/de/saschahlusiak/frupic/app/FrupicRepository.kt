@@ -94,9 +94,7 @@ class FrupicRepository @Inject constructor(
 
         measureTimeMillis {
             withContext(Dispatchers.IO) {
-                withDB {
-                    addFrupics(result)
-                }
+                dao.add(result)
                 updateBadgeCount()
             }
         }.also {

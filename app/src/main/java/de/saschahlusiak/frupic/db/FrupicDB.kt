@@ -53,18 +53,6 @@ class FrupicDB @Inject constructor(
         return true
     }
 
-    fun addFrupics(frupics: Collection<Frupic>): Int {
-        val db = db ?: return 0
-        db.beginTransaction()
-        var added = 0
-        frupics.forEach {
-            if (addFrupic(it)) added ++
-        }
-        db.setTransactionSuccessful()
-        db.endTransaction()
-        return added
-    }
-
     fun updateFlags(frupic: Frupic?, flag: Int, value: Boolean): Boolean {
         val db = db ?: return false
         var clearMask = flag.inv()
