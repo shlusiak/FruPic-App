@@ -5,10 +5,12 @@ import android.app.DownloadManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Environment
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -47,32 +49,20 @@ class GalleryActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        if (true) {
-            setContent {
-                AppTheme {
-                    GalleryScreen(
-                        viewModel = viewModel,
-                        onBack = { finish() },
-                        onToggleFavourite = { viewModel.toggleStarred(it) },
-                        onShare = ::onShare
-                    )
-                }
+        setContent {
+            AppTheme {
+                GalleryScreen(
+                    viewModel = viewModel,
+                    onBack = { finish() },
+                    onToggleFavourite = { viewModel.toggleStarred(it) },
+                    onShare = ::onShare,
+                    onDownload = ::startDownload
+                )
             }
         }
     }
 
     private fun startDownload(frupic: Frupic) {
-        val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-        // we only need the permission if we are downloading the attachment, not when storing in internal storage
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                RC_WRITE_EXTERNAL_STORAGE_PERMISSION
-            )
-            return
-        }
-
         val filename = frupic.filename
 
         /* Make sure, destination directory exists */
@@ -95,46 +85,46 @@ class GalleryActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val intent: Intent
-/*
-        return when (item.itemId) {
-            R.id.openinbrowser -> {
-                analytics.logEvent("frupic_open_in_browser", null)
-                intent = Intent(Intent.ACTION_VIEW, frupic.url.toUri())
-                startActivity(intent)
-                true
-            }
+        /*
+                return when (item.itemId) {
+                    R.id.openinbrowser -> {
+                        analytics.logEvent("frupic_open_in_browser", null)
+                        intent = Intent(Intent.ACTION_VIEW, frupic.url.toUri())
+                        startActivity(intent)
+                        true
+                    }
 
-            R.id.details -> {
-                analytics.logEvent("frupic_details", null)
-                createDetailDialog(this, storage, frupic).show()
-                true
-            }
+                    R.id.details -> {
+                        analytics.logEvent("frupic_details", null)
+                        createDetailDialog(this, storage, frupic).show()
+                        true
+                    }
 
-            R.id.download -> {
-                analytics.logEvent("frupic_download", null)
-                startDownload(frupic)
-                true
-            }
+                    R.id.download -> {
+                        analytics.logEvent("frupic_download", null)
+                        startDownload(frupic)
+                        true
+                    }
 
-            R.id.share_link -> {
-                analytics.logEvent("frupic_share_link", null)
-                intent = Intent(Intent.ACTION_SEND)
-                intent.type = "text/plain"
-                intent.putExtra(Intent.EXTRA_TEXT, frupic.url)
-                intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.id)
-                startActivity(Intent.createChooser(intent, getString(R.string.share_link)))
-                true
-            }
+                    R.id.share_link -> {
+                        analytics.logEvent("frupic_share_link", null)
+                        intent = Intent(Intent.ACTION_SEND)
+                        intent.type = "text/plain"
+                        intent.putExtra(Intent.EXTRA_TEXT, frupic.url)
+                        intent.putExtra(Intent.EXTRA_SUBJECT, "FruPic #" + frupic.id)
+                        startActivity(Intent.createChooser(intent, getString(R.string.share_link)))
+                        true
+                    }
 
-            R.id.share_picture -> {
-                onShare(frupic)
-                true
-            }
+                    R.id.share_picture -> {
+                        onShare(frupic)
+                        true
+                    }
 
-            else -> true
-        }
+                    else -> true
+                }
 
- */
+         */
         return false
     }
 

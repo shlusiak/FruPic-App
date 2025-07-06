@@ -115,6 +115,7 @@ private fun Hud(frupic: Frupic, modifier: Modifier = Modifier) {
         if (frupic.tags.isNotEmpty()) {
             FlowRow(
                 horizontalArrangement = spacedBy(4.dp),
+                verticalArrangement = spacedBy(4.dp),
                 modifier = Modifier.padding(end = 150.dp)
             ) {
                 frupic.tags.forEach { tag ->
