@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.app
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -7,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import dagger.Reusable
@@ -22,17 +24,15 @@ class NotificationManager @Inject constructor(
     private val nm = NotificationManagerCompat.from(context)
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createChannel()
-        }
+        createChannel()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private fun createChannel() {
         val channel = NotificationChannel(CHANNEL_UNSEEN, context.getString(R.string.channel_name_unseen), NotificationManager.IMPORTANCE_DEFAULT)
         nm.createNotificationChannel(channel)
     }
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun updateUnseenNotification(newFrupics: Int) {
         if (newFrupics == 0) {
             clearUnseenNotification()

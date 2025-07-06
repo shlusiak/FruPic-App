@@ -2,25 +2,13 @@ package de.saschahlusiak.frupic.gallery
 
 import android.Manifest
 import android.app.DownloadManager
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -29,33 +17,19 @@ import androidx.core.app.ShareCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
-import androidx.lifecycle.Observer
-import androidx.lifecycle.asLiveData
-import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.R
-import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicStorage
-import de.saschahlusiak.frupic.databinding.GalleryActivityBinding
-import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.utils.AppTheme
-import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
-    private var adapter: GalleryAdapter? = null
-    private var menu: Menu? = null
+class GalleryActivity : AppCompatActivity() {
     private val viewModel: GalleryViewModel by viewModels()
-
-    private lateinit var binding: GalleryActivityBinding
 
     @Inject
     lateinit var analytics: FirebaseAnalytics
@@ -79,120 +53,16 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
                     GalleryScreen(
                         viewModel = viewModel,
                         onBack = { finish() },
-                        onToggleFavourite = { viewModel.toggleFrupicStarred(it) },
+                        onToggleFavourite = { viewModel.toggleStarred(it) },
                         onShare = ::onShare
                     )
                 }
-            }
-            return
-        }
-
-        binding = GalleryActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayShowHomeEnabled(false)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        binding.viewPager.addOnPageChangeListener(this)
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appbar) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updatePadding(top = bars.top)
-            insets
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.allControls) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updatePadding(bottom = bars.bottom)
-            insets
-        }
-
-        val animateGifs = prefs.getBoolean("animatedgifs", true)
-        adapter = GalleryAdapter(this, animateGifs, storage, viewModel.downloadManager)
-        binding.viewPager.adapter = adapter
-
-        viewModel.frupics.asLiveData().observe(this, Observer { list: List<Frupic> ->
-            adapter?.setList(list)
-            binding.viewPager.setCurrentItem(viewModel.position.value, false)
-        })
-
-        viewModel.currentFrupic.asLiveData().observe(this, Observer { frupic: Frupic? ->
-            frupic ?: return@Observer
-            updateLabels(frupic)
-        })
-
-        viewModel.position.asLiveData().observe(this) { position ->
-            if (position < 0) finish()
-        }
-    }
-
-    /**
-     * toggles visibility of the controls
-     */
-    fun toggleControls() {
-        if (binding.appbar.alpha > 0.5f) {
-            binding.appbar.animate().alpha(0f)
-            binding.allControls.animate().alpha(0f)
-        } else {
-            binding.appbar.animate().alpha(1f)
-            binding.allControls.animate().alpha(1f)
-        }
-    }
-
-    private fun updateLabels(frupic: Frupic) {
-        /* TODO: Display information about unavailable frupic */
-        var t = findViewById<TextView>(R.id.url)
-        t.text = frupic.url
-        t = findViewById(R.id.username)
-        t.text = getString(R.string.gallery_posted_by, frupic.username)
-        supportActionBar?.title = String.format("#%d", frupic.id)
-        menu?.findItem(R.id.star)?.apply {
-            setIcon(if (frupic.isStarred) R.drawable.star_label else R.drawable.star_empty)
-            isChecked = frupic.isStarred
-        }
-        t = findViewById(R.id.tags)
-        val tags = frupic.tagsString
-        if (tags.isEmpty()) {
-            t.visibility = View.INVISIBLE
-        } else {
-            t.text = tags
-            t.visibility = View.VISIBLE
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.gallery_optionsmenu, menu)
-        this.menu = menu
-        viewModel.currentFrupic.value?.let { frupic ->
-            menu.findItem(R.id.star)?.apply {
-                setIcon(if (frupic.isStarred) R.drawable.star_label else R.drawable.star_empty)
-                isChecked = frupic.isStarred
-            }
-        }
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        when (requestCode) {
-            RC_WRITE_EXTERNAL_STORAGE_PERMISSION -> if (grantResults.isNotEmpty() && PackageManager.PERMISSION_GRANTED == grantResults[0]) {
-                Log.i(tag, "permission granted")
-                val frupic = viewModel.currentFrupic.value ?: return
-                startDownload(frupic)
             }
         }
     }
 
     private fun startDownload(frupic: Frupic) {
-        val permissionCheck =
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
         // we only need the permission if we are downloading the attachment, not when storing in internal storage
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -207,7 +77,7 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
 
         /* Make sure, destination directory exists */
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs()
-        val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val dm = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
         val req = DownloadManager.Request(frupic.fullUrl.toUri())
         req.setVisibleInDownloadsUi(true)
         req.allowScanningByMediaScanner()
@@ -225,12 +95,7 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val intent: Intent
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
-
-        val frupic = viewModel.currentFrupic.value ?: return false
+/*
         return when (item.itemId) {
             R.id.openinbrowser -> {
                 analytics.logEvent("frupic_open_in_browser", null)
@@ -266,27 +131,11 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
                 true
             }
 
-            R.id.star -> {
-                analytics.logEvent("frupic_star", null)
-                viewModel.toggleFrupicStarred(frupic)
-                updateLabels(frupic)
-                true
-            }
-
-            R.id.copy_to_clipboard -> {
-                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("URL", frupic.url)
-                clipboard.setPrimaryClip(clip)
-                Toast.makeText(
-                    this@GalleryActivity,
-                    R.string.copied_to_clipboard,
-                    Toast.LENGTH_SHORT
-                ).show()
-                true
-            }
-
             else -> true
         }
+
+ */
+        return false
     }
 
     private fun onShare(frupic: Frupic) {
@@ -307,18 +156,6 @@ class GalleryActivity : AppCompatActivity(), OnPageChangeListener {
             startActivity(intent)
         }
     }
-
-    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
-
-    override fun onPageSelected(position: Int) {
-        Log.i(tag, "onPageSelected($position)")
-        viewModel.position.value = position
-        if (supportActionBar?.isShowing == false) {
-            toggleControls()
-        }
-    }
-
-    override fun onPageScrollStateChanged(state: Int) {}
 
     companion object {
         private val tag = GalleryActivity::class.java.simpleName

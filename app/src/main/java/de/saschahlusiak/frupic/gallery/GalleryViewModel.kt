@@ -7,19 +7,14 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicRepository
-import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.model.Frupic
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
     val downloadManager: FrupicDownloadManager,
-    val storage: FrupicStorage,
     private val repository: FrupicRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -35,12 +30,6 @@ class GalleryViewModel @Inject constructor(
 
     val initialPosition = savedStateHandle["position"] ?: 0
 
-    val position = MutableStateFlow(initialPosition)
-
-    val currentFrupic = frupics.map { frupics ->
-        frupics.getOrNull(initialPosition)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-
     init {
         Log.d(tag, "Initializing")
     }
@@ -50,9 +39,8 @@ class GalleryViewModel @Inject constructor(
         super.onCleared()
     }
 
-    fun toggleFrupicStarred(frupic: Frupic) {
+    fun toggleStarred(frupic: Frupic) {
         viewModelScope.launch {
-            // will update lastUpdated
             repository.setStarred(frupic, !frupic.isStarred)
         }
     }

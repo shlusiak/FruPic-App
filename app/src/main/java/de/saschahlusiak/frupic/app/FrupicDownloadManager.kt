@@ -81,17 +81,15 @@ class FrupicDownloadManager @Inject constructor(
         }
     }
 
-    fun enqueue(job: DownloadJob): Boolean {
+    private fun enqueue(job: DownloadJob) {
         val frupic = job.frupic
-        if (allJobs.containsKey(frupic)) return true
+        if (allJobs.containsKey(frupic)) return
         allJobs[frupic] = job
 
         scope.launch {
             Log.d(tag, "Enqueuing job #${frupic.id}")
             channel.send(job)
         }
-
-        return true
     }
 
     fun getJob(frupic: Frupic): DownloadJob {
@@ -109,8 +107,6 @@ class FrupicDownloadManager @Inject constructor(
             enqueue(it)
         }
     }
-
-    fun getJobOrNull(frupic: Frupic) = allJobs[frupic]
 
     fun cancel(frupic: Frupic): Boolean {
         val job = allJobs[frupic] ?: return false
