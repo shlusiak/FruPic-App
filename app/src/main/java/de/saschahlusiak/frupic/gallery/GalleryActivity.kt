@@ -2,10 +2,12 @@ package de.saschahlusiak.frupic.gallery
 
 import android.app.DownloadManager
 import android.content.Intent
-import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Environment
+import android.view.WindowInsetsController
 import android.widget.Toast
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -38,9 +40,8 @@ class GalleryActivity : AppCompatActivity() {
     lateinit var crashlytics: FirebaseCrashlytics
 
     public override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
+        
         setContent {
             AppTheme {
                 GalleryScreen(
@@ -51,7 +52,17 @@ class GalleryActivity : AppCompatActivity() {
                     onDownload = ::startDownload,
                     onDetails = ::onDetails,
                     onOpenInBrowser = ::onOpenInBrowser
-                )
+                ) { forceDark ->
+                    if (forceDark)
+                        enableEdgeToEdge(
+                            SystemBarStyle.dark(Color.TRANSPARENT),
+                            SystemBarStyle.dark(Color.TRANSPARENT)
+                        )
+                    else
+                        enableEdgeToEdge()
+
+                    window?.isNavigationBarContrastEnforced = false
+                }
             }
         }
     }

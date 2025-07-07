@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,12 +69,15 @@ fun GalleryScreen(
     onShare: (Frupic) -> Unit,
     onDownload: (Frupic) -> Unit,
     onDetails: (Frupic) -> Unit,
-    onOpenInBrowser: (Frupic) -> Unit
+    onOpenInBrowser: (Frupic) -> Unit,
+    enableEdgeToEdge: (Boolean) -> Unit
 ) {
     val items = viewModel.frupics.collectAsStateWithLifecycle(emptyList()).value
     val pagerState = rememberPagerState(viewModel.initialPosition) { items.size }
     val current by remember(items) { derivedStateOf { items.getOrNull(pagerState.currentPage) } }
     var hudVisible by rememberSaveable { mutableStateOf(true) }
+
+    LaunchedEffect(hudVisible) { enableEdgeToEdge(!hudVisible) }
 
     val backgroundColor by animateColorAsState(
         if (hudVisible) MaterialTheme.colorScheme.background else Color.Black
