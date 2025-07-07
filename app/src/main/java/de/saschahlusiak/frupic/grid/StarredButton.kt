@@ -26,34 +26,34 @@ import de.saschahlusiak.frupic.utils.AppTheme
 
 @Composable
 fun StarredButton(
-    starred: Boolean,
+    checked: Boolean,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
-    onStarredChange: (Boolean) -> Unit
+    onClicked: (Boolean) -> Unit
 ) {
     val colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
         checkedContentColor = MaterialTheme.colorScheme.error
     )
 
     Surface(
-        checked = starred,
-        onCheckedChange = onStarredChange,
+        checked = checked,
+        onCheckedChange = onClicked,
         modifier = modifier,
-        shape = RoundedCornerShape(topEndPercent = 100, topStartPercent = 20),
-        color = if (starred) colors.checkedContainerColor else colors.containerColor,
-        contentColor = if (starred) colors.checkedContentColor else colors.contentColor
+        shape = RoundedCornerShape(topEndPercent = 10, topStartPercent = 100),
+        color = if (checked) colors.checkedContainerColor else colors.containerColor,
+        contentColor = if (checked) colors.checkedContentColor else colors.contentColor
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .padding(
                     bottom = contentPadding.calculateBottomPadding(),
-                    end = 32.dp
+                    start = 32.dp
                 )
                 .size(120.dp, 100.dp)
         ) {
             AnimatedContent(
-                starred,
+                checked,
                 transitionSpec = { scaleIn().togetherWith(scaleOut()) }
             ) { starred ->
                 Icon(

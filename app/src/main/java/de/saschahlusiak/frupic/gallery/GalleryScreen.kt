@@ -23,9 +23,12 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledIconToggleButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,6 +54,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.saschahlusiak.frupic.R
+import de.saschahlusiak.frupic.grid.StarredButton
 import de.saschahlusiak.frupic.model.Frupic
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,10 +126,6 @@ fun GalleryScreen(
 
         current?.let { current ->
             Box(Modifier.fillMaxSize()) {
-                val colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-                    checkedContentColor = MaterialTheme.colorScheme.error
-                )
-
                 AnimatedVisibility(
                     hudVisible,
                     enter = slideIn { IntOffset(it.width, 0) } + fadeIn(),
@@ -133,26 +133,19 @@ fun GalleryScreen(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(contentPadding)
-                        .padding(bottom = 110.dp, end = 12.dp)
-
+                        .padding(bottom = 110.dp, end = 8.dp)
                 ) {
-                    FilledTonalIconToggleButton(
-                        checked = current.isStarred,
-                        onCheckedChange = { onToggleFavourite(current) },
+                    FilledIconButton(
+                        onClick = { onShare(current) },
                         modifier = Modifier
                             .size(64.dp),
-                        colors = colors
                     ) {
-                        AnimatedContent(
-                            current.isStarred,
-                            transitionSpec = { scaleIn().togetherWith(scaleOut()) }
-                        ) { starred ->
-                            Icon(
-                                if (starred) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                "",
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
+                        Icon(
+                            Icons.Default.Share,
+                            "",
+                            modifier = Modifier.size(32.dp)
+                        )
+
                     }
                 }
 
@@ -162,7 +155,12 @@ fun GalleryScreen(
                     exit = slideOut { IntOffset(0, it.height) } + fadeOut(),
                     modifier = Modifier.align(Alignment.BottomEnd)
                 ) {
-                    ShareButton(contentPadding) { onShare(current) }
+                    StarredButton(
+                        checked = current.isStarred,
+                        contentPadding = contentPadding,
+                    ) {
+                        onToggleFavourite(current)
+                    }
                 }
             }
         }

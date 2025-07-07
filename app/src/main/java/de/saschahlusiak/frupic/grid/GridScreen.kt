@@ -3,13 +3,18 @@ package de.saschahlusiak.frupic.grid
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -110,18 +115,27 @@ fun GridScreen(
 
         Box(modifier = Modifier.fillMaxSize()) {
             StarredButton(
-                starred = starred,
+                checked = starred,
                 contentPadding = contentPadding,
-                modifier = Modifier.align(Alignment.BottomStart)
+                modifier = Modifier.align(Alignment.BottomEnd)
             ) {
                 viewModel.toggleShowStarred()
             }
 
-            UploadButton(
-                contentPadding = contentPadding,
-                modifier = Modifier.align(Alignment.BottomEnd),
-                onClick = onUpload
-            )
+            FilledIconButton(
+                onClick = onUpload,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(contentPadding)
+                    .padding(bottom = 110.dp, end = 8.dp)
+                    .size(64.dp),
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    "",
+                    modifier = Modifier.size(32.dp)
+                )
+            }
         }
     }
 }
