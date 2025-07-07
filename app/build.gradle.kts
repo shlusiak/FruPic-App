@@ -39,7 +39,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-        viewBinding = true
+        viewBinding = false
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -64,8 +64,6 @@ dependencies {
 
     // Lifecycle
     implementation("androidx.lifecycle:lifecycle-process:2.9.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")
 
     // Compose
     implementation(platform("androidx.compose:compose-bom:2025.06.01"))

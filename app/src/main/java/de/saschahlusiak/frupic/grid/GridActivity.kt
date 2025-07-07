@@ -18,6 +18,7 @@ import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.preferences.FrupicPreferencesActivity
 import de.saschahlusiak.frupic.upload.UploadActivity
 import de.saschahlusiak.frupic.utils.AppTheme
+import kotlinx.serialization.Serializable
 
 @AndroidEntryPoint
 class GridActivity : AppCompatActivity() {
@@ -40,7 +41,7 @@ class GridActivity : AppCompatActivity() {
         }
 
         pickMediaLauncher = registerForActivityResult(
-            ActivityResultContracts.PickVisualMedia(),
+            ActivityResultContracts.PickMultipleVisualMedia(),
             ::onMediaPicked
         )
     }
@@ -62,12 +63,12 @@ class GridActivity : AppCompatActivity() {
         pickMediaLauncher.launch(request)
     }
 
-    private fun onMediaPicked(uri: Uri?) {
-        uri ?: return
-
+    private fun onMediaPicked(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+        
         val intent = Intent(this, UploadActivity::class.java)
         intent.action = Intent.ACTION_SEND
-        intent.putExtra(Intent.EXTRA_STREAM, uri)
+        intent.putExtra(Intent.EXTRA_STREAM, ArrayList(uris))
         startActivity(intent)
     }
 

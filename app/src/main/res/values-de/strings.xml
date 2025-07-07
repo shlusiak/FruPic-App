@@ -11,12 +11,6 @@
     <string name="frupic_in_the_market">FruPic App in Google Play…</string>
     <string name="frupic_in_the_market_long">FruPic App in Google Play zeigen</string>
 
-    <string name="donate">Spenden</string>
-    <string name="donate_bitcoin">Bitcoin spenden</string>
-    <string name="donate_litecoin">Litecoin spenden</string>
-    <string name="bitcoin">Bitcoin</string>
-    <string name="litecoin">Litecoin</string>
-
     <string name="channel_name_upload">Upload</string>
     <string name="channel_name_unseen">Neue FruPics</string>
 
@@ -54,12 +48,17 @@
     <string name="cancelled">Abgebrochen</string>
     <string name="cannot_connect">Verbindung kann nicht hergestellt werden</string>
     <string name="error_reading_response">Fehler beim Lesen der Serverantwort</string>
-    
+    <string name="cancel">Abbrechen</string>
+    <string name="ok">OK</string>
+
     <string name="upload_to_frupic">FruPic</string>
     <string name="upload_posted_by_label">Benutzername</string>
     <string name="upload_tags_hint">tag1,tag2,tag3</string>
     <string name="upload_title">Bilder zu FruPic hochladen?</string>
-    <string name="files">%1$d Bilder</string>
+    <plurals name="files">
+        <item quantity="one">%1$d Bild</item>
+        <item quantity="other">%1$d Bilder</item>
+    </plurals>
 
     <string name="upload_notification_title">Zu FruPic hochladen</string>
     <string name="upload_notification_title_finished">Hochladen abgeschlossen</string>

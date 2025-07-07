@@ -1,5 +1,8 @@
 package de.saschahlusiak.frupic.utils
 
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.json.JSONArray
 
 fun <T> JSONArray.toSequence() = sequence {
@@ -8,3 +11,5 @@ fun <T> JSONArray.toSequence() = sequence {
 }
 
 fun <T> JSONArray.toList(): List<T> = toSequence<T>().toList()
+
+fun <T> Deferred<T>.asFlow(): Flow<T> = flow { emit(await()) }

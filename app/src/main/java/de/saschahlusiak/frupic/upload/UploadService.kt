@@ -15,10 +15,8 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.R
-import de.saschahlusiak.frupic.app.App
 import de.saschahlusiak.frupic.app.FreamwareApi
 import de.saschahlusiak.frupic.app.FrupicRepository
-import de.saschahlusiak.frupic.app.UploadJob
 import de.saschahlusiak.frupic.grid.GridActivity
 import kotlinx.coroutines.*
 import java.io.*

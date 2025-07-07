@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -38,16 +37,14 @@ fun StarredButton(
     val colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
         checkedContentColor = MaterialTheme.colorScheme.error
     )
-    val interactionSource = remember { MutableInteractionSource() }
-    val elevation = FloatingActionButtonDefaults.elevation()
 
     Surface(
         checked = checked,
         onCheckedChange = onClicked,
         modifier = modifier,
-        shape = RoundedCornerShape(topEndPercent = 10, topStartPercent = 100),
+        shape = RoundedCornerShape(topEndPercent = 0, topStartPercent = 100),
         color = if (checked) colors.checkedContainerColor else colors.containerColor,
-        tonalElevation = 6.dp,
+        tonalElevation = 0.dp,
         shadowElevation = 6.dp,
         contentColor = if (checked) colors.checkedContentColor else colors.contentColor
     ) {

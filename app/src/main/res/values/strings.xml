@@ -43,6 +43,8 @@
     <string name="cancelled">Cancelled</string>
     <string name="cannot_connect">Cannot establish connection</string>
     <string name="error_reading_response">Error reading response</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
 
     <string name="refresh_service_count_text">%1$d new FruPics</string>
     <string name="refresh_service_title">You have unseen FruPics</string>
@@ -51,7 +53,10 @@
     <string name="upload_posted_by_label">Username</string>
     <string name="upload_tags_hint">tag1,tag2,tag3</string>
     <string name="upload_title">Upload to FruPic?</string>
-    <string name="files">%1$d images</string>
+    <plurals name="files">
+        <item quantity="one">%1$d image</item>
+        <item quantity="other">%1$d images</item>
+    </plurals>
 
     <string name="upload_notification_title">Uploading to FruPic</string>
     <string name="upload_notification_title_finished">Upload finished</string>
