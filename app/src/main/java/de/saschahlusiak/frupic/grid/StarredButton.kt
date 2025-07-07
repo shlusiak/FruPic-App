@@ -69,8 +69,17 @@ fun StarredButton(
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-private fun Preview() {
+private fun Checked() {
     AppTheme {
         StarredButton(true, PaddingValues()) {}
+    }
+}
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+private fun Unchecked() {
+    AppTheme {
+        StarredButton(false, PaddingValues()) {}
     }
 }

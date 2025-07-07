@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
@@ -15,6 +16,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -122,18 +124,17 @@ fun GridScreen(
                 viewModel.toggleShowStarred()
             }
 
-            FilledIconButton(
+            FloatingActionButton(
                 onClick = onUpload,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(contentPadding)
-                    .padding(bottom = 110.dp, end = 8.dp)
-                    .size(64.dp),
+                    .padding(bottom = 110.dp, end = 10.dp),
+                shape = CircleShape
             ) {
                 Icon(
                     Icons.Default.Add,
-                    "",
-                    modifier = Modifier.size(32.dp)
+                    ""
                 )
             }
         }

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
@@ -30,6 +31,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilledTonalIconToggleButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -133,19 +135,13 @@ fun GalleryScreen(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(contentPadding)
-                        .padding(bottom = 110.dp, end = 8.dp)
+                        .padding(bottom = 110.dp, end = 10.dp)
                 ) {
-                    FilledIconButton(
+                    FloatingActionButton(
                         onClick = { onShare(current) },
-                        modifier = Modifier
-                            .size(64.dp),
+                        shape = CircleShape
                     ) {
-                        Icon(
-                            Icons.Default.Share,
-                            "",
-                            modifier = Modifier.size(32.dp)
-                        )
-
+                        Icon(Icons.Default.Share, "",)
                     }
                 }
 
