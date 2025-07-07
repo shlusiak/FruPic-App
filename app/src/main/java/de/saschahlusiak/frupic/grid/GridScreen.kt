@@ -1,9 +1,9 @@
 package de.saschahlusiak.frupic.grid
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -11,11 +11,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -76,13 +73,14 @@ fun GridScreen(
         PullToRefreshBox(
             viewModel.synchronizing.collectAsStateWithLifecycle().value,
             modifier = Modifier
-                .padding(contentPadding)
+                .padding(top = contentPadding.calculateTopPadding())
                 .fillMaxSize(),
             onRefresh = { viewModel.synchronize() }
         ) {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 88.dp),
                 state = gridState,
+                contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(

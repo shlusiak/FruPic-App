@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FrupicDao {
-    @Query("SELECT * from frupics ORDER BY _id DESC")
-    suspend fun getAllFrupics(): List<Frupic>
+    @Query("SELECT COUNT(1) from frupics WHERE new")
+    suspend fun countUnseen(): Int
 
     @Query("SELECT * from frupics ORDER BY _id DESC")
     fun getFlow(): Flow<List<Frupic>>

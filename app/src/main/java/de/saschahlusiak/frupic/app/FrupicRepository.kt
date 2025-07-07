@@ -6,10 +6,8 @@ import androidx.annotation.MainThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saschahlusiak.frupic.db.FrupicDao
 import de.saschahlusiak.frupic.model.Frupic
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.withContext
 import me.leolin.shortcutbadger.ShortcutBadger
 import org.json.JSONException
 import java.io.IOException
@@ -58,8 +56,6 @@ class FrupicRepository @Inject constructor(
      * Fetches the Frupics for the given range. Will not set the [synchronizing] status and does not handle
      * errors.
      *
-     * Will update value of [lastUpdated], so changes can be observed on.
-     *
      * @throws IOException
      * @throws JSONException
      */
@@ -73,10 +69,8 @@ class FrupicRepository @Inject constructor(
         Log.d(tag, "Fetched ${result.size} Frupics in $duration ms")
 
         measureTimeMillis {
-            withContext(Dispatchers.IO) {
-                dao.add(result)
-                updateBadgeCount()
-            }
+            dao.add(result)
+            updateBadgeCount()
         }.also {
             Log.d(tag, "Stored ${result.size} Frupics in db in $it ms")
         }
@@ -102,7 +96,7 @@ class FrupicRepository @Inject constructor(
     }
 
     suspend fun getNewCount(): Int {
-        return dao.getAllFrupics().count { it.isNew }
+        return dao.countUnseen()
     }
 
     companion object {

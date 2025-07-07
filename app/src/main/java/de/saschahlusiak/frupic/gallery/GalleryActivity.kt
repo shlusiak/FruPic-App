@@ -41,7 +41,7 @@ class GalleryActivity : AppCompatActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         setContent {
             AppTheme {
                 GalleryScreen(
