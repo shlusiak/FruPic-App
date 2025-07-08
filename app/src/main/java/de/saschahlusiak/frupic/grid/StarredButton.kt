@@ -8,6 +8,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import de.saschahlusiak.frupic.utils.AppTheme
 
@@ -49,11 +51,11 @@ fun StarredButton(
         contentColor = if (checked) colors.checkedContentColor else colors.contentColor
     ) {
         Box(
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.BottomEnd,
             modifier = Modifier
                 .padding(
                     bottom = contentPadding.calculateBottomPadding(),
-                    start = 32.dp
+                    end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
                 )
                 .size(100.dp, 100.dp)
         ) {
@@ -64,7 +66,9 @@ fun StarredButton(
                 Icon(
                     if (starred) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     "",
-                    modifier = Modifier.size(42.dp)
+                    modifier = Modifier
+                        .padding(end = 20.dp, bottom = 20.dp)
+                        .size(42.dp)
                 )
             }
         }
