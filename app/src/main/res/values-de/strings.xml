@@ -37,6 +37,7 @@
     <string name="all_frupics">Alle</string>
     <string name="unseen">Neu</string>
     <string name="starred">Favoriten</string>
+    <string name="no_favourites">Keine Frupics gefunden</string>
 
     <string name="please_wait">Bitte warten…</string>
     <string name="fetching_image_message">Lade %1$s</string>

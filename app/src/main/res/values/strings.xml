@@ -21,7 +21,8 @@
     <string name="details_not_available">(not available)</string>
     <string name="copy_url_to_clipboard">Copy URL</string>
     <string name="copied_to_clipboard">Text copied to clipboard</string>
-    
+    <string name="no_favourites">You have no favourites</string>
+
     <string name="gallery_posted_by">%1$s</string>
     
     <string name="star_frupic">Star</string>

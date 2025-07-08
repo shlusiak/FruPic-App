@@ -1,6 +1,7 @@
 package de.saschahlusiak.frupic.grid
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,12 +23,13 @@ fun EmptyState(
 ) {
     Column(
         modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Icon(
             painterResource(R.drawable.frupic_notification), "",
-            modifier = Modifier.size(80.dp),
-            tint = MaterialTheme.colorScheme.outline
+            modifier = Modifier.size(70.dp),
+            tint = MaterialTheme.colorScheme.outlineVariant
         )
 
         Text(

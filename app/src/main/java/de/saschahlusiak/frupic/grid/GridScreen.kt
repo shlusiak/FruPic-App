@@ -27,8 +27,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.model.Frupic
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,7 +104,7 @@ fun GridScreen(
             if (items.isEmpty()) {
                 if (starred) {
                     EmptyState(
-                        "You don’t have any favourites yet",
+                        stringResource(R.string.no_favourites),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {

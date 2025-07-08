@@ -53,10 +53,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.saschahlusiak.frupic.R
+import de.saschahlusiak.frupic.grid.EmptyState
 import de.saschahlusiak.frupic.grid.StarredButton
 import de.saschahlusiak.frupic.model.Frupic
 
@@ -88,7 +90,7 @@ fun GalleryScreen(
         topBar = {
             val alpha = animateFloatAsState(if (hudVisible) 1f else 0f)
             TopAppBar(
-                title = { Text("#${current?.id}") },
+                title = { Text(current?.let { "#${it.id}" } ?: stringResource(R.string.app_name)) },
                 modifier = Modifier.alpha(alpha.value),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface.copy(
@@ -130,7 +132,15 @@ fun GalleryScreen(
             }
         }
 
-        current?.let { current ->
+        val current = current
+        if (current == null) {
+            EmptyState(
+                stringResource(R.string.no_favourites),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+            )
+        } else {
             Box(Modifier.fillMaxSize()) {
                 AnimatedVisibility(
                     hudVisible,
@@ -145,7 +155,7 @@ fun GalleryScreen(
                         onClick = { onShare(current) },
                         shape = CircleShape
                     ) {
-                        Icon(Icons.Default.Share, "",)
+                        Icon(Icons.Default.Share, "")
                     }
                 }
 

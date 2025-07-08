@@ -55,7 +55,7 @@ fun StarredButton(
                     bottom = contentPadding.calculateBottomPadding(),
                     start = 32.dp
                 )
-                .size(120.dp, 100.dp)
+                .size(100.dp, 100.dp)
         ) {
             AnimatedContent(
                 checked,
