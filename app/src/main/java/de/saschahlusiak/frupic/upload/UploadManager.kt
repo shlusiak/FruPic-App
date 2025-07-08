@@ -118,7 +118,7 @@ class UploadManager @Inject constructor(
             val intent = Intent(context, UploadService::class.java)
 
             intent.putExtra("username", username)
-            intent.putExtra("tags", tags)
+            intent.putExtra("tags", tags.ifBlank { "via:android" })
             intent.putExtra("path", image.path)
 
             context.startService(intent)
