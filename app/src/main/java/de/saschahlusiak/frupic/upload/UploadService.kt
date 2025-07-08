@@ -1,15 +1,14 @@
 package de.saschahlusiak.frupic.upload
 
+import android.annotation.SuppressLint
 import android.app.IntentService
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -59,9 +58,7 @@ class UploadService : IntentService("UploadService") {
 
         setIntentRedelivery(true)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createChannel()
-        }
+        createChannel()
 
         val intent = Intent(this, GridActivity::class.java)
         pendingIntent = PendingIntent.getActivity(applicationContext, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -89,7 +86,6 @@ class UploadService : IntentService("UploadService") {
         super.onDestroy()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private fun createChannel() {
         val channel = NotificationChannel(CHANNEL_UPLOAD, getString(R.string.channel_name_upload), NotificationManager.IMPORTANCE_LOW)
         notificationManager.createNotificationChannel(channel)
@@ -172,12 +168,13 @@ class UploadService : IntentService("UploadService") {
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Synchronized
     private fun updateNotification(ongoing: Boolean, progress: Float): Notification {
         val builder = NotificationCompat.Builder(this, CHANNEL_UPLOAD)
 
         builder.setContentTitle(getString(R.string.upload_notification_title))
-        builder.color = getColor(R.color.brand_yellow_bright)
+        builder.color = getColor(R.color.brand_yellow)
         if (ongoing) {
             builder.setSmallIcon(R.drawable.frupic_notification)
             builder.setContentText(getString(R.string.upload_notification_progress, current + 1, max))

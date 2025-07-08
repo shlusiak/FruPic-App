@@ -5,9 +5,6 @@
     <string name="about">Über…</string>
     <string name="about_frupic">Über FruPic App</string>
     <string name="gotowebsite">In Browser öffnen</string>
-    <string name="refresh">Aktualisieren</string>
-    <string name="details">Details</string>
-    <string name="openinbrowser">In Browser öffnen</string>
     <string name="frupic_in_the_market">FruPic App in Google Play…</string>
     <string name="frupic_in_the_market_long">FruPic App in Google Play zeigen</string>
 
@@ -20,35 +17,19 @@
     <string name="details_date">Datum:</string>
     <string name="details_size">Bildgröße:</string>
     <string name="details_not_available">(nicht verfügbar)</string>
-    <string name="copy_url_to_clipboard">URL in Zwischenablage kopieren</string>
     <string name="copied_to_clipboard">Text in Zwischenablage kopiert </string>
     
     <string name="refresh_service_count_text">%1$d neue FruPics</string>
     <string name="refresh_service_title">Du hast neue FruPics</string>
 
 
-    <string name="gallery_posted_by">%1$s</string>
-    
     <string name="waiting_to_start">In Warteschlange…</string>
     
-    <string name="star_frupic">Favorit</string>
-    <string name="mark_as_seen">Alle gesehen</string>
-
-    <string name="all_frupics">Alle</string>
-    <string name="unseen">Neu</string>
-    <string name="starred">Favoriten</string>
     <string name="no_favourites">Keine Frupics gefunden</string>
 
-    <string name="please_wait">Bitte warten…</string>
     <string name="fetching_image_message">Lade %1$s</string>
-    <string name="download">Download</string>
-    <string name="error_no_storage">Externer Speicher nicht verfügbar</string>
-    
-    <string name="upload">Hochladen</string>
+
     <string name="uploading_toast">Bilder werden hochgeladen</string>
-    <string name="cancelled">Abgebrochen</string>
-    <string name="cannot_connect">Verbindung kann nicht hergestellt werden</string>
-    <string name="error_reading_response">Fehler beim Lesen der Serverantwort</string>
     <string name="cancel">Abbrechen</string>
     <string name="ok">OK</string>
 
@@ -69,11 +50,9 @@
     
     <string name="image_resize_label">Bild verkleinern</string>
     
-    <string name="share_link">Link senden via</string>
     <string name="share_picture">Bild senden via</string>
         
     <string name="preferences">Einstellungen</string>
-    <string name="preferences_cache">Cache</string>
 
     <string name="preferences_display">Anzeige</string>
     <string name="preferences_show_animated_gifs_summary">Animierte GIFs zeigen (experimentell)</string>
@@ -86,20 +65,4 @@
     <string name="preferences_refresh_summary">Benachrichtigung bei neuen FruPics anzeigen</string>
     <string name="preferences_refresh">Benachrichtigungen</string>
 
-    <string-array name="cache_labels">
-        <item>1 MB</item>
-        <item>4 MB</item>
-        <item>8 MB</item>
-        <item>16 MB</item>
-        <item>32 MB</item>
-        <item>64 MB</item>
-    </string-array>
-    <string-array name="cache_values">
-        <item>1048576</item>
-        <item>4194304</item>
-        <item>8388608</item>
-        <item>16777216</item>
-        <item>33554432</item>
-        <item>67108864</item>
-    </string-array>
 </resources>

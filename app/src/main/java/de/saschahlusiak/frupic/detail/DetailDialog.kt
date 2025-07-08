@@ -15,6 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.model.Frupic
+import java.util.Locale
 
 data class DetailItem(val title: String, val value: String = "") {
     override fun toString(): String = title
@@ -45,7 +46,7 @@ fun createDetailDialog(context: Context, storage: FrupicStorage, frupic: Frupic)
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
         BitmapFactory.decodeFile(f.absolutePath, options)
-        String.format("%d x %d (%d kb)", options.outWidth, options.outHeight, f.length() / 1024)
+        String.format(Locale.getDefault(), "%d x %d (%d kb)", options.outWidth, options.outHeight, f.length() / 1024)
     } else {
         context.getString(R.string.details_not_available)
     }

@@ -27,7 +27,7 @@ fun EmptyState(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            painterResource(R.drawable.frupic_notification), "",
+            painterResource(R.drawable.frupic_outlined), "",
             modifier = Modifier.size(70.dp),
             tint = MaterialTheme.colorScheme.outlineVariant
         )

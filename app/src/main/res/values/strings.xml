@@ -5,9 +5,6 @@
     <string name="copyright" translatable="false">Copyright © Sascha Hlusiak, 2012–2025.</string>
     <string name="about_frupic">About FruPic App</string>
     <string name="gotowebsite">Open in Browser</string>
-    <string name="refresh">Refresh</string>
-    <string name="details">Details</string>
-    <string name="openinbrowser">Open in Browser</string>
     <string name="frupic_in_the_market">FruPic App in Google Play…</string>
     <string name="frupic_in_the_market_long">Show FruPic App in Google Play</string>
 
@@ -19,31 +16,14 @@
     <string name="details_date">Date:</string>
     <string name="details_size">Image size:</string>
     <string name="details_not_available">(not available)</string>
-    <string name="copy_url_to_clipboard">Copy URL</string>
     <string name="copied_to_clipboard">Text copied to clipboard</string>
     <string name="no_favourites">You have no favourites</string>
 
-    <string name="gallery_posted_by">%1$s</string>
-    
-    <string name="star_frupic">Star</string>
-    <string name="mark_as_seen">Mark all seen</string>
-
-    <string name="all_frupics">All</string>
-    <string name="unseen">New</string>
-    <string name="starred">Starred</string>
-
-    <string name="please_wait">Please wait…</string>
     <string name="fetching_image_message">Fetching %1$s</string>
-    <string name="download">Download</string>
-    <string name="error_no_storage">External storage not available</string>
-       
+
     <string name="waiting_to_start">scheduled…</string>
 
-    <string name="upload">Upload</string>
-    <string name="uploading_toast">Upload in progess</string>
-    <string name="cancelled">Cancelled</string>
-    <string name="cannot_connect">Cannot establish connection</string>
-    <string name="error_reading_response">Error reading response</string>
+    <string name="uploading_toast">Upload in progress</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
 
@@ -67,11 +47,9 @@
     
     <string name="image_resize_label">Reduce image size</string>
     
-    <string name="share_link">Share Link</string>
     <string name="share_picture">Share Image</string>
         
     <string name="preferences">Settings</string>
-    <string name="preferences_cache">Cache</string>
 
     <string name="preferences_display">Display</string>
     <string name="preferences_show_animated_gifs_summary">Show animated gif images (experimental)</string>
@@ -83,21 +61,4 @@
 
     <string name="preferences_refresh_summary">Show notifications about new unseen FruPics</string>
     <string name="preferences_refresh">Check for new FruPics</string>
-
-    <string-array name="cache_labels">
-        <item>1 MB</item>
-        <item>4 MB</item>
-        <item>8 MB</item>
-        <item>16 MB</item>
-        <item>32 MB</item>
-        <item>64 MB</item>
-    </string-array>
-    <string-array name="cache_values">
-        <item>1048576</item>
-        <item>4194304</item>
-        <item>8388608</item>
-        <item>16777216</item>
-        <item>33554432</item>
-        <item>67108864</item>
-    </string-array>
 </resources>

@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#000000</color>
-    <color name="white">#ffffff</color>
-
-    <color name="brand_yellow_bright">#ffe200</color>
     <color name="brand_yellow">#E6D654</color>
 
     <color name="splash_background">#1F1F1F</color>
-    <color name="launcher_icon_background">@color/splash_background</color>
-
-    <color name="galleryControlBackground">@color/white</color>
+    <color name="launcher_icon_background">#1F1F1F</color>
 </resources>

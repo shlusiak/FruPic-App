@@ -1,6 +1,7 @@
 package de.saschahlusiak.frupic.app
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -32,7 +33,7 @@ class NotificationManager @Inject constructor(
         nm.createNotificationChannel(channel)
     }
 
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    @SuppressLint("MissingPermission")
     fun updateUnseenNotification(newFrupics: Int) {
         if (newFrupics == 0) {
             clearUnseenNotification()

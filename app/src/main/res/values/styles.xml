@@ -7,7 +7,7 @@
     </style>
 
     <style name="AppTheme.Grid">
-        <item name="android:windowBackground">@drawable/splash_background</item>
+
     </style>
 
     <style name="AppTheme.Gallery">
