@@ -38,6 +38,8 @@ import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
 import me.saket.telephoto.zoomable.rememberZoomableState
 import java.io.File
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 @Composable
@@ -133,6 +135,16 @@ private fun Hud(frupic: Frupic, modifier: Modifier = Modifier) {
                 }
             }
         }
+
+        val formatter = remember {
+            DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+        }
+
+        Text(
+            frupic.dateTime.format(formatter),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.tertiary
+        )
     }
 }
 

@@ -7,6 +7,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.File
 import java.io.Serializable
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * Returns a URL with frupic.frubar.net replaced with a cloudfront URL
@@ -39,7 +41,7 @@ data class Frupic(
     val thumbUrl: String,
 
     @ColumnInfo(name = "date")
-    val date: String,
+    val dateString: String,
 
     @ColumnInfo(name = "username")
     val username: String?,
@@ -52,6 +54,8 @@ data class Frupic(
     val url = "https://frupic.frubar.net/$id"
 
     val isAnimated get() = fullUrl.endsWith(".gif") || fullUrl.endsWith(".GIF")
+
+    val dateTime by lazy { LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) }
 
     val tags by lazy { tagsString.split("||").filter { it.isNotBlank() } }
 
