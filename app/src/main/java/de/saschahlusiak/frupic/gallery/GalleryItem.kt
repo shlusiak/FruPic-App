@@ -49,10 +49,10 @@ fun GalleryItem(
     modifier: Modifier,
     onToggleHud: () -> Unit
 ) {
-    val job = remember(frupic) { downloadManager.getJob(frupic) }
+    val job = remember(frupic.fullUrl) { downloadManager.getJob(frupic) }
     val status = job.status.collectAsStateWithLifecycle().value
 
-    DisposableEffect(frupic) {
+    DisposableEffect(frupic.fullUrl) {
         onDispose {
             downloadManager.cancel(frupic)
         }

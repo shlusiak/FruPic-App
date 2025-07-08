@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.model.Frupic
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,9 +40,8 @@ class GalleryViewModel @Inject constructor(
         super.onCleared()
     }
 
-    fun toggleStarred(frupic: Frupic) {
-        viewModelScope.launch {
-            repository.setStarred(frupic, !frupic.isStarred)
-        }
+    suspend fun toggleStarred(frupic: Frupic): Boolean {
+        repository.setStarred(frupic, !frupic.isStarred)
+        return false
     }
 }

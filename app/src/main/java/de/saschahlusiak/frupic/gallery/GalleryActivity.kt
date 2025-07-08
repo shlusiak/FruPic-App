@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +25,7 @@ import de.saschahlusiak.frupic.app.FrupicStorage
 import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.utils.AppTheme
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -47,7 +49,7 @@ class GalleryActivity : AppCompatActivity() {
                 GalleryScreen(
                     viewModel = viewModel,
                     onBack = { finish() },
-                    onToggleFavourite = { viewModel.toggleStarred(it) },
+                    onToggleFavourite = ::toggleFavourite,
                     onShare = ::onShare,
                     onDownload = ::startDownload,
                     onDetails = ::onDetails,
@@ -99,6 +101,14 @@ class GalleryActivity : AppCompatActivity() {
         analytics.logEvent("frupic_open_in_browser", null)
         intent = Intent(Intent.ACTION_VIEW, frupic.url.toUri())
         startActivity(intent)
+    }
+
+    private fun toggleFavourite(frupic: Frupic) {
+        lifecycleScope.launch {
+            if (viewModel.toggleStarred(frupic)) {
+                finish()
+            }
+        }
     }
 
     private fun onShare(frupic: Frupic) {
