@@ -83,10 +83,10 @@ class FrupicRepository @Inject constructor(
         updateBadgeCount()
     }
 
-    suspend fun setStarred(frupic: Frupic, starred: Boolean) {
+    suspend fun setStarred(frupic: Frupic, starred: Boolean): Frupic {
         val updated = frupic.copy(isStarred = starred)
-
         dao.update(updated)
+        return updated
     }
 
     private suspend fun updateBadgeCount() {

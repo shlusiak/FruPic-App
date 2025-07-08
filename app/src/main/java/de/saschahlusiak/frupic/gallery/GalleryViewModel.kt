@@ -8,8 +8,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.FrupicRepository
 import de.saschahlusiak.frupic.model.Frupic
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,18 +22,21 @@ class GalleryViewModel @Inject constructor(
 ) : ViewModel() {
     private val tag = GalleryViewModel::class.simpleName
 
-    val showStarred: Boolean = savedStateHandle["starred"] ?: false
+    private val showStarred: Boolean = savedStateHandle["starred"] ?: false
 
-    val frupics = repository.asFlow()
-        .map {
-            if (showStarred) it.filter { it.isStarred }
-            else it
-        }
-
+    val frupics = MutableStateFlow(emptyList<Frupic>())
     val initialPosition = savedStateHandle["position"] ?: 0
 
     init {
         Log.d(tag, "Initializing")
+        viewModelScope.launch {
+            frupics.value = if (showStarred) {
+                repository.asFlow().first()
+                    .filter { it.isStarred }
+            } else {
+                repository.asFlow().first()
+            }
+        }
     }
 
     override fun onCleared() {
@@ -41,7 +45,13 @@ class GalleryViewModel @Inject constructor(
     }
 
     suspend fun toggleStarred(frupic: Frupic): Boolean {
-        repository.setStarred(frupic, !frupic.isStarred)
+        val updated = repository.setStarred(frupic, !frupic.isStarred)
+        frupics.update {
+            it.toMutableList().apply {
+                add(indexOf(frupic), updated)
+                remove(frupic)
+            }.toList()
+        }
         return false
     }
 }
