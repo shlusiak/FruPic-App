@@ -21,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -56,7 +57,6 @@ fun GalleryScreen(
     onToggleFavourite: (Frupic) -> Unit,
     onShare: (Frupic) -> Unit,
     onDownload: (Frupic) -> Unit,
-    onDetails: (Frupic) -> Unit,
     onOpenInBrowser: (Frupic) -> Unit,
     enableEdgeToEdge: (Boolean) -> Unit
 ) {
@@ -85,19 +85,18 @@ fun GalleryScreen(
                 ),
                 navigationIcon = {
                     IconButton(onBack) {
-                        Icon(Icons.AutoMirrored.Default.ArrowBack, "")
+                        Icon(Icons.AutoMirrored.Default.ArrowBack, "Back")
                     }
                 },
                 actions = {
                     current?.let { current ->
-                        IconButton({ onDownload(current) }) {
-                            Icon(painterResource(R.drawable.ic_file_download), "")
+                        val colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
+
+                        IconButton({ onDownload(current) }, colors = colors) {
+                            Icon(painterResource(R.drawable.ic_file_download), "Download")
                         }
-                        IconButton({ onOpenInBrowser(current) }) {
-                            Icon(painterResource(R.drawable.ic_launch), "")
-                        }
-                        IconButton({ onDetails(current) }) {
-                            Icon(Icons.Outlined.Info, "")
+                        IconButton({ onOpenInBrowser(current) }, colors = colors) {
+                            Icon(painterResource(R.drawable.ic_launch), "Open in browser")
                         }
                     }
                 }

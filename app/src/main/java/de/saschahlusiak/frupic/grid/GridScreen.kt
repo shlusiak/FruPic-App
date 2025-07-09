@@ -18,6 +18,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -49,8 +51,9 @@ fun GridScreen(
             TopAppBar(
                 title = { Text("FruPic") },
                 actions = {
-                    IconButton(onSettings) {
-                        Icon(Icons.Default.Settings, "")
+                    IconButton(onSettings,
+                        colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.secondary)) {
+                        Icon(Icons.Default.Settings, "Settings")
                     }
                 }
             )
@@ -71,7 +74,7 @@ fun GridScreen(
 
         LaunchedEffect(needsMoreData, items.size) {
             if (needsMoreData) {
-                viewModel.needsMoreData(items.size)
+                viewModel.needsMoreData(offset = items.size)
             }
         }
 

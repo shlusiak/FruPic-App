@@ -10,7 +10,6 @@ import de.saschahlusiak.frupic.app.NotificationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -63,9 +62,9 @@ class GridViewModel @Inject constructor(
         }
     }
 
-    suspend fun needsMoreData(size: Int) {
+    suspend fun needsMoreData(offset: Int) {
         runCatching {
-            repository.fetch(size, 50)
+            repository.fetch(offset, 500)
         }
     }
 }

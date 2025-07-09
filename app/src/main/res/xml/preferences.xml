@@ -42,12 +42,12 @@
 
         <PreferenceScreen
             android:summary="@string/gotowebsite"
-            android:title="http://frupic.frubar.net..."
+            android:title="https://frupic.frubar.net..."
             app:iconSpaceReserved="false">
 
             <intent
                 android:action="android.intent.action.VIEW"
-                android:data="http://frupic.frubar.net" />
+                android:data="https://frupic.frubar.net" />
         </PreferenceScreen>
 
         <PreferenceScreen
@@ -57,13 +57,13 @@
 
             <intent
                 android:action="android.intent.action.VIEW"
-                android:data="market://details?id=de.saschahlusiak.frupic" />
+                android:data="market://details?id=de.saschahlusiak.frupic2" />
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="about"
             android:summary="@string/copyright"
             android:title="@string/about"
-            app:iconSpaceReserved="false"></PreferenceScreen>
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 </PreferenceScreen>

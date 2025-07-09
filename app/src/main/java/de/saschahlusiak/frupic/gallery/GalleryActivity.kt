@@ -22,7 +22,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.FrupicStorage
-import de.saschahlusiak.frupic.detail.createDetailDialog
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.utils.AppTheme
 import kotlinx.coroutines.launch
@@ -52,7 +51,6 @@ class GalleryActivity : AppCompatActivity() {
                     onToggleFavourite = ::toggleFavourite,
                     onShare = ::onShare,
                     onDownload = ::startDownload,
-                    onDetails = ::onDetails,
                     onOpenInBrowser = ::onOpenInBrowser
                 ) { forceDark ->
                     if (forceDark)
@@ -90,11 +88,6 @@ class GalleryActivity : AppCompatActivity() {
             getString(R.string.fetching_image_message, filename),
             Toast.LENGTH_SHORT
         ).show()
-    }
-
-    private fun onDetails(frupic: Frupic) {
-        analytics.logEvent("frupic_details", null)
-        createDetailDialog(this, storage, frupic).show()
     }
 
     private fun onOpenInBrowser(frupic: Frupic) {

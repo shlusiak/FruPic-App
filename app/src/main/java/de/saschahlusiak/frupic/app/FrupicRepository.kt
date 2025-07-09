@@ -34,7 +34,7 @@ class FrupicRepository @Inject constructor(
      * @return true on success, false if failed
      */
     @MainThread
-    suspend fun synchronize(base: Int = 0, limit: Int = 100): Boolean {
+    suspend fun synchronize(base: Int = 0, limit: Int = 200): Boolean {
         // skip if already synchronizing
         if (_synchronizing.value == true)
             return true
