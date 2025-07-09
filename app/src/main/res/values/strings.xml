@@ -18,6 +18,7 @@
     <string name="details_not_available">(not available)</string>
     <string name="copied_to_clipboard">Text copied to clipboard</string>
     <string name="no_favourites">You have no favourites</string>
+    <string name="all">All</string>
 
     <string name="fetching_image_message">Fetching %1$s</string>
 

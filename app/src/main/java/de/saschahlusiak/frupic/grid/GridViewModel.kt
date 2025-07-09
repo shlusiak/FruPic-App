@@ -12,6 +12,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,13 +27,27 @@ class GridViewModel @Inject constructor(
     val starred = MutableStateFlow(false)
     val synchronizing = repository.synchronizing
 
-    val fruPics = repository.asFlow()
-        .combine(starred) { frupics, starred ->
-            if (starred)
-                frupics.filter { it.isStarred }
-            else
-                frupics
-        }.flowOn(Dispatchers.Default)
+    val currentFilter = MutableStateFlow<String?>(null)
+
+    val fruPics = combine(repository.asFlow(), starred) { frupics, starred ->
+        if (starred)
+            frupics.filter { it.isStarred }
+        else
+            frupics
+    }.flowOn(Dispatchers.Default)
+
+    val filtered = fruPics.combine(currentFilter) { frupics, filter ->
+        if (filter == null) frupics else frupics.filter { pic ->
+            pic.username == filter
+        }
+    }.flowOn(Dispatchers.Default)
+
+    val usernames = fruPics.map { list ->
+        listOf(null to list.size) + list
+            .groupBy { it.username?.ifBlank { null } }
+            .map { (username, value) -> username to value.size }
+            .sortedByDescending { (username, size) -> size }
+    }.flowOn(Dispatchers.Default)
 
     init {
         Log.d(tag, "Initializing")
@@ -49,6 +64,10 @@ class GridViewModel @Inject constructor(
             repository.markAllAsSeen()
             notificationManager.clearUnseenNotification()
         }
+    }
+
+    fun setFilter(username: String?) {
+        currentFilter.value = username
     }
 
     fun toggleShowStarred() {

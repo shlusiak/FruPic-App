@@ -12,9 +12,14 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,7 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,15 +58,17 @@ fun GridScreen(
             TopAppBar(
                 title = { Text("FruPic") },
                 actions = {
-                    IconButton(onSettings,
-                        colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.secondary)) {
+                    IconButton(
+                        onSettings,
+                        colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
+                    ) {
                         Icon(Icons.Default.Settings, "Settings")
                     }
                 }
             )
         }
     ) { contentPadding ->
-        val items = viewModel.fruPics.collectAsStateWithLifecycle(emptyList()).value
+        val items = viewModel.filtered.collectAsStateWithLifecycle(emptyList()).value
         val gridState = rememberLazyGridState()
         val starred by viewModel.starred.collectAsStateWithLifecycle()
         val needsMoreData by remember(items.size) {
@@ -147,7 +156,56 @@ fun GridScreen(
                     ""
                 )
             }
+
+            val current by viewModel.currentFilter.collectAsStateWithLifecycle()
+            val options by viewModel.usernames.collectAsStateWithLifecycle(emptyList())
+
+            FilterMenu(
+                current = current,
+                all = options,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 8.dp)
+                    .padding(contentPadding),
+            ) {
+                viewModel.setFilter(it)
+            }
         }
     }
 }
 
+@Composable
+private fun FilterMenu(
+    current: String?,
+    all: List<Pair<String?, Int>>,
+    modifier: Modifier,
+    onSelect: (String?) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box(modifier = modifier) {
+        ElevatedFilterChip(
+            selected = current != null,
+            onClick = { expanded = !expanded },
+            colors = FilterChipDefaults.elevatedFilterChipColors(),
+            label = {
+                Text(current ?: stringResource(R.string.all))
+                Icon(Icons.Default.KeyboardArrowUp, "")
+            }
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            all.forEach { (label, count) ->
+                DropdownMenuItem(
+                    text = { Text(label ?: stringResource(R.string.all)) },
+                    onClick = {
+                        onSelect(label)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
