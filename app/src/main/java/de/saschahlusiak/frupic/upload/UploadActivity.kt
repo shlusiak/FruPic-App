@@ -1,5 +1,6 @@
 package de.saschahlusiak.frupic.upload
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Window
 import android.widget.Toast
@@ -10,6 +11,7 @@ import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
+import de.saschahlusiak.frupic.Feature
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.utils.AppTheme
 import kotlinx.coroutines.launch
@@ -43,6 +45,11 @@ class UploadActivity : AppCompatActivity() {
             }
 
             viewModel.submitToService(username, tags, resized)
+
+            if (Feature.UPLOAD_STATUS) {
+                val intent = Intent(this@UploadActivity, StatusActivity::class.java)
+                startActivity(intent)
+            }
 
             Toast.makeText(this@UploadActivity, R.string.uploading_toast, Toast.LENGTH_LONG).show()
             finish()

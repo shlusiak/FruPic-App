@@ -2,6 +2,7 @@ package de.saschahlusiak.frupic.app
 
 import android.util.Log
 import de.saschahlusiak.frupic.BuildConfig
+import de.saschahlusiak.frupic.Feature
 import de.saschahlusiak.frupic.model.Frupic
 import de.saschahlusiak.frupic.model.cloudfront
 import de.saschahlusiak.frupic.utils.toList
@@ -126,15 +127,15 @@ class FreamwareApi @Inject constructor() {
         }
     }
 
-    suspend fun uploadImage(source: InputStream, username: String, tags: String, listener: OnProgressListener?) {
+    suspend fun uploadImage(source: InputStream, username: String, tags: String, listener: OnProgressListener) {
         val imageData = source.use { it.readBytes() }
 
-        if (false && BuildConfig.DEBUG) {
+        if (Feature.FAKE_UPLOAD) {
             // TODO: FOR DEBUG
             Log.w(tag, "FAKE UPLOAD!!! NOT SENDING TO FRUPIC!!")
             delay(1000)
             (1..100).forEach {
-                listener?.invoke(it, 100)
+                listener.invoke(it, 100)
                 delay(50)
             }
             return
@@ -185,7 +186,7 @@ class FreamwareApi @Inject constructor() {
 
             launch {
                 for (copied in progress) {
-                    listener?.invoke(copied, size)
+                    listener.invoke(copied, size)
                 }
             }
 

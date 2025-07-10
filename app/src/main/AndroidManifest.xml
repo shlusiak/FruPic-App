@@ -70,7 +70,6 @@
         <activity
             android:name="de.saschahlusiak.frupic.upload.UploadActivity"
             android:exported="true"
-            android:label="@string/upload_to_frupic"
             android:theme="@style/AppTheme.ActivityDialog">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -80,6 +79,9 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="de.saschahlusiak.frupic.upload.StatusActivity"
+            android:theme="@style/AppTheme.ActivityDialog" />
 
         <service
             android:name=".upload.UploadService"

@@ -75,11 +75,11 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.animation:animation:1.8.3")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8")
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
 
     implementation("io.coil-kt:coil:2.7.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("me.saket.telephoto:zoomable-image-coil:0.9.0")
+    implementation("me.saket.telephoto:zoomable-image-coil:0.16.0")
 
     // Room for data persisting
     implementation("androidx.room:room-runtime:2.7.2")

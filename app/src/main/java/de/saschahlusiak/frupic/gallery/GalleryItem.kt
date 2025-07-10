@@ -37,7 +37,6 @@ import java.util.Locale
 fun GalleryItem(
     frupic: Frupic,
     downloadManager: FrupicDownloadManager,
-    hudVisible: Boolean,
     contentPadding: PaddingValues,
     modifier: Modifier,
     onToggleHud: () -> Unit
