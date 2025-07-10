@@ -90,12 +90,10 @@ fun GalleryScreen(
                 },
                 actions = {
                     current?.let { current ->
-                        val colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
-
-                        IconButton({ onDownload(current) }, colors = colors) {
+                        IconButton({ onDownload(current) }) {
                             Icon(painterResource(R.drawable.ic_file_download), "Download")
                         }
-                        IconButton({ onOpenInBrowser(current) }, colors = colors) {
+                        IconButton({ onOpenInBrowser(current) }) {
                             Icon(painterResource(R.drawable.ic_launch), "Open in browser")
                         }
                     }

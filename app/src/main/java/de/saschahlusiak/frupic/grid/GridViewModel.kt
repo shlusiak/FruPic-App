@@ -27,26 +27,11 @@ class GridViewModel @Inject constructor(
     val starred = MutableStateFlow(false)
     val synchronizing = repository.synchronizing
 
-    val currentFilter = MutableStateFlow<String?>(null)
-
     val fruPics = combine(repository.asFlow(), starred) { frupics, starred ->
         if (starred)
             frupics.filter { it.isStarred }
         else
             frupics
-    }.flowOn(Dispatchers.Default)
-
-    val filtered = fruPics.combine(currentFilter) { frupics, filter ->
-        if (filter == null) frupics else frupics.filter { pic ->
-            pic.username == filter
-        }
-    }.flowOn(Dispatchers.Default)
-
-    val usernames = fruPics.map { list ->
-        listOf(null to list.size) + list
-            .groupBy { it.username?.ifBlank { null } }
-            .map { (username, value) -> username to value.size }
-            .sortedByDescending { (username, size) -> size }
     }.flowOn(Dispatchers.Default)
 
     init {
@@ -64,10 +49,6 @@ class GridViewModel @Inject constructor(
             repository.markAllAsSeen()
             notificationManager.clearUnseenNotification()
         }
-    }
-
-    fun setFilter(username: String?) {
-        currentFilter.value = username
     }
 
     fun toggleShowStarred() {

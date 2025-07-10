@@ -33,6 +33,7 @@
     <string name="uploading_toast">Bilder werden hochgeladen</string>
     <string name="cancel">Abbrechen</string>
     <string name="ok">OK</string>
+    <string name="upload">Upload</string>
 
     <string name="upload_to_frupic">FruPic</string>
     <string name="upload_posted_by_label">Benutzername</string>

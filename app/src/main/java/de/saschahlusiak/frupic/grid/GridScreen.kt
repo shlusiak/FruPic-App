@@ -58,17 +58,14 @@ fun GridScreen(
             TopAppBar(
                 title = { Text("FruPic") },
                 actions = {
-                    IconButton(
-                        onSettings,
-                        colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
-                    ) {
+                    IconButton(onSettings) {
                         Icon(Icons.Default.Settings, "Settings")
                     }
                 }
             )
         }
     ) { contentPadding ->
-        val items = viewModel.filtered.collectAsStateWithLifecycle(emptyList()).value
+        val items = viewModel.fruPics.collectAsStateWithLifecycle(emptyList()).value
         val gridState = rememberLazyGridState()
         val starred by viewModel.starred.collectAsStateWithLifecycle()
         val needsMoreData by remember(items.size) {
@@ -155,20 +152,6 @@ fun GridScreen(
                     Icons.Default.Add,
                     ""
                 )
-            }
-
-            val current by viewModel.currentFilter.collectAsStateWithLifecycle()
-            val options by viewModel.usernames.collectAsStateWithLifecycle(emptyList())
-
-            FilterMenu(
-                current = current,
-                all = options,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(start = 8.dp)
-                    .padding(contentPadding),
-            ) {
-                viewModel.setFilter(it)
             }
         }
     }

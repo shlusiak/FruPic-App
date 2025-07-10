@@ -11,6 +11,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -132,6 +133,7 @@ fun UploadScreen(
                     value = username,
                     onValueChange = { username = it },
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                     label = { Text(stringResource(R.string.upload_posted_by_label)) }
                 )
 
@@ -139,6 +141,7 @@ fun UploadScreen(
                     value = tags,
                     onValueChange = { tags = it },
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                     label = { Text(stringResource(R.string.upload_tags_hint)) }
                 )
             }
@@ -189,15 +192,22 @@ fun UploadScreen(
 
                 Spacer(Modifier.weight(1f))
 
-                TextButton(onDismiss) {
-                    Text(stringResource(R.string.cancel))
-                }
-
-                Button(
-                    onClick = { onUpload(username, tags, resize) },
-                    enabled = okEnabled
+                Row(
+                    horizontalArrangement = spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.width(IntrinsicSize.Min)
                 ) {
-                    Text(stringResource(R.string.ok))
+                    TextButton(onDismiss, Modifier.weight(1f)) {
+                        Text(stringResource(R.string.cancel))
+                    }
+
+                    Button(
+                        onClick = { onUpload(username, tags, resize) },
+                        enabled = okEnabled,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.upload))
+                    }
                 }
             }
         }
