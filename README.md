@@ -1,7 +1,13 @@
 <p align="center"><a href="https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic2" target="_blank"><img src="stuff/frupic_huge.png" width="150"></a></p> 
 <h2 align="center"><b>FruPic-App</b></h2>
 <h4 align="center">Android App for <a href="https://frupic.frubar.net">https://frupic.frubar.net</a></h4>
-  
+
+<p align="center">
+    Direct download: 
+    <a href="https://github.com/shlusiak/FruPic-App/releases/download/2.0.0/frupic-2.0.0.apk">
+        frupic-2.0.0.apk
+    </a>
+</p>
 <p align="center">
     <a href="https://play.google.com/store/apps/details?id=de.saschahlusiak.frupic2" target="_blank">
         <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="100"/>
