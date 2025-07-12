@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.model.Frupic
+import de.saschahlusiak.frupic.model.cloudfront
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,7 +109,7 @@ fun GridScreen(
                     val item = items[it]
 
                     GridItem(
-                        data = item.thumbUrl,
+                        data = item.thumbUrl.cloudfront,
                         isStarred = item.isStarred,
                         modifier = Modifier.animateItem()
                     ) {
