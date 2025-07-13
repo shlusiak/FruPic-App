@@ -51,6 +51,7 @@ class GalleryActivity : AppCompatActivity() {
                     onToggleFavourite = ::toggleFavourite,
                     onShare = ::onShare,
                     onDownload = ::startDownload,
+                    onReport = ::reportFrupic,
                     onOpenInBrowser = ::onOpenInBrowser
                 ) { forceDark ->
                     if (forceDark)
@@ -102,6 +103,10 @@ class GalleryActivity : AppCompatActivity() {
                 finish()
             }
         }
+    }
+
+    private fun reportFrupic(frupic: Frupic) {
+        // TODO
     }
 
     private fun onShare(frupic: Frupic) {

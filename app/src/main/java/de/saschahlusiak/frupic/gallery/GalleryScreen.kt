@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.saschahlusiak.frupic.Feature
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.grid.EmptyState
 import de.saschahlusiak.frupic.grid.StarredButton
@@ -56,6 +58,7 @@ fun GalleryScreen(
     onShare: (Frupic) -> Unit,
     onDownload: (Frupic) -> Unit,
     onOpenInBrowser: (Frupic) -> Unit,
+    onReport: (Frupic) -> Unit,
     enableEdgeToEdge: (Boolean) -> Unit
 ) {
     val items = viewModel.frupics.collectAsStateWithLifecycle(emptyList()).value
@@ -88,6 +91,14 @@ fun GalleryScreen(
                 },
                 actions = {
                     current?.let { current ->
+                        if (Feature.REPORT) {
+                            IconButton(
+                                { onReport(current) },
+                                colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                            ) {
+                                Icon(painterResource(R.drawable.ic_error), "Report")
+                            }
+                        }
                         IconButton({ onDownload(current) }) {
                             Icon(painterResource(R.drawable.ic_file_download), "Download")
                         }
