@@ -61,13 +61,14 @@ fun StarredButton(
         ) {
             AnimatedContent(
                 checked,
+                modifier = Modifier
+                    .padding(end = 20.dp, bottom = 20.dp),
                 transitionSpec = { scaleIn().togetherWith(scaleOut()) }
             ) { starred ->
                 Icon(
                     if (starred) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     "",
                     modifier = Modifier
-                        .padding(end = 20.dp, bottom = 20.dp)
                         .size(42.dp)
                 )
             }
