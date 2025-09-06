@@ -16,7 +16,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
 
-typealias OnProgressListener = (copied: Int, max: Int) -> Unit
+typealias OnProgressListener = (copied: Long, max: Long) -> Unit
 
 /**
  * Wrapper for API calls to https://api.freamware.net or related.
@@ -82,11 +82,11 @@ class FreamwareApi @Inject constructor() {
         val (connection, total) = withContext(Dispatchers.IO) {
             val connection = url.openConnection() as HttpURLConnection
             val total = connection.contentLength
-            connection to total
+            connection to total.toLong()
         }
 
         coroutineScope {
-            val progress = Channel<Int>(capacity = Channel.CONFLATED)
+            val progress = Channel<Long>(capacity = Channel.CONFLATED)
 
             launch {
                 for (copied in progress) {
@@ -100,7 +100,7 @@ class FreamwareApi @Inject constructor() {
                         FileOutputStream(target).use { outputStream ->
                             val buffer = ByteArray(8192)
                             var read: Int
-                            var copied = 0
+                            var copied = 0L
 
                             do {
                                 read = inputStream.read(buffer)
@@ -134,7 +134,7 @@ class FreamwareApi @Inject constructor() {
             // TODO: FOR DEBUG
             Log.w(tag, "FAKE UPLOAD!!! NOT SENDING TO FRUPIC!!")
             delay(1000)
-            (1..100).forEach {
+            (1..100L).forEach {
                 listener.invoke(it, 100)
                 delay(50)
             }
@@ -159,7 +159,7 @@ class FreamwareApi @Inject constructor() {
         }
         val filename = "frup0rn.png"
         val footer = lineEnd + twoHyphens + boundary + twoHyphens + lineEnd
-        val size = imageData.size
+        val size = imageData.size.toLong()
 
         Log.d(tag, "Connecting to ${UPLOAD_PICTURE_ENDPOINT} for upload")
         val connection = withContext(Dispatchers.IO) {
@@ -182,7 +182,7 @@ class FreamwareApi @Inject constructor() {
         }
 
         coroutineScope {
-            val progress = Channel<Int>(capacity = Channel.CONFLATED)
+            val progress = Channel<Long>(capacity = Channel.CONFLATED)
 
             launch {
                 for (copied in progress) {
@@ -199,7 +199,7 @@ class FreamwareApi @Inject constructor() {
                     val dataStream = ByteArrayInputStream(imageData)
                     val data = ByteArray(16384)
                     var nRead: Int
-                    var written = 0
+                    var written = 0L
 
                     connection.outputStream.use { output ->
                         val dos = DataOutputStream(output)

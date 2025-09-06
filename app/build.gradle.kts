@@ -54,18 +54,18 @@ dependencies {
     implementation("androidx.annotation:annotation:1.9.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("com.google.android.material:material:1.12.0")
+    implementation("com.google.android.material:material:1.13.0")
 
     // https://firebase.google.com/support/release-notes/android
-    implementation("com.google.firebase:firebase-analytics:22.5.0")
-    implementation("com.google.firebase:firebase-crashlytics:19.4.4")
+    implementation("com.google.firebase:firebase-analytics:23.0.0")
+    implementation("com.google.firebase:firebase-crashlytics:20.0.1")
 
     // Lifecycle
-    implementation("androidx.lifecycle:lifecycle-process:2.9.1")
+    implementation("androidx.lifecycle:lifecycle-process:2.9.3")
 
     // Compose
-    implementation(platform("androidx.compose:compose-bom:2025.06.01"))
-    implementation("androidx.compose.ui:ui-tooling:1.8.3")
+    implementation(platform("androidx.compose:compose-bom:2025.08.01"))
+    implementation("androidx.compose.ui:ui-tooling:1.9.0")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.compose.ui:ui")
@@ -82,8 +82,8 @@ dependencies {
     ksp("androidx.room:room-compiler:2.7.2")
 
     // Dagger/Hilt
-    ksp("com.google.dagger:hilt-compiler:2.56.2")
-    implementation("com.google.dagger:hilt-android:2.56.2")
+    ksp("com.google.dagger:hilt-compiler:2.57.1")
+    implementation("com.google.dagger:hilt-android:2.57.1")
 
     // for launcher badges
     implementation("me.leolin:ShortcutBadger:1.1.22@aar")

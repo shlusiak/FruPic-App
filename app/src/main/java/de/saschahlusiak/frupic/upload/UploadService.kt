@@ -95,7 +95,7 @@ class UploadService : IntentService("UploadService") {
         var lastUpdate = 0L
 
         try {
-            api.uploadImage(image, username, tags) { written: Int, size: Int ->
+            api.uploadImage(image, username, tags) { written: Long, size: Long ->
                 Log.d(tag, "Progress: $written($size)")
                 // we have to rate-limit updates to the notification otherwise the final one may not come through
                 if (System.currentTimeMillis() - lastUpdate > 500) {

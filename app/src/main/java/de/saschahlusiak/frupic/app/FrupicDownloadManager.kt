@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 sealed interface JobStatus {
     data object Scheduled : JobStatus
-    data class InProgress(val progress: Int, val max: Int) : JobStatus
+    data class InProgress(val progress: Long, val max: Long) : JobStatus
     data class Success(val file: File) : JobStatus
     data object Cancelled : JobStatus
     data object Failed : JobStatus

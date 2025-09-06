@@ -26,6 +26,7 @@ import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.FrupicDownloadManager
 import de.saschahlusiak.frupic.app.JobStatus
 import de.saschahlusiak.frupic.model.Frupic
+import de.saschahlusiak.frupic.utils.sizeString
 import me.saket.telephoto.zoomable.ZoomSpec
 import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
@@ -123,9 +124,9 @@ private fun Progress(status: JobStatus.InProgress?) {
 
         val text = String.format(
             Locale.getDefault(),
-            "%dkb / %dkb (%d%%)",
-            status.progress / 1024,
-            status.max / 1024,
+            "%s / %s (%d%%)",
+            status.progress.sizeString(),
+            status.max.sizeString(),
             if (status.max > 0) status.progress * 100 / status.max else 0
         )
 

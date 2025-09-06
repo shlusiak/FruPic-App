@@ -53,16 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.utils.asFlow
-
-@Stable
-fun Long.sizeString(): String {
-    val bytes = this
-    if (bytes < 50000) return "$bytes bytes"
-    val kb = this / 1024
-    if (kb < 3000) return "$kb KB"
-    val mb = this / 1024
-    return "$mb MB"
-}
+import de.saschahlusiak.frupic.utils.sizeString
 
 @Composable
 fun UploadScreen(
