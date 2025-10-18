@@ -5,5 +5,5 @@ object Feature {
 
     val UPLOAD_STATUS = false
 
-    val REPORT = false
+    val REPORT = BuildConfig.DEBUG
 }

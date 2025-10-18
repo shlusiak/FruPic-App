@@ -15,7 +15,14 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Launch
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.Launch
+import androidx.compose.material.icons.filled.ReportGmailerrorred
+import androidx.compose.material.icons.filled.ReportProblem
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -96,14 +103,15 @@ fun GalleryScreen(
                                 { onReport(current) },
                                 colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error)
                             ) {
-                                Icon(painterResource(R.drawable.ic_error), "Report")
+                                Icon(Icons.Outlined.Report, "Report")
                             }
                         }
                         IconButton({ onDownload(current) }) {
-                            Icon(painterResource(R.drawable.ic_file_download), "Download")
+                            Icon(Icons.Default.FileDownload, "Download")
                         }
+
                         IconButton({ onOpenInBrowser(current) }) {
-                            Icon(painterResource(R.drawable.ic_launch), "Open in browser")
+                            Icon(Icons.AutoMirrored.Filled.Launch, "Open in browser")
                         }
                     }
                 }

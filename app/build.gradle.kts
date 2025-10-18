@@ -29,7 +29,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     lint {
@@ -58,32 +58,33 @@ dependencies {
 
     // https://firebase.google.com/support/release-notes/android
     implementation("com.google.firebase:firebase-analytics:23.0.0")
-    implementation("com.google.firebase:firebase-crashlytics:20.0.1")
+    implementation("com.google.firebase:firebase-crashlytics:20.0.3")
 
     // Lifecycle
-    implementation("androidx.lifecycle:lifecycle-process:2.9.3")
+    implementation("androidx.lifecycle:lifecycle-process:2.9.4")
 
     // Compose
-    implementation(platform("androidx.compose:compose-bom:2025.08.01"))
-    compileOnly("androidx.compose.ui:ui-tooling:1.9.0")
+    implementation(platform("androidx.compose:compose-bom:2025.10.00"))
+    compileOnly("androidx.compose.ui:ui-tooling:1.9.3")
     compileOnly("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.activity:activity-compose:1.10.1")
+    implementation("androidx.activity:activity-compose:1.11.0")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
+    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
     implementation("io.coil-kt:coil:2.7.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("me.saket.telephoto:zoomable-image-coil:0.16.0")
+    implementation("me.saket.telephoto:zoomable-image-coil:0.18.0")
 
     // Room for data persisting
-    implementation("androidx.room:room-runtime:2.7.2")
-    implementation("androidx.room:room-ktx:2.7.2")
-    ksp("androidx.room:room-compiler:2.7.2")
+    implementation("androidx.room:room-runtime:2.8.2")
+    implementation("androidx.room:room-ktx:2.8.2")
+    ksp("androidx.room:room-compiler:2.8.2")
 
     // Dagger/Hilt
-    ksp("com.google.dagger:hilt-compiler:2.57.1")
-    implementation("com.google.dagger:hilt-android:2.57.1")
+    ksp("com.google.dagger:hilt-compiler:2.57.2")
+    implementation("com.google.dagger:hilt-android:2.57.2")
 
     // for launcher badges
     implementation("me.leolin:ShortcutBadger:1.1.22@aar")
