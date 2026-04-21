@@ -1,11 +1,12 @@
 plugins {
-    id("com.android.application")
     id("kotlin-android")
-    id("dagger.hilt.android.plugin")
-    id("com.google.devtools.ksp")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
+
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 repositories {
@@ -51,41 +52,40 @@ android {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.9.1")
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("com.google.android.material:material:1.13.0")
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.material)
 
     // https://firebase.google.com/support/release-notes/android
-    implementation("com.google.firebase:firebase-analytics:23.0.0")
-    implementation("com.google.firebase:firebase-crashlytics:20.0.3")
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     // Lifecycle
-    implementation("androidx.lifecycle:lifecycle-process:2.9.4")
+    implementation(libs.androidx.lifecycle.process)
 
     // Compose
-    implementation(platform("androidx.compose:compose-bom:2025.10.00"))
-    compileOnly("androidx.compose.ui:ui-tooling:1.9.3")
-    compileOnly("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.activity:activity-compose:1.11.0")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
-    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
+    implementation(platform(libs.androidx.compose.bom))
+    compileOnly(libs.androidx.compose.ui.tooling)
+    compileOnly(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended.android)
+    implementation(libs.androidx.hilt.navigation.compose)
 
-    implementation("io.coil-kt:coil:2.7.0")
-    implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("me.saket.telephoto:zoomable-image-coil:0.18.0")
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
+    implementation(libs.zoomable.image.coil)
 
     // Room for data persisting
-    implementation("androidx.room:room-runtime:2.8.2")
-    implementation("androidx.room:room-ktx:2.8.2")
-    ksp("androidx.room:room-compiler:2.8.2")
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     // Dagger/Hilt
-    ksp("com.google.dagger:hilt-compiler:2.57.2")
-    implementation("com.google.dagger:hilt-android:2.57.2")
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.android)
 
     // for launcher badges
-    implementation("me.leolin:ShortcutBadger:1.1.22@aar")
+    implementation(libs.shortcutbadger)
 }
