@@ -20,7 +20,7 @@ android {
         targetSdk = 36
 
         versionCode = 41
-        versionName = "2.0.1"
+        versionName = "2.0.2"
     }
     buildTypes {
         release {
@@ -37,13 +37,6 @@ android {
         compose = true
         buildConfig = true
         viewBinding = false
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlin {
-        jvmToolchain(17)
     }
 }
 
