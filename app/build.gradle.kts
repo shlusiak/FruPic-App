@@ -1,6 +1,4 @@
 plugins {
-    id("kotlin-android")
-
     alias(libs.plugins.android.application)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
