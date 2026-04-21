@@ -1,8 +1,6 @@
 package de.saschahlusiak.frupic.app
 
 import android.util.Log
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import de.saschahlusiak.frupic.model.Frupic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -28,8 +26,6 @@ class DownloadJob(
 
 class FrupicDownloadManager @Inject constructor(
     private val storage: FrupicStorage,
-    private val crashlytics: FirebaseCrashlytics,
-    private val analytics: FirebaseAnalytics
 ) {
     private val scope = CoroutineScope(Dispatchers.Main)
     private val allJobs: MutableMap<Frupic, DownloadJob> =
@@ -70,9 +66,7 @@ class FrupicDownloadManager @Inject constructor(
             Log.d(tag, "Job #${frupic.id} cancelled")
             job.status.value = JobStatus.Cancelled
         } catch (e: Exception) {
-            crashlytics.recordException(e)
             e.printStackTrace()
-            analytics.logEvent("frupic_download_failed", null)
 
             Log.d(tag, "Job #${frupic.id} failed")
             job.status.value = JobStatus.Failed

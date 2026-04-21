@@ -16,8 +16,6 @@ import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.BuildConfig
 import de.saschahlusiak.frupic.R
@@ -32,13 +30,7 @@ class GalleryActivity : AppCompatActivity() {
     private val viewModel: GalleryViewModel by viewModels()
 
     @Inject
-    lateinit var analytics: FirebaseAnalytics
-
-    @Inject
     lateinit var storage: FrupicStorage
-
-    @Inject
-    lateinit var crashlytics: FirebaseCrashlytics
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,8 +63,6 @@ class GalleryActivity : AppCompatActivity() {
     private fun startDownload(frupic: Frupic) {
         val filename = frupic.filename
 
-        analytics.logEvent("frupic_download", null)
-
         /* Make sure, destination directory exists */
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs()
         val dm = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
@@ -92,7 +82,6 @@ class GalleryActivity : AppCompatActivity() {
     }
 
     private fun onOpenInBrowser(frupic: Frupic) {
-        analytics.logEvent("frupic_open_in_browser", null)
         intent = Intent(Intent.ACTION_VIEW, frupic.url.toUri())
         startActivity(intent)
     }
@@ -112,7 +101,6 @@ class GalleryActivity : AppCompatActivity() {
     private fun onShare(frupic: Frupic) {
         val file = storage.getFile(frupic)
         if (file.exists()) {
-            analytics.logEvent("frupic_share", null)
             val uri = FileProvider.getUriForFile(
                 this,
                 BuildConfig.APPLICATION_ID + ".provider",

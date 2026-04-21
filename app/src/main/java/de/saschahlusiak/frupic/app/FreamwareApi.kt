@@ -235,7 +235,6 @@ class FreamwareApi @Inject constructor() {
         }
     }
 
-
     companion object {
         private const val GET_PICTURE_ENDPOINT = "https://api.freamware.net/2.0/get.picture"
         private const val UPLOAD_PICTURE_ENDPOINT = "https://api.freamware.net/2.0/upload.picture"

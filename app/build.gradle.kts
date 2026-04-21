@@ -5,8 +5,6 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.services)
-    alias(libs.plugins.firebase.crashlytics)
 }
 
 repositories {
@@ -55,10 +53,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.material)
-
-    // https://firebase.google.com/support/release-notes/android
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
 
     // Lifecycle
     implementation(libs.androidx.lifecycle.process)

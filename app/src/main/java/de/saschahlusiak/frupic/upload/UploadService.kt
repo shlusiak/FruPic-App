@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import de.saschahlusiak.frupic.R
 import de.saschahlusiak.frupic.app.FreamwareApi
@@ -30,9 +29,6 @@ class UploadService : IntentService("UploadService") {
 
 	@Inject
     lateinit var repository: FrupicRepository
-
-	@Inject
-    lateinit var analytics: FirebaseAnalytics
 
     /**
      * Per running instance of this service we count the number of frupics for the notification.
@@ -125,14 +121,11 @@ class UploadService : IntentService("UploadService") {
             val bundle = Bundle().apply {
                 putString("error", error)
             }
-            analytics.logEvent("upload_error", bundle)
-
             Log.e(tag, "error: $error")
 
             failed++
             /* TODO: handle error gracefully */
         } else {
-            analytics.logEvent("upload_success", null)
             Log.i(tag, "Upload successful: ${file.absolutePath}")
         }
 
